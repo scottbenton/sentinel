@@ -75,9 +75,9 @@ export class MeetingsRepository {
         .in("organization_id", organizationIds);
 
       if (before) {
-        query.lt("meeting_date", date);
+        query.lt("meeting_date", date.toISOString());
       } else {
-        query.gte("meeting_date", date);
+        query.gte("meeting_date", date.toISOString());
       }
 
       query
@@ -108,12 +108,14 @@ export class MeetingsRepository {
       } else if (payload.eventType === "DELETE" && payload.old.id) {
         onMeetingChanges([], [payload.old.id], false);
       } else {
-        onError(getRepositoryError(
-          "Unknown event type",
-          ErrorVerb.Read,
-          ErrorNoun.Meetings,
-          true,
-        ));
+        onError(
+          getRepositoryError(
+            "Unknown event type",
+            ErrorVerb.Read,
+            ErrorNoun.Meetings,
+            true,
+          ),
+        );
       }
     };
 
@@ -128,9 +130,7 @@ export class MeetingsRepository {
     );
   }
 
-  public static createMeeting(
-    meetingDTO: InsertMeetingDTO,
-  ): Promise<number> {
+  public static createMeeting(meetingDTO: InsertMeetingDTO): Promise<number> {
     return new Promise((resolve, reject) => {
       this.meetings()
         .insert(meetingDTO)

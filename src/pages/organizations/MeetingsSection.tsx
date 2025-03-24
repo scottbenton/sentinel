@@ -15,12 +15,26 @@ import { Link } from "wouter";
 import { pageConfig } from "../pageConfig";
 import { useDashboardId } from "@/hooks/useDashboardId";
 import { useOrganizationId } from "@/hooks/useOrganizationId";
+import { useMeetingsStore } from "@/stores/meetings.store";
+import { useCurrentOrganization } from "@/stores/organizations.store";
 
 export function MeetingsSection() {
   const isAdmin = useIsDashboardAdmin();
 
   const dashboardId = useDashboardId();
   const organizationId = useOrganizationId();
+
+  const lastSynced = useCurrentOrganization((org) => org?.lastSynced ?? null);
+
+  const upcomingMeetings = useMeetingsStore((store) => {
+    return Object.entries(store.futureMeetings)
+      .filter(([, meeting]) => meeting.organizationId === organizationId)
+      .sort(
+        ([, a], [, b]) => a.meetingDate.getTime() - b.meetingDate.getTime(),
+      );
+  });
+
+  console.debug(upcomingMeetings);
 
   return (
     <Box>
@@ -33,7 +47,8 @@ export function MeetingsSection() {
         <Box>
           <Heading>Organization Meetings</Heading>
           <Text>
-            <Span color="fg.muted">Last Synced: </Span> 2 days ago
+            <Span color="fg.muted">Last Synced: </Span>
+            {getLastSyncedText(lastSynced)}
           </Text>
         </Box>
         {isAdmin && (
@@ -55,6 +70,25 @@ export function MeetingsSection() {
       <Heading size="lg" mt={4}>
         Upcoming Meetings
       </Heading>
+      <Box display="grid" gridTemplateColumns="1fr" gap={4} mt={4}>
+        {upcomingMeetings.length > 0 ? (
+          upcomingMeetings.map(([meetingId, meeting]) => (
+            <Box key={meetingId} p={4} borderWidth="1px" borderRadius="lg">
+              <Heading size="md">{meeting.name}</Heading>
+              <Text>
+                <Span color="fg.muted">Date: </Span>
+                {meeting.meetingDate.toDateString()}
+              </Text>
+              <Text>
+                <Span color="fg.muted">Created By: </Span>
+                {meeting.createdBy ?? "Unknown"}
+              </Text>
+            </Box>
+          ))
+        ) : (
+          <Text>No upcoming meetings.</Text>
+        )}
+      </Box>
       <Accordion.Root mt={8} collapsible variant="plain" mx={-2} w="auto">
         <Accordion.Item value={"past-meetings"}>
           <Accordion.ItemTrigger
@@ -79,4 +113,8 @@ export function MeetingsSection() {
       </Accordion.Root>
     </Box>
   );
+}
+
+function getLastSyncedText(lastSynced: Date | null) {
+  return lastSynced?.toDateString() ?? "Never";
 }
