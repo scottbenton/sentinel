@@ -1,5 +1,5 @@
 import { Tooltip } from "@/components/ui/tooltip";
-import { useIsDashboardAdmin } from "@/stores/dashboard.store";
+import { useIsMeetingAdmin } from "@/stores/dashboard.store";
 import {
   Accordion,
   Box,
@@ -17,24 +17,21 @@ import { useDashboardId } from "@/hooks/useDashboardId";
 import { useOrganizationId } from "@/hooks/useOrganizationId";
 import { useMeetingsStore } from "@/stores/meetings.store";
 import { useCurrentOrganization } from "@/stores/organizations.store";
+import { MeetingCardList } from "../meetings/MeetingCardList";
 
 export function MeetingsSection() {
-  const isAdmin = useIsDashboardAdmin();
-
   const dashboardId = useDashboardId();
   const organizationId = useOrganizationId();
 
   const lastSynced = useCurrentOrganization((org) => org?.lastSynced ?? null);
 
   const upcomingMeetings = useMeetingsStore((store) => {
-    return Object.entries(store.futureMeetings)
-      .filter(([, meeting]) => meeting.organizationId === organizationId)
-      .sort(
-        ([, a], [, b]) => a.meetingDate.getTime() - b.meetingDate.getTime(),
-      );
+    return Object.values(store.futureMeetings)
+      .filter((meeting) => meeting.organizationId === organizationId)
+      .sort((a, b) => a.meetingDate.getTime() - b.meetingDate.getTime());
   });
 
-  console.debug(upcomingMeetings);
+  const isMeetingAdmin = useIsMeetingAdmin();
 
   return (
     <Box>
@@ -43,6 +40,7 @@ export function MeetingsSection() {
         alignItems={"center"}
         justifyContent={"space-between"}
         gap={2}
+        flexWrap="wrap"
       >
         <Box>
           <Heading>Organization Meetings</Heading>
@@ -51,7 +49,7 @@ export function MeetingsSection() {
             {getLastSyncedText(lastSynced)}
           </Text>
         </Box>
-        {isAdmin && (
+        {isMeetingAdmin && (
           <Group justifyContent={"flex-end"}>
             <Tooltip content="Sync Now">
               <IconButton aria-label="Sync Now" variant="subtle">
@@ -70,31 +68,17 @@ export function MeetingsSection() {
       <Heading size="lg" mt={4}>
         Upcoming Meetings
       </Heading>
-      <Box display="grid" gridTemplateColumns="1fr" gap={4} mt={4}>
-        {upcomingMeetings.length > 0 ? (
-          upcomingMeetings.map(([meetingId, meeting]) => (
-            <Box key={meetingId} p={4} borderWidth="1px" borderRadius="lg">
-              <Heading size="md">{meeting.name}</Heading>
-              <Text>
-                <Span color="fg.muted">Date: </Span>
-                {meeting.meetingDate.toDateString()}
-              </Text>
-              <Text>
-                <Span color="fg.muted">Created By: </Span>
-                {meeting.createdBy ?? "Unknown"}
-              </Text>
-            </Box>
-          ))
-        ) : (
-          <Text>No upcoming meetings.</Text>
-        )}
-      </Box>
+      <MeetingCardList
+        meetings={upcomingMeetings}
+        emptyText="No upcoming meetings"
+      />
       <Accordion.Root mt={8} collapsible variant="plain" mx={-2} w="auto">
         <Accordion.Item value={"past-meetings"}>
           <Accordion.ItemTrigger
             cursor="pointer"
             _hover={{ bg: "bg.muted" }}
-            px={2}
+            pl={2}
+            pr={4}
           >
             <Box flex="1">
               <Heading size="lg" flex="1">
@@ -104,10 +88,12 @@ export function MeetingsSection() {
                 Click to expand
               </Text>
             </Box>
-            <Accordion.ItemIndicator pr={2} />
+            <Accordion.ItemIndicator />
           </Accordion.ItemTrigger>
           <Accordion.ItemContent>
-            <Accordion.ItemBody px={2}>Past Meetings Here</Accordion.ItemBody>
+            <Accordion.ItemBody px={2}>
+              TODO - insert a view of past meetings here
+            </Accordion.ItemBody>
           </Accordion.ItemContent>
         </Accordion.Item>
       </Accordion.Root>

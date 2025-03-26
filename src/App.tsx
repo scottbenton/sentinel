@@ -2,6 +2,7 @@ import { lazy } from "react";
 import { Route, Switch } from "wouter";
 import { PageWrapper } from "./components/layout/PageWrapper";
 import { DashboardLoadWrapper } from "./pages/dashboard/DashboardLoadWrapper";
+import { MeetingLoadWrapper } from "./pages/meetings/MeetingLoadWrapper";
 // import { DashboardLoadWrapper } from "./pages/dashboard/DashboardLoadWrapper";
 
 const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
@@ -29,6 +30,8 @@ const OrganizationEditPage = lazy(
 const MeetingCreatePage = lazy(
   () => import("./pages/meetings/MeetingCreatePage")
 );
+const MeetingPage = lazy(() => import("./pages/meetings/MeetingSheetPage"));
+const MeetingEditPage = lazy(() => import("./pages/meetings/MeetingEditPage"));
 
 function App() {
   return (
@@ -65,6 +68,21 @@ function App() {
                       </Route>
                       <Route path="/meetings/create">
                         <PageWrapper requiresAuth lazy={MeetingCreatePage} />
+                      </Route>
+                      <Route path="/meetings/:meetingId" nest>
+                        <MeetingLoadWrapper>
+                          <Switch>
+                            <Route path="/">
+                              <PageWrapper requiresAuth lazy={MeetingPage} />
+                            </Route>
+                            <Route path="/edit">
+                              <PageWrapper
+                                requiresAuth
+                                lazy={MeetingEditPage}
+                              />
+                            </Route>
+                          </Switch>
+                        </MeetingLoadWrapper>
                       </Route>
                     </Switch>
                   </Route>

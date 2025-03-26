@@ -104,7 +104,11 @@ export class MeetingsRepository {
       payload: RealtimePostgresChangesPayload<MeetingDTO>,
     ) => {
       if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
-        onMeetingChanges([payload.new], [], false);
+        if (before && new Date(payload.new.meeting_date) < date) {
+          onMeetingChanges([payload.new], [], false);
+        } else if (!before && new Date(payload.new.meeting_date) >= date) {
+          onMeetingChanges([payload.new], [], false);
+        }
       } else if (payload.eventType === "DELETE" && payload.old.id) {
         onMeetingChanges([], [payload.old.id], false);
       } else {
@@ -122,9 +126,62 @@ export class MeetingsRepository {
     return createSubscription(
       `meetings:organization_id=in.(${organizationIds.join(",")})`,
       "meetings",
-      `organization_id=in.(${organizationIds.join(",")}), meeting_date ${
-        before ? "<" : ">="
-      } '${date.toISOString()}'`,
+      `organization_id=in.(${organizationIds.join(",")})`,
+      doInitialLoad,
+      handlePayload,
+    );
+  }
+
+  public static listenToMeeting(
+    meetingId: number,
+    onMeetingChanges: (
+      meeting: MeetingDTO | null,
+    ) => void,
+    onError: (error: RepositoryError) => void,
+  ): () => void {
+    const doInitialLoad = () => {
+      this.meetings().select().eq("id", meetingId).single()
+        .then(({ data, error, status }) => {
+          if (error) {
+            console.error(error);
+            onError(
+              getRepositoryError(
+                error,
+                ErrorVerb.Read,
+                ErrorNoun.Meetings,
+                true,
+                status,
+              ),
+            );
+          } else {
+            onMeetingChanges(data);
+          }
+        });
+    };
+
+    const handlePayload = (
+      payload: RealtimePostgresChangesPayload<MeetingDTO>,
+    ) => {
+      if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
+        onMeetingChanges(payload.new);
+      } else if (payload.eventType === "DELETE" && payload.old.id) {
+        onMeetingChanges(null);
+      } else {
+        onError(
+          getRepositoryError(
+            "Unknown event type",
+            ErrorVerb.Read,
+            ErrorNoun.Meetings,
+            true,
+          ),
+        );
+      }
+    };
+
+    return createSubscription(
+      `meeting:meetingId=${meetingId}`,
+      "meetings",
+      `id=eq.${meetingId}`,
       doInitialLoad,
       handlePayload,
     );

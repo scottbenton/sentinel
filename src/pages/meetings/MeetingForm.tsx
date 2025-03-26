@@ -36,7 +36,9 @@ export function MeetingForm(props: MeetingFormProps) {
     resolver: yupResolver(schema),
     defaultValues: {
       name: props.existingMeeting?.name ?? "",
-      meetingDate: props.existingMeeting?.meetingDate ?? new Date(),
+      meetingDate: (props.existingMeeting?.meetingDate ?? new Date())
+        .toISOString()
+        .substring(0, 10) as unknown as Date,
     },
   });
 
@@ -50,10 +52,10 @@ export function MeetingForm(props: MeetingFormProps) {
     if (!uid) return;
     setLoading(true);
     if (existingMeeting) {
-      updateMeeting(existingMeeting.id, data.name, data.meetingDate)
+      updateMeeting(uid, existingMeeting.id, data.name, data.meetingDate)
         .then(() => {
           navigate(
-            pageConfig.meeting(dashboardId, organizationId, existingMeeting.id),
+            pageConfig.meeting(dashboardId, organizationId, existingMeeting.id)
           );
         })
         .catch(() => {})
@@ -94,7 +96,7 @@ export function MeetingForm(props: MeetingFormProps) {
                   ? pageConfig.meeting(
                       dashboardId,
                       organizationId,
-                      existingMeeting.id,
+                      existingMeeting.id
                     )
                   : pageConfig.organization(dashboardId, organizationId)
               }
@@ -102,7 +104,7 @@ export function MeetingForm(props: MeetingFormProps) {
               Cancel
             </Link>
           </Button>
-          <Button type="submit">
+          <Button type="submit" loading={loading}>
             {existingMeeting ? "Update Meeting" : "Create Meeting"}
           </Button>
         </Group>

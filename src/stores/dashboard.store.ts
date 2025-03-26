@@ -13,6 +13,7 @@ interface DashboardStoreState {
     error: string | null;
 
     isUserAdmin: boolean;
+    isMeetingAdmin: boolean;
     isDashboardAdmin: boolean;
 }
 interface DashboardStoreActions {
@@ -26,6 +27,7 @@ const defaultState: DashboardStoreState = {
     loading: true,
     error: null,
     isUserAdmin: false,
+    isMeetingAdmin: false,
     isDashboardAdmin: false,
 };
 
@@ -39,6 +41,7 @@ export const useDashboardStore = createWithEqualityFn<
                 (user) => {
                     set((state) => {
                         state.isUserAdmin = user.canManageUsers;
+                        state.isMeetingAdmin = user.canManageMeetings;
                         state.isDashboardAdmin = user.isAdmin;
                     });
                 },
@@ -102,4 +105,7 @@ export function useIsDashboardAdmin() {
 }
 export function useIsUserAdmin() {
     return useDashboardStore((store) => store.isUserAdmin);
+}
+export function useIsMeetingAdmin() {
+    return useDashboardStore((store) => store.isMeetingAdmin);
 }

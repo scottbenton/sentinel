@@ -3,6 +3,7 @@ import {
   MeetingDTO,
   MeetingsRepository,
 } from "@/repository/meetings.repository";
+import { MeetingLogsService, MeetingLogTypes } from "./meetingLogs.service";
 
 export interface IMeeting {
   id: number;
@@ -38,7 +39,7 @@ export class MeetingsService {
         replaceState: boolean,
       ) => {
         const meetings = changedMeetings.map((meetingDTO) =>
-          this.convertMeetingDTOToMeeting(meetingDTO),
+          this.convertMeetingDTOToMeeting(meetingDTO)
         );
         onMeetingChanges(meetings, deletedMeetingIds, replaceState);
       },
@@ -70,7 +71,7 @@ export class MeetingsService {
         replaceState: boolean,
       ) => {
         const meetings = changedMeetings.map((meetingDTO) =>
-          this.convertMeetingDTOToMeeting(meetingDTO),
+          this.convertMeetingDTOToMeeting(meetingDTO)
         );
         onMeetingChanges(meetings, deletedMeetingIds, replaceState);
       },
@@ -78,25 +79,68 @@ export class MeetingsService {
     );
   }
 
-  public static createMeeting(
+  public static listenToMeeting(
+    meetingId: number,
+    onMeetingChange: (meeting: IMeeting | null) => void,
+    onError: (error: RepositoryError) => void,
+  ): () => void {
+    return MeetingsRepository.listenToMeeting(
+      meetingId,
+      (meetingDTO) => {
+        if (meetingDTO) {
+          onMeetingChange(this.convertMeetingDTOToMeeting(meetingDTO));
+        } else {
+          onMeetingChange(null);
+        }
+      },
+      onError,
+    );
+  }
+
+  public static async createMeeting(
     uid: string,
     organizationId: number,
     meetingName: string,
     meetingDate: Date,
   ): Promise<number> {
-    return MeetingsRepository.createMeeting({
+    const meetingId = await MeetingsRepository.createMeeting({
       organization_id: organizationId,
       name: meetingName,
       meeting_date: meetingDate.toISOString(),
       created_by: uid,
     });
+
+    try {
+      MeetingLogsService.createLog(
+        uid,
+        meetingId,
+        `Meeting ${meetingName} created`,
+        MeetingLogTypes.Lifecycle,
+      );
+    } catch (error) {
+      console.error(error);
+    }
+
+    return meetingId;
   }
 
   public static updateMeeting(
+    uid: string,
     meetingId: number,
     meetingName: string,
     meetingDate: Date,
   ): Promise<void> {
+    try {
+      MeetingLogsService.createLog(
+        uid,
+        meetingId,
+        `Meeting ${meetingName} updated`,
+        MeetingLogTypes.Lifecycle,
+      );
+    } catch (error) {
+      console.error(error);
+    }
+
     return MeetingsRepository.updateMeeting(meetingId, {
       name: meetingName,
       meeting_date: meetingDate.toISOString(),

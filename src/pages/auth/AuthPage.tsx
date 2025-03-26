@@ -1,5 +1,5 @@
 import { ProgressBar } from "@/components/common/ProgressBar";
-import { AuthStatus, useAuthStatus } from "@/stores/auth.store";
+import { AuthStatus, useAuthStatus, useUID } from "@/stores/auth.store";
 import { Box, Image } from "@chakra-ui/react";
 import { useState } from "react";
 import { Redirect } from "wouter";
@@ -10,11 +10,11 @@ import { OTPSection } from "./OTPSection";
 import { NameSection } from "./NameSection";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageContent } from "@/components/layout/PageContent";
+import { useUserNameWithStatus } from "@/stores/users.store";
 
 enum AuthStep {
   Email,
   OTP,
-  Name,
 }
 
 export default function AuthPage() {
@@ -22,11 +22,13 @@ export default function AuthPage() {
   const [email, setEmail] = useState<string>("");
 
   const authStatus = useAuthStatus();
+  const uid = useUID();
+  const { name, loading } = useUserNameWithStatus(uid);
 
   if (authStatus === AuthStatus.Loading) {
     return <ProgressBar />;
   }
-  if (authStatus === AuthStatus.Authenticated) {
+  if (authStatus === AuthStatus.Authenticated && !loading && name) {
     return <Redirect to={pageConfig.dashboards} />;
   }
 
@@ -37,21 +39,23 @@ export default function AuthPage() {
         <Box display="flex" mb={4}>
           <Image src={"/SentinelWordmark.png"} alt="Sentinel" h={16} />
         </Box>
-        {step === AuthStep.Email && (
-          <EmailSection
-            onComplete={(email) => {
-              setStep(AuthStep.OTP);
-              setEmail(email);
-            }}
-          />
+        {authStatus === AuthStatus.Unauthenticated ? (
+          <>
+            {step === AuthStep.Email && (
+              <EmailSection
+                onComplete={(email) => {
+                  setStep(AuthStep.OTP);
+                  setEmail(email);
+                }}
+              />
+            )}
+            {step === AuthStep.OTP && (
+              <OTPSection email={email} afterVerify={() => {}} />
+            )}
+          </>
+        ) : (
+          <NameSection />
         )}
-        {step === AuthStep.OTP && (
-          <OTPSection
-            email={email}
-            afterVerify={() => setStep(AuthStep.Name)}
-          />
-        )}
-        {step === AuthStep.Name && <NameSection />}
       </PageContent>
     </>
   );
