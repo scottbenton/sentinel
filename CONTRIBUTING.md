@@ -69,6 +69,7 @@ The UI code is structured into a few top level folders for easy access
 | [Zustand](https://zustand.docs.pmnd.rs/getting-started/introduction)                    | Handles global react application state in a way that prevents unnecessary re-renders (unlike react context) |
 | [Supabase-JS](https://supabase.com/docs/reference/javascript/start)                     | Client library for supabase, allows us to easily make backend calls against our database & storage layers   |
 | [React Hook Form](https://react-hook-form.com/) / [yup](https://github.com/jquense/yup) | Used for forms & form validation across the application                                                     |
+| [Lucide](https://lucide.dev/icons/)                                                     | Icon library used for most icons in the application                                                         |
 
 ### Backend Code
 
