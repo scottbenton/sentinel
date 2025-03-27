@@ -12,6 +12,7 @@
     "supabase:stop": "supabase stop",
     "supabase:gen-types": "supabase gen types typescript --local > ./src/types/supabase-generated.type.ts",
     "supabase:create-db-script": "supabase db diff -f changes",
+    "supabase:create-storage-script": "supabase db diff -f storage-changes --schema storage",
     "supabase:create-empty-script": "supabase migration new changes",
     "supabase:serve-functions": "supabase functions serve",
     "supabase:reset-db": "supabase db reset",
