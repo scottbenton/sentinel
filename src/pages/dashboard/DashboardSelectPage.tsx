@@ -18,6 +18,7 @@ import {
 import { PageProgressBar } from "@/components/layout/PageProgressBar";
 import { Alert } from "@/components/ui/alert";
 import { ChevronRightIcon } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export default function DashboardSelectPage() {
   useLoadUsersDashboards();
@@ -85,10 +86,10 @@ export default function DashboardSelectPage() {
           </Box>
         )}
         {!dashboardsLoading && dashboards.length === 0 && (
-          <Alert status="info" title="No Dashboards" maxW="60ch">
-            You don't have any dashboards yet. You can either create a dashboard
-            or ask an admin of an existing dashboard to add you to it.
-          </Alert>
+          <EmptyState
+            title="No Dashboards Found"
+            description="To get started, either create a new dashboard or ask a dashboard admin to invite you to an existing dashboard to get started."
+          />
         )}
       </PageContent>
     </>
