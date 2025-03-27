@@ -33,7 +33,11 @@ Supabase provides authentication, database, and file storage to this application
 
 The first step is to start the local version of supabase. Make sure you have docker installed and running on your machine, then run `npm run supabase:start` in order to launch the docker containers. Once your local development setup has started, it should output a bunch of URLs and keys into the console. You need to copy the value of the `API URL:` and the `anon key:` into your `.env.local` file in order for the UI to be able to communicate with Supabase.
 
-Supabase comes with a handy admin console that allows you to check in and configure different portions of your application. Once supabase is running, you can visit it at [localhost:44323](http://localhost:44323/project/default). While in the local development environment, outgoing emails (including ones for authentication) are captured by mailpit. You can open mailpit at [localhost:44324](http://localhost:44324/) to view these emails.
+Supabase comes with a handy admin console that allows you to check in and configure different portions of your application. Once supabase is running, you can visit the console at [localhost:44323](http://localhost:44323/project/default). While in the local development environment, outgoing emails (including ones for authentication) are captured by mailpit. You can open mailpit at [localhost:44324](http://localhost:44324/) to view these emails.
+
+Once supabase is up and running, you should create a storage bucket for meeting documents. Open the supabase console, navigate to storage, and click "New Bucket". Fill in the following information, and click save.
+
+![Storage Bucket configuration](./markdown-assets/meeting-documents-bucket.png)
 
 ## Structure
 
