@@ -44,15 +44,6 @@ export default function DashboardPage() {
   return (
     <>
       <PageHeader
-        breadcrumbs={[
-          {
-            title: "Dashboards",
-            href: pageConfig.dashboards,
-          },
-          {
-            title: dashboard.label,
-          },
-        ]}
         title={dashboard.label}
         action={
           <Group>

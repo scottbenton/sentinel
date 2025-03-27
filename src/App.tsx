@@ -3,9 +3,10 @@ import { Route, Switch } from "wouter";
 import { PageWrapper } from "./components/layout/PageWrapper";
 import { DashboardLoadWrapper } from "./pages/dashboard/DashboardLoadWrapper";
 import { MeetingLoadWrapper } from "./pages/meetings/MeetingLoadWrapper";
-// import { DashboardLoadWrapper } from "./pages/dashboard/DashboardLoadWrapper";
 
+const HomePage = lazy(() => import("./pages/home/HomePage"));
 const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
+
 const DashboardSelectPage = lazy(
   () => import("./pages/dashboard/DashboardSelectPage")
 );
@@ -37,7 +38,9 @@ function App() {
   return (
     <>
       <Switch>
-        <Route path="/">Example App</Route>
+        <Route path="/">
+          <PageWrapper lazy={HomePage} />
+        </Route>
         <Route path="/dashboards" nest>
           <Switch>
             <Route path="/">
