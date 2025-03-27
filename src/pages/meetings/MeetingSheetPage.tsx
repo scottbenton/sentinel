@@ -2,7 +2,7 @@ import { UserAvatar } from "@/components/common/UserAvatar";
 import { WrappingHeader } from "@/components/common/WrappingHeader";
 import { PageContent } from "@/components/layout/PageContent";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { useIsMeetingAdmin } from "@/stores/dashboard.store";
+import { useDashboardStore, useIsMeetingAdmin } from "@/stores/dashboard.store";
 import { useMeetingsStore } from "@/stores/meetings.store";
 import { useUserName } from "@/stores/users.store";
 import {
@@ -23,6 +23,7 @@ import { useDashboardId } from "@/hooks/useDashboardId";
 import { useOrganizationId } from "@/hooks/useOrganizationId";
 import { useMeetingId } from "@/hooks/useMeetingId";
 import { useConfirm } from "@/providers/ConfirmProvider";
+import { useCurrentOrganization } from "@/stores/organizations.store";
 
 export default function MeetingSheetPage() {
   const meeting = useMeetingsStore((store) => store.currentMeeting);
@@ -31,7 +32,11 @@ export default function MeetingSheetPage() {
   const isMeetingAdmin = useIsMeetingAdmin();
 
   const dashboardId = useDashboardId();
+  const dashboardName = useDashboardStore(
+    (store) => store.dashboard?.label ?? ""
+  );
   const organizationId = useOrganizationId();
+  const organizationName = useCurrentOrganization((org) => org?.name ?? "");
   const meetingId = useMeetingId();
 
   const deleteMeeting = useMeetingsStore((store) => store.deleteMeeting);
@@ -56,6 +61,17 @@ export default function MeetingSheetPage() {
     <>
       <PageHeader
         title={meeting?.name ?? "Loading"}
+        breadcrumbs={[
+          {
+            title: dashboardName,
+            href: pageConfig.dashboard(dashboardId),
+          },
+          {
+            title: organizationName,
+            href: pageConfig.organization(dashboardId, organizationId),
+          },
+          { title: meeting?.name ?? "Loading" },
+        ]}
         action={
           <Group>
             <Button variant="subtle" asChild>

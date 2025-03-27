@@ -35,7 +35,13 @@ export default function OrganizationSheetPage() {
         title="Edit Organization"
         breadcrumbs={[
           { title: dashboardName, href: pageConfig.dashboard(dashboardId) },
-          { title: "Edit Organization" },
+          {
+            title: org?.name ?? "Loading",
+            href: org
+              ? pageConfig.organization(dashboardId, org.id)
+              : undefined,
+          },
+          { title: "Edit" },
         ]}
       />
 
