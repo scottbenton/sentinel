@@ -1,6 +1,6 @@
-import { AuthGuard } from "@/auth/auth.guard";
-import { DashboardUsersService } from "@/dashboard_users/dashboard_users.service";
-import { OrganizationsService } from "@/organizations/organizations.service";
+import { AuthGuard } from "../auth/auth.guard";
+import { DashboardUsersService } from "../dashboard_users/dashboard_users.service";
+import { OrganizationsService } from "../organizations/organizations.service";
 import {
     Controller,
     Logger,
@@ -25,6 +25,13 @@ export class ScraperController {
         @Request() req,
         @Param("organizationId") organizationId: number,
     ): Promise<void> {
+        const userId = req.user?.sub;
+        this.logger.log(userId);
+        if (!userId) {
+            this.logger.error("User ID is not available in the request");
+            throw new Error("User ID is not available in the request");
+        }
+
         const org = await this.organizationService.getOrganizationFromId(
             organizationId,
         );
@@ -32,11 +39,24 @@ export class ScraperController {
         const url = org.url;
         const name = org.name;
 
-        this.logger.log(req.user);
+        const isUserMeetingAdmin = await this.dashboardUsersService
+            .checkUserIsUserMeetingAdmin(
+                userId,
+                org.dashboard_id,
+            );
 
-        // const isUserMeetingAdmin = await this.dashboardUsersService.checkUserIsUserMeetingAdmin(
-        //     org.user_id,
-        //     org.dashboard_id,
-        // );
+        if (!isUserMeetingAdmin) {
+            this.logger.error(
+                `User ${userId} is not an admin of the organization ${organizationId}`,
+            );
+            throw new Error(
+                `User ${userId} is not an admin of the organization ${organizationId}`,
+            );
+        }
+        this.logger.log(
+            `User ${userId} is an admin of the organization ${organizationId}`,
+        );
+        this.logger.log(`Scraping URL: ${url}`);
+        this.logger.log(`Organization Name: ${name}`);
     }
 }

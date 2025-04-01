@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-import { Database } from "@/types/supabase-generated.type";
+import { Database } from "../types/supabase-generated.types";
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()

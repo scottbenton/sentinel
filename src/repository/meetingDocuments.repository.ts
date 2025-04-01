@@ -3,7 +3,7 @@ import {
     Tables,
     TablesInsert,
     TablesUpdate,
-} from "@/types/supabase-generated.type";
+} from "@/types/supabase-generated.types";
 import {
     ErrorNoun,
     ErrorVerb,

@@ -16,11 +16,6 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "@/types/*": ["../types/*"],
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["./src", "../types"]
+    "noFallthroughCasesInSwitch": false
+  }
 }

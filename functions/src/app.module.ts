@@ -10,9 +10,9 @@ import { OrganizationsModule } from "./organizations/organizations.module";
 import { MeetingDocumentsModule } from "./meeting_documents/meeting_documents.module";
 import { MeetingLogsModule } from "./meeting_logs/meeting_logs.module";
 import { MeetingsModule } from "./meetings/meetings.module";
-import { AuthModule } from "./auth/auth.module";
 import { ScraperModule } from "./scraper/scraper.module";
 import { ScraperController } from "./scraper/scraper.controller";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
@@ -23,8 +23,8 @@ import { ScraperController } from "./scraper/scraper.controller";
     MeetingDocumentsModule,
     MeetingLogsModule,
     MeetingsModule,
-    AuthModule,
     ScraperModule,
+    JwtModule,
   ],
   controllers: [AppController, ScraperController],
   providers: [AppService, AiScraperService],

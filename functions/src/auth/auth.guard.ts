@@ -1,10 +1,16 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
-import { Observable } from "rxjs";
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  Logger,
+} from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+  private readonly logger = new Logger(AuthGuard.name);
+
   private readonly jwtSecret: string;
   constructor(private jwtService: JwtService, configService: ConfigService) {
     const secret = configService.get<string>("SUPABASE_JWT_SECRET");
@@ -33,8 +39,9 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.get("authorization")?.split(" ") ??
+  private extractTokenFromHeader(request): string | undefined {
+    this.logger.debug(request);
+    const [type, token] = request.headers["authorization"]?.split(" ") ??
       [];
     return type === "Bearer" ? token : undefined;
   }

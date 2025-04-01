@@ -1,5 +1,5 @@
-import { SupabaseClient } from "@/functions-types/supabase.type";
-import { SupabaseService } from "@/supabase/supabase.service";
+import { SupabaseClient } from "../types/supabase.type";
+import { SupabaseService } from "../supabase/supabase.service";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
