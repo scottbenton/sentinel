@@ -2,6 +2,8 @@
 
 ## Setup Steps
 
+### To run the frontend
+
 1. Clone this project locally
 2. Install node and npm
 
@@ -10,11 +12,17 @@
 
 3. Follow these instructions to [install docker](https://www.docker.com/get-started/)
 4. Install the project dependencies `npm i`
-5. Create a `.env.local` file (see .env.local below)
+5. Create a `.env.local` file (see frontend .env.local below)
 6. Run supabase locally (see Supabase Setup below)
 7. Start the UI by running `npm run dev`, and follow the link to your browser to access the development environment.
 
-### .env.local
+### To run the backend
+
+1. Install [redis](https://redis.io/) locally
+2. Install project dependencies `cd functions && npm i`
+3. Setup a `.env` file in the functions directory (see backend .env below)
+
+### Frontend .env.local
 
 Create a new file in the root of this repository, named `.env.local`. This file will hold environment variables representing credentials needed to connect your instance with supabase.
 
@@ -26,6 +34,22 @@ VITE_SUPABASE_ANON_KEY=RANDOM_KEY_HERE # This key will be spit out by the supaba
 ```
 
 As you start up supabase locally, you will get values to fill these config values in.
+
+### Backend .env
+
+Create a new file in the `functions` directory, named `.env`.
+This file holds environment variables needed to connect the backend to redis, supabase, and OpenAI.
+
+Copy the following into your `.env` file.
+
+```
+OPENAI_API_KEY= # Get your own from OpenAI
+SUPABASE_URL=http://localhost:44321
+SUPABASE_SERVICE_ROLE_KEY= # Copy from the supabase CLI after starting
+SUPABASE_JWT_SECRET=super-secret-jwt-token-with-at-least-32-characters-long
+REDIS_HOST = localhost
+REDIS_PORT = 6379 # Change if your Redis cache is placed elsewhere
+```
 
 ### Supabase Setup
 

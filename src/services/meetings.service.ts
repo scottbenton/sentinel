@@ -26,8 +26,10 @@ export class MeetingsService {
   ): () => void {
     // Get the current day at midnight utc
     const currentDate = new Date(
-      new Date().toISOString().split("T")[0] + "T00:00:00.000Z",
+      new Date(new Date().toLocaleDateString()).toISOString().split("T")[0] +
+        "T00:00:00.000Z",
     );
+    console.debug(`GRABBING MEETINGS AFTER ${currentDate.toISOString()}`);
     // Get meetings after the current date
 
     return MeetingsRepository.listenToMeetingsAfter(

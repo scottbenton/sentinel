@@ -27,7 +27,7 @@ export class AuthService {
       console.error(error);
       return null;
     }
-    console.debug("Access token:", data.session?.access_token);
+    console.debug("Bearer", data.session?.access_token);
     return data.session?.access_token ?? null;
   }
 

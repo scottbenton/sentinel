@@ -9,6 +9,7 @@ import {
     Request,
     UseGuards,
 } from "@nestjs/common";
+import { ScraperService } from "./scraper.service";
 
 @UseGuards(AuthGuard)
 @Controller("scraper")
@@ -18,6 +19,7 @@ export class ScraperController {
     constructor(
         private readonly organizationService: OrganizationsService,
         private readonly dashboardUsersService: DashboardUsersService,
+        private readonly scraperService: ScraperService,
     ) {}
 
     @Post(":organizationId")
@@ -36,9 +38,6 @@ export class ScraperController {
             organizationId,
         );
 
-        const url = org.url;
-        const name = org.name;
-
         const isUserMeetingAdmin = await this.dashboardUsersService
             .checkUserIsUserMeetingAdmin(
                 userId,
@@ -56,7 +55,9 @@ export class ScraperController {
         this.logger.log(
             `User ${userId} is an admin of the organization ${organizationId}`,
         );
-        this.logger.log(`Scraping URL: ${url}`);
-        this.logger.log(`Organization Name: ${name}`);
+
+        await this.scraperService.addOrganizationToQueue(
+            organizationId,
+        );
     }
 }

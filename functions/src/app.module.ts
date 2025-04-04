@@ -13,6 +13,7 @@ import { MeetingsModule } from "./meetings/meetings.module";
 import { ScraperModule } from "./scraper/scraper.module";
 import { ScraperController } from "./scraper/scraper.controller";
 import { JwtModule } from "@nestjs/jwt";
+import { BullModule } from "@nestjs/bullmq";
 
 @Module({
   imports: [
@@ -25,6 +26,14 @@ import { JwtModule } from "@nestjs/jwt";
     MeetingsModule,
     ScraperModule,
     JwtModule,
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT ?? ""),
+        username: process.env.REDIS_USERNAME,
+        password: process.env.REDIS_PASSWORD,
+      },
+    }),
   ],
   controllers: [AppController, ScraperController],
   providers: [AppService, AiScraperService],
