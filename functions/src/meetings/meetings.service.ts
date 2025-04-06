@@ -115,6 +115,14 @@ export class MeetingsService {
         );
 
         this.logger.log(
+            `File ${file.name} has been uploaded to storage, deleting old documents with same name`,
+        );
+        await this.deleteAllMeetingDocumentsWithSameNameIfExists(
+            meetingId,
+            file.name,
+        );
+
+        this.logger.log(
             `File ${file.name} has been uploaded to storage, adding to database`,
         );
 
@@ -153,6 +161,27 @@ export class MeetingsService {
         }
 
         return data ? data.id : null;
+    }
+
+    private async deleteAllMeetingDocumentsWithSameNameIfExists(
+        meetingId: number,
+        filename: string,
+    ): Promise<void> {
+        const { error } = await this.supabase
+            .from("meeting_documents")
+            .delete()
+            .eq("meeting_id", meetingId)
+            .eq("filename", filename);
+
+        if (error) {
+            this.logger.error(
+                "Error deleting meeting documents:",
+                error,
+            );
+            throw new Error(
+                `Error deleting meeting documents: ${error.message}`,
+            );
+        }
     }
 
     private async uploadDocumentToStorage(
