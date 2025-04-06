@@ -59,7 +59,24 @@ export class ScraperProcessor extends WorkerHost {
             );
         }
 
-        await scraper.scrape(browser.page);
+        try {
+            await scraper.scrape(browser.page);
+        } catch (error) {
+            let errorMessage = "Unknown error";
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            } else if (typeof error === "string") {
+                errorMessage = error;
+            } else if (
+                error && typeof error === "object" && "message" in error
+            ) {
+                errorMessage = (error as { message: string }).message;
+            }
+            await this.organizationService.updateLastScrapedError(
+                orgId,
+                errorMessage,
+            );
+        }
 
         this.logger.log(
             `Scraped data for organization ${orgId}`,
@@ -68,7 +85,28 @@ export class ScraperProcessor extends WorkerHost {
         await browser.shutdown();
         this.logger.log(`Browser shut down for organization ${orgId}`);
 
-        await scraper.uploadAgendasToStorage(this.meetingsService);
+        try {
+            await scraper.uploadAgendasToStorage(this.meetingsService);
+            await this.organizationService.updateLastScrapedDate(
+                orgId,
+                new Date(),
+            );
+        } catch (error) {
+            let errorMessage = "Unknown error";
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            } else if (typeof error === "string") {
+                errorMessage = error;
+            } else if (
+                error && typeof error === "object" && "message" in error
+            ) {
+                errorMessage = (error as { message: string }).message;
+            }
+            await this.organizationService.updateLastScrapedError(
+                orgId,
+                errorMessage,
+            );
+        }
 
         this.logger.log(`Finished job for organization ${orgId}`);
 

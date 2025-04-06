@@ -27,4 +27,34 @@ export class OrganizationsService {
         }
         return result.data;
     }
+
+    async updateLastScrapedDate(
+        organizationId: number,
+        lastScrapedDate: Date,
+    ) {
+        const result = await this.supabase.from("organizations").update({
+            last_synced: lastScrapedDate.toISOString(),
+        }).eq("id", organizationId);
+
+        if (result.error) {
+            throw new Error(
+                `Error updating last scraped date: ${result.error.message}`,
+            );
+        }
+    }
+
+    async updateLastScrapedError(
+        organizationId: number,
+        errorMessage: string,
+    ) {
+        const result = await this.supabase.from("organizations").update({
+            sync_error: errorMessage,
+        }).eq("id", organizationId);
+
+        if (result.error) {
+            throw new Error(
+                `Error updating last scraped error: ${result.error.message}`,
+            );
+        }
+    }
 }

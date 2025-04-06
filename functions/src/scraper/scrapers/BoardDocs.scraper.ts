@@ -97,6 +97,96 @@ export class BoardDocsScraper extends BaseScraper {
                     meetingKey,
                     filenames,
                 );
+
+                // Click the button to view the agenda
+                const viewAgendaButton = page.locator(
+                    "a#btn-view-agenda",
+                );
+                await viewAgendaButton.click();
+
+                const agendaPane = page.locator("#agenda");
+                await agendaPane.waitFor({ state: "visible" });
+
+                this.logger.log("Found agenda pane");
+
+                // Grab all li with a child that has the class "fa-file-text-o"
+                const agendaItems = await agendaPane.locator("li").all();
+                this.logger.log(
+                    `Found ${agendaItems.length} agenda items`,
+                );
+                for (const agendaItem of agendaItems) {
+                    const hasFileIcon = await agendaItem.locator(
+                        ".fa-file-text-o",
+                    ).isVisible();
+                    if (!hasFileIcon) {
+                        this.logger.warn(
+                            `No file icon found for agenda item`,
+                        );
+                        continue;
+                    }
+
+                    // Get the id of the agenda item
+                    const agendaItemId = await agendaItem.getAttribute("id");
+                    this.logger.log("Agenda item", {
+                        agendaItemId,
+                    });
+                    if (!agendaItemId) {
+                        this.logger.warn("No id found for agenda item");
+                        continue;
+                    }
+
+                    agendaItem.click();
+                    this.logger.log("Clicked agenda item");
+
+                    // Wait for the input to have the correct value
+                    const currentAgendaInput = page.locator(
+                        'input[name="agenda-item-unique"]',
+                    );
+                    await delaySeconds(1);
+                    const currentAgendaInputValue = await currentAgendaInput
+                        .inputValue();
+                    if (currentAgendaInputValue !== agendaItemId) {
+                        this.logger.warn(
+                            `Agenda item id ${agendaItemId} does not match input value ${currentAgendaInputValue}`,
+                        );
+                        continue;
+                    }
+
+                    this.logger.log("Agenda item input value matches");
+                    // Agenda item buttons
+                    const agendaItemSection = page.locator(
+                        "#view-agenda-item",
+                    );
+                    await agendaItemSection.waitFor({ state: "visible" });
+                    const agendaItemDownloadButtons = await agendaItemSection
+                        .locator("a.public-file").all();
+                    this.logger.log(
+                        `Found ${agendaItemDownloadButtons.length} agenda item download buttons`,
+                    );
+                    for (
+                        const agendaItemDownloadButton
+                            of agendaItemDownloadButtons
+                    ) {
+                        const downloadPromise = page.waitForEvent("download");
+
+                        // Add the download attribute to the button
+                        await agendaItemDownloadButton
+                            .evaluate((el) => el.setAttribute("download", ""));
+
+                        // Adding modifiers to the click to force download rather than open in new tab
+                        await agendaItemDownloadButton.click();
+                        const download = await downloadPromise;
+                        const filenames = await this.downloadFileToTempFolder(
+                            meetingKey,
+                            download,
+                        );
+                        this.logger.log("Downloaded file", { filenames });
+                        this.addFilenameToMeeting(
+                            meetingKey,
+                            filenames,
+                        );
+                    }
+                }
             }
         }
     }
