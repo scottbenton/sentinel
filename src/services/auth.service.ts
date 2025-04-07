@@ -14,9 +14,21 @@ export class AuthService {
       },
     );
 
+    this.getAccessToken();
+
     return () => {
       data.subscription.unsubscribe();
     };
+  }
+
+  public static async getAccessToken(): Promise<string | null> {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error(error);
+      return null;
+    }
+    console.debug("Bearer", data.session?.access_token);
+    return data.session?.access_token ?? null;
   }
 
   public static async sendOTPCodeToEmail(email: string): Promise<void> {

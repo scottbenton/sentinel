@@ -12,6 +12,7 @@ import {
 import { ProgressBar } from "../common/ProgressBar";
 import { SettingsIcon } from "lucide-react";
 import { Toaster } from "../ui/toaster";
+import { color } from "@/providers/ThemeProvider";
 
 export function Layout(props: PropsWithChildren) {
   const { children } = props;
@@ -32,7 +33,7 @@ export function Layout(props: PropsWithChildren) {
   }, [signOut]);
 
   if (authStatus === AuthStatus.Loading) {
-    return <ProgressBar value={null} colorPalette={"blue"} />;
+    return <ProgressBar value={null} colorPalette={color} />;
   }
 
   return (
@@ -41,9 +42,9 @@ export function Layout(props: PropsWithChildren) {
       flexDirection="column"
       minHeight="100vh"
       bg="bg.muted"
-      colorPalette={"blue"}
+      colorPalette={color}
     >
-      <DarkMode colorPalette={"blue"}>
+      <DarkMode colorPalette={color}>
         <Box bg="bg.panel" className="dark">
           <Container as="header" maxW="breakpoint-2xl" fluid>
             <Box
@@ -55,7 +56,11 @@ export function Layout(props: PropsWithChildren) {
               justifyContent="space-between"
             >
               <Box display={"flex"} alignItems="center" gap={4}>
-                <LogoIcon color="blue.500" size={"xl"} aria-label="Sentinel" />
+                <LogoIcon
+                  color={`${color}.500`}
+                  size={"xl"}
+                  aria-label="Sentinel"
+                />
                 <Box display="flex" gap={1}>
                   <Button
                     variant={isOnDashboardPage ? "subtle" : "ghost"}
