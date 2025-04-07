@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase.lib";
-import { Tables, TablesUpdate } from "@/types/supabase-generated.type";
+import { Tables, TablesUpdate } from "@/types/supabase-generated.types";
 import { ErrorNoun, ErrorVerb, getRepositoryError } from "./_repositoryErrors";
 
 export type UserDTO = Tables<"users">;

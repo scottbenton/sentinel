@@ -3,6 +3,7 @@ import {
   OrganizationDTO,
   OrganizationsRepository,
 } from "@/repository/organizations.repository";
+import { AuthService } from "./auth.service";
 
 export interface IOrganization {
   id: number;
@@ -77,9 +78,21 @@ export class OrganizationsService {
   public static async runOrganizationSync(
     organizationId: number,
   ): Promise<void> {
-    console.debug("runOrganizationSync", organizationId);
-    return Promise.reject("Not implemented");
-    // await FunctionsRepository.runScrapeJob(dashboardId, organizationId);
+    const accessToken = await AuthService.getAccessToken();
+    if (!accessToken) {
+      throw new Error("No access token");
+    }
+    try {
+      await fetch(import.meta.env.VITE_API_URL + `/scraper/${organizationId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        method: "POST",
+      });
+    } catch (e) {
+      console.error(e);
+      throw new Error("Error requesting an organization sync");
+    }
   }
 
   private static getIOrganizationFromOrganizationDTO(

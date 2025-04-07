@@ -16,6 +16,7 @@ import {
 import { Link } from "wouter";
 import { DarkMode } from "../ui/color-mode";
 import { ChevronLeft } from "lucide-react";
+import { color } from "@/providers/ThemeProvider";
 
 export interface PageHeaderProps extends ContainerProps {
   title?: string;
@@ -34,11 +35,13 @@ export function PageHeader(props: PageHeaderProps) {
 
   const lastActiveBreadcrumb = useMemo(() => {
     if (!breadcrumbs) return null;
-    return breadcrumbs.reverse().find((breadcrumb) => breadcrumb.href) ?? null;
+    return (
+      [...breadcrumbs].reverse().find((breadcrumb) => breadcrumb.href) ?? null
+    );
   }, [breadcrumbs]);
 
   return (
-    <DarkMode colorPalette={"blue"}>
+    <DarkMode colorPalette={color}>
       <Box bg="bg.panel" className="dark" mb={-24} pb={24}>
         <Container
           py={4}

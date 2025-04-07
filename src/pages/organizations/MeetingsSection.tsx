@@ -16,8 +16,13 @@ import { pageConfig } from "../pageConfig";
 import { useDashboardId } from "@/hooks/useDashboardId";
 import { useOrganizationId } from "@/hooks/useOrganizationId";
 import { useMeetingsStore } from "@/stores/meetings.store";
-import { useCurrentOrganization } from "@/stores/organizations.store";
+import {
+  useCurrentOrganization,
+  useOrganizationsStore,
+} from "@/stores/organizations.store";
 import { MeetingCardList } from "../meetings/MeetingCardList";
+import { useCallback } from "react";
+import { toaster } from "@/components/ui/toaster";
 
 export function MeetingsSection() {
   const dashboardId = useDashboardId();
@@ -32,6 +37,28 @@ export function MeetingsSection() {
   });
 
   const isMeetingAdmin = useIsMeetingAdmin();
+
+  const runOrganizationSync = useOrganizationsStore(
+    (store) => store.runOrganizationSync
+  );
+  const handleRunOrganizationSync = useCallback(() => {
+    runOrganizationSync(organizationId)
+      .then(() => {
+        toaster.create({
+          type: "success",
+          title: "Sync Started",
+          description:
+            "Organization sync requested. This process may take a few minutes.",
+        });
+      })
+      .catch((e) => {
+        toaster.create({
+          type: "error",
+          title: "Sync Failed",
+          description: e.message,
+        });
+      });
+  }, [runOrganizationSync, organizationId]);
 
   return (
     <Box>
@@ -52,7 +79,11 @@ export function MeetingsSection() {
         {isMeetingAdmin && (
           <Group justifyContent={"flex-end"}>
             <Tooltip content="Sync Now">
-              <IconButton aria-label="Sync Now" variant="subtle">
+              <IconButton
+                aria-label="Sync Now"
+                variant="subtle"
+                onClick={handleRunOrganizationSync}
+              >
                 <RefreshCcw />
               </IconButton>
             </Tooltip>
@@ -102,5 +133,5 @@ export function MeetingsSection() {
 }
 
 function getLastSyncedText(lastSynced: Date | null) {
-  return lastSynced?.toDateString() ?? "Never";
+  return lastSynced?.toLocaleString() ?? "Never";
 }

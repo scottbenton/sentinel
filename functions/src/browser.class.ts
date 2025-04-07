@@ -6,9 +6,9 @@ export class Browser {
     private displayHeight: number;
 
     private browser: PWBrowser;
-    private page: Page;
+    public page: Page;
 
-    private initialPageTimeout = 2000; // 2 seconds
+    private initialPageTimeout = 4000; // 4 seconds
 
     constructor(url: string, displayWidth: number, displayHeight: number) {
         this.url = url;
