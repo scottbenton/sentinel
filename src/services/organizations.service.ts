@@ -40,18 +40,26 @@ export class OrganizationsService {
     );
   }
 
-  public static createOrganization(
+  public static async createOrganization(
     dashboardId: number,
     name: string,
     url: string,
   ): Promise<number> {
-    return OrganizationsRepository.createOrganization(
+    const orgId = await OrganizationsRepository.createOrganization(
       {
         dashboard_id: dashboardId,
         name,
         url,
       },
     );
+
+    this.runOrganizationSync(orgId).catch((e) => {
+      console.error(
+        `Error running organization sync for ${orgId}: ${e}`,
+      );
+    });
+
+    return orgId;
   }
 
   public static updateOrganization(
