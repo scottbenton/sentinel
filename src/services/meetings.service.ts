@@ -29,9 +29,8 @@ export class MeetingsService {
       new Date(new Date().toLocaleDateString()).toISOString().split("T")[0] +
         "T00:00:00.000Z",
     );
-    console.debug(`GRABBING MEETINGS AFTER ${currentDate.toISOString()}`);
-    // Get meetings after the current date
 
+    // Get meetings after the current date
     return MeetingsRepository.listenToMeetingsAfter(
       organizationIds,
       currentDate,
