@@ -1,0 +1,6 @@
+[phases]
+# Install Playwright dependencies and browsers during the build phase
+install = """
+    npm install
+    npx playwright install chromium
+"""

@@ -35,12 +35,21 @@ export class ScraperProcessor extends WorkerHost {
             orgId,
         );
 
-        const browser = new Browser(
-            org.url,
-            1024,
-            768,
-        );
-        await browser.launch();
+        let browser: Browser;
+
+        try {
+            browser = new Browser(
+                org.url,
+                1024,
+                768,
+            );
+            await browser.launch();
+        } catch (error) {
+            this.logger.error(
+                `Error launching browser for organization ${orgId}: ${error}`,
+            );
+            throw error;
+        }
         this.logger.log(`Launched browser for organization ${orgId}`);
 
         let scraper: BaseScraper | null = null;
