@@ -4,6 +4,7 @@ import { readFile } from "fs/promises";
 import { ScrapedDocument, ScrapedMeeting } from "./scrapeResult.type";
 import { MeetingsService } from "../../meetings/meetings.service";
 import { Logger } from "@nestjs/common";
+import mime from "mime";
 
 export abstract class BaseScraper {
     protected logger = new Logger(BaseScraper.name);
@@ -94,6 +95,21 @@ export abstract class BaseScraper {
         return await readFile(`/tmp/${document.storedFilename}`);
     }
 
+    private async getFileMimeType(
+        document: ScrapedDocument,
+    ): Promise<string> {
+        const type = mime.getType(document.originalFilename);
+        if (!type) {
+            this.logger.error(
+                `Could not determine mime type for ${document.originalFilename}`,
+            );
+            throw new Error(
+                `Could not determine mime type for ${document.originalFilename}`,
+            );
+        }
+        return type;
+    }
+
     private async commitMeeting(
         meeting: ScrapedMeeting,
         meetingService: MeetingsService,
@@ -115,11 +131,13 @@ export abstract class BaseScraper {
 
             try {
                 const file = await this.getFileFromTempFolder(document);
+                const mimeType = await this.getFileMimeType(document);
                 await meetingService.uploadMeetingDocument(
                     this.dashboardId,
                     this.orgId,
                     meetingId,
                     file,
+                    mimeType,
                     document.originalFilename,
                 );
             } catch (e) {

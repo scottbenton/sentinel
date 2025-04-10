@@ -88,6 +88,7 @@ export class MeetingsService {
         organizationId: number,
         meetingId: number,
         fileBuffer: Buffer,
+        fileType: string,
         fileName: string,
     ): Promise<number> {
         this.logger.log(`Uploading document: ${fileName}`);
@@ -113,6 +114,7 @@ export class MeetingsService {
             organizationId,
             meetingId,
             fileBuffer,
+            fileType,
             fileName,
         );
 
@@ -190,6 +192,7 @@ export class MeetingsService {
         organizationId: number,
         meetingId: number,
         fileBuffer: Buffer,
+        fileType: string,
         fileName: string,
     ): Promise<void> {
         const { error } = await this.supabase.storage.from(
@@ -199,6 +202,7 @@ export class MeetingsService {
             fileBuffer,
             {
                 upsert: true,
+                contentType: fileType,
             },
         );
 
