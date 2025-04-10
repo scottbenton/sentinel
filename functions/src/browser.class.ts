@@ -18,7 +18,7 @@ export class Browser {
 
     async launch() {
         this.browser = await chromium.launch({
-            headless: process.env.NODE_ENV !== "production",
+            headless: process.env.NODE_ENV === "production",
         });
 
         const context = await this.browser.newContext({
