@@ -12,6 +12,7 @@ import { ScraperModule } from "./scraper/scraper.module";
 import { ScraperController } from "./scraper/scraper.controller";
 import { JwtModule } from "@nestjs/jwt";
 import { BullModule } from "@nestjs/bullmq";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BullModule } from "@nestjs/bullmq";
     MeetingsModule,
     ScraperModule,
     JwtModule,
+    ScheduleModule.forRoot(),
     BullModule.forRoot({
       connection: {
         host: process.env.REDIS_HOST,

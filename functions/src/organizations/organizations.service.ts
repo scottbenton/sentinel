@@ -58,4 +58,26 @@ export class OrganizationsService {
             );
         }
     }
+
+    async getNextNOrganizationIds(
+        limit: number,
+        fromIndex: number = -1,
+    ): Promise<number[]> {
+        const result = await this.supabase.from("organizations").select("id")
+            .order(
+                "id",
+            )
+            .gt("id", fromIndex)
+            .limit(limit);
+
+        if (result.error) {
+            throw new Error(
+                `Error fetching organization IDs: ${result.error.message}`,
+            );
+        }
+        if (!result.data) {
+            throw new Error(`No organization IDs found`);
+        }
+        return result.data.map((org) => org.id);
+    }
 }

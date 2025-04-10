@@ -35,19 +35,24 @@ export class ScraperProcessor extends WorkerHost {
             orgId,
         );
 
-        let browser: Browser;
+        const browser = new Browser(
+            org.url,
+            1024,
+            768,
+        );
 
         try {
-            browser = new Browser(
-                org.url,
-                1024,
-                768,
-            );
             await browser.launch();
         } catch (error) {
+            const errorMessage = `Error launching browser for organization.`;
             this.logger.error(
-                `Error launching browser for organization ${orgId}: ${error}`,
+                errorMessage + " " + orgId + " " + error,
             );
+            await this.organizationService.updateLastScrapedError(
+                orgId,
+                errorMessage,
+            );
+            await browser.shutdown();
             throw error;
         }
         this.logger.log(`Launched browser for organization ${orgId}`);
@@ -60,14 +65,17 @@ export class ScraperProcessor extends WorkerHost {
         }
 
         if (!scraper) {
+            const errorMessage = `No scraper found for organization`;
             this.logger.error(
-                `No scraper found for organization ${orgId}`,
+                errorMessage + " " + orgId,
             );
-            throw new Error(
-                `No scraper found for organization ${orgId}`,
+            await this.organizationService.updateLastScrapedError(
+                orgId,
+                errorMessage,
             );
+            await browser.shutdown();
+            return;
         }
-
         try {
             await scraper.scrape(browser.page);
         } catch (error) {
