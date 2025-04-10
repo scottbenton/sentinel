@@ -23,12 +23,14 @@ import {
 import { MeetingCardList } from "../meetings/MeetingCardList";
 import { useCallback } from "react";
 import { toaster } from "@/components/ui/toaster";
+import { Alert } from "@/components/ui/alert";
 
 export function MeetingsSection() {
   const dashboardId = useDashboardId();
   const organizationId = useOrganizationId();
 
   const lastSynced = useCurrentOrganization((org) => org?.lastSynced ?? null);
+  const syncError = useCurrentOrganization((org) => org?.syncError ?? null);
 
   const upcomingMeetings = useMeetingsStore((store) => {
     return Object.values(store.futureMeetings)
@@ -96,6 +98,13 @@ export function MeetingsSection() {
           </Group>
         )}
       </Box>
+
+      {syncError && (
+        <Alert status="error" title="Sync Error" mt={2}>
+          {syncError}
+        </Alert>
+      )}
+
       <Heading size="lg" mt={4}>
         Upcoming Meetings
       </Heading>

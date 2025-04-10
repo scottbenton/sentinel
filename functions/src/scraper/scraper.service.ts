@@ -1,6 +1,8 @@
 import { InjectQueue } from "@nestjs/bullmq";
 import { Injectable, Logger } from "@nestjs/common";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import { Queue } from "bullmq";
+import { OrganizationsService } from "src/organizations/organizations.service";
 
 @Injectable()
 export class ScraperService {
@@ -10,6 +12,7 @@ export class ScraperService {
         @InjectQueue(
             "organization-scrape-queue",
         ) private readonly organizationScrapeQueue: Queue,
+        private readonly organizationsService: OrganizationsService,
     ) {}
 
     async addOrganizationToQueue(
@@ -27,5 +30,26 @@ export class ScraperService {
                 removeOnFail: true,
             },
         );
+    }
+
+    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+    async runAllSyncJobs() {
+        this.logger.log("Running all sync jobs");
+
+        let orgIds = await this.organizationsService.getNextNOrganizationIds(
+            100,
+        );
+
+        while (orgIds.length > 0) {
+            orgIds.forEach((orgId) => {
+                this.addOrganizationToQueue(orgId);
+            });
+            orgIds = await this.organizationsService.getNextNOrganizationIds(
+                100,
+                orgIds[orgIds.length - 1],
+            );
+        }
+
+        this.logger.log("All sync jobs added to queue");
     }
 }

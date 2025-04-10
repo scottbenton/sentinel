@@ -26,6 +26,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/schedule": "^5.0.1",
     "@supabase/supabase-js": "^2.49.4",
     "@types/mime": "^3.0.4",
     "bullmq": "^5.45.2",
