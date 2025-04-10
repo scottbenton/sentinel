@@ -87,23 +87,24 @@ export class MeetingsService {
         dashboardId: number,
         organizationId: number,
         meetingId: number,
-        file: File,
+        fileBuffer: Buffer,
+        fileName: string,
     ): Promise<number> {
-        this.logger.log(`Uploading document: ${file.name}`);
-        const fileHash = await this.getFileHash(file);
+        this.logger.log(`Uploading document: ${fileName}`);
+        const fileHash = await this.getFileHash(fileBuffer);
         const meetingDocumentId = await this.checkIfFileHasBeenUploaded(
             meetingId,
             fileHash,
         );
         if (meetingDocumentId !== null) {
             this.logger.log(
-                `File ${file.name} has already been uploaded`,
+                `File ${fileName} has already been uploaded`,
             );
             return meetingDocumentId;
         }
 
         this.logger.log(
-            `File ${file.name} has not been uploaded, uploading now`,
+            `File ${fileName} has not been uploaded, uploading now`,
         );
 
         // Upload document to the database
@@ -111,34 +112,34 @@ export class MeetingsService {
             dashboardId,
             organizationId,
             meetingId,
-            file,
+            fileBuffer,
+            fileName,
         );
 
         this.logger.log(
-            `File ${file.name} has been uploaded to storage, deleting old documents with same name`,
+            `File ${fileName} has been uploaded to storage, deleting old documents with same name`,
         );
         await this.deleteAllMeetingDocumentsWithSameNameIfExists(
             meetingId,
-            file.name,
+            fileName,
         );
 
         this.logger.log(
-            `File ${file.name} has been uploaded to storage, adding to database`,
+            `File ${fileName} has been uploaded to storage, adding to database`,
         );
 
         // Insert document metadata into the database
         return await this.addDocumentToDatabase(
             meetingId,
-            file.name,
+            fileName,
             fileHash,
         );
     }
 
     private async getFileHash(
-        file: File,
+        file: Buffer,
     ): Promise<string> {
-        const buffer = Buffer.from(await file.bytes());
-        const hash = createHash("md5").update(buffer).digest("hex");
+        const hash = createHash("md5").update(file).digest("hex");
         return hash;
     }
 
@@ -188,13 +189,14 @@ export class MeetingsService {
         dashboardId: number,
         organizationId: number,
         meetingId: number,
-        file: File,
+        fileBuffer: Buffer,
+        fileName: string,
     ): Promise<void> {
         const { error } = await this.supabase.storage.from(
             "meeting-documents",
         ).upload(
-            `${dashboardId}/${organizationId}/${meetingId}/${file.name}`,
-            file,
+            `${dashboardId}/${organizationId}/${meetingId}/${fileName}`,
+            fileBuffer,
             {
                 upsert: true,
             },
