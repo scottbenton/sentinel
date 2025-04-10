@@ -34,6 +34,7 @@ export class OrganizationsService {
     ) {
         const result = await this.supabase.from("organizations").update({
             last_synced: lastScrapedDate.toISOString(),
+            sync_error: null,
         }).eq("id", organizationId);
 
         if (result.error) {
