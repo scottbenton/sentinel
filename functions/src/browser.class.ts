@@ -29,7 +29,7 @@ export class Browser {
         });
         const page = await context.newPage();
         await page.goto(this.url, {
-            waitUntil: "networkidle",
+            waitUntil: "domcontentloaded",
         });
 
         // Wait for any animations or transitions to finish
