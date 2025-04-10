@@ -90,12 +90,8 @@ export abstract class BaseScraper {
 
     private async getFileFromTempFolder(
         document: ScrapedDocument,
-    ): Promise<File> {
-        const buffer = await readFile(`/tmp/${document.storedFilename}`);
-        const file = new File([buffer], document.originalFilename, {
-            type: "application/pdf",
-        });
-        return file;
+    ): Promise<Buffer> {
+        return await readFile(`/tmp/${document.storedFilename}`);
     }
 
     private async commitMeeting(
@@ -124,6 +120,7 @@ export abstract class BaseScraper {
                     this.orgId,
                     meetingId,
                     file,
+                    document.originalFilename,
                 );
             } catch (e) {
                 this.logger.error(
