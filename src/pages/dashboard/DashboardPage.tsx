@@ -48,7 +48,11 @@ export default function DashboardPage() {
         action={
           <Group>
             {isDashboardUserAdmin && (
-              <Button variant="subtle">Manage Users</Button>
+              <Button variant="subtle" asChild>
+                <Link to={pageConfig.userManagement(dashboard.id)}>
+                  Manage Users
+                </Link>
+              </Button>
             )}
             {isDashboardAdmin && (
               <Button variant="subtle" asChild>

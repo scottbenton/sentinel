@@ -32,6 +32,7 @@ export abstract class BaseScraper {
         meetingName: string,
         meetingDate: Date,
     ): string {
+        // TODO - encodeURIComponent should be replaced as it allows periods
         return `${formatDateForFilename(meetingDate)}-${
             encodeURIComponent(
                 meetingName,

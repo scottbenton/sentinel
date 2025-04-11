@@ -1,6 +1,8 @@
-import { DialogRootProps, Portal } from "@chakra-ui/react";
+import { DialogRootProps, IconButton, Portal } from "@chakra-ui/react";
 import { ReactNode } from "react";
 import { Dialog as CDialog } from "@chakra-ui/react";
+import { XIcon } from "lucide-react";
+import { color } from "@/providers/ThemeProvider";
 export interface DialogProps {
   trigger?: ReactNode;
   title: ReactNode;
@@ -42,7 +44,7 @@ export function Dialog(props: DialogProps) {
       {trigger && <CDialog.Trigger asChild>{trigger}</CDialog.Trigger>}
       <Portal>
         <CDialog.Positioner>
-          <CDialog.Content>
+          <CDialog.Content colorPalette={color}>
             <CDialog.Header>
               {typeof title === "string" ? (
                 <CDialog.Title>{title}</CDialog.Title>
@@ -50,6 +52,11 @@ export function Dialog(props: DialogProps) {
                 title
               )}
             </CDialog.Header>
+            <CDialog.CloseTrigger asChild>
+              <IconButton aria-label="Close Dialog" variant="ghost">
+                <XIcon />
+              </IconButton>
+            </CDialog.CloseTrigger>
             {fullContent ? fullContent : null}
             {content && (
               <CDialog.Body position={scrollOutside ? undefined : "relative"}>

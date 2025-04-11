@@ -93,6 +93,9 @@ export class ScraperProcessor extends WorkerHost {
                 orgId,
                 errorMessage,
             );
+            this.logger.error(
+                `Error scraping organization ${orgId}: ${errorMessage}`,
+            );
         }
 
         this.logger.log(

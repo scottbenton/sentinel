@@ -34,6 +34,10 @@ const MeetingCreatePage = lazy(
 const MeetingPage = lazy(() => import("./pages/meetings/MeetingSheetPage"));
 const MeetingEditPage = lazy(() => import("./pages/meetings/MeetingEditPage"));
 
+const UserManagementPage = lazy(
+  () => import("./pages/users/UserManagementPage")
+);
+
 function App() {
   return (
     <>
@@ -89,7 +93,9 @@ function App() {
                       </Route>
                     </Switch>
                   </Route>
-                  <Route path="/users">User Management</Route>
+                  <Route path="/users">
+                    <PageWrapper requiresAuth lazy={UserManagementPage} />
+                  </Route>
                 </Switch>
               </DashboardLoadWrapper>
             </Route>
