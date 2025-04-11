@@ -40,7 +40,7 @@ export function MeetingCard(props: MeetingCardProps) {
         <Card.Body
           flexDir="row"
           justifyContent={"space-between"}
-          alignItems={"center"}
+          alignItems={"flex-start"}
           gap={2}
         >
           <Box>
@@ -60,7 +60,7 @@ export function MeetingCard(props: MeetingCardProps) {
               </LinkOverlay>
             </Heading>
           </Box>
-          <Icon asChild color="fg.muted">
+          <Icon asChild color="fg.muted" alignSelf="center">
             <ChevronRight />
           </Icon>
         </Card.Body>

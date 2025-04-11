@@ -5,6 +5,7 @@ import { IMeeting, MeetingsService } from "@/services/meetings.service";
 import { useOrganizationsStore } from "./organizations.store";
 import { useEffect } from "react";
 import { useMeetingId } from "@/hooks/useMeetingId";
+import { useOrganizationId } from "@/hooks/useOrganizationId";
 
 interface MeetingsStoreState {
   meetings: Record<number, IMeeting>;
@@ -12,7 +13,9 @@ interface MeetingsStoreState {
   loadingFutureMeetings: boolean;
   futureMeetingsError: string | null;
 
-  loadedPastMeetings: Record<number, IMeeting>;
+  loadingPastMeetings: boolean;
+  pastMeetings: Record<number, IMeeting>;
+  pastMeetingsError: string | null;
 
   currentMeeting: IMeeting | null;
   loadingCurrentMeeting: boolean;
@@ -20,7 +23,7 @@ interface MeetingsStoreState {
 }
 interface MeetingsStoreActions {
   listenToFutureMeetings: (organizationIds: number[]) => () => void;
-  listenToPastMeetings: (organizationIds: number[]) => () => void;
+  listenToPastMeetings: (organizationId: number) => () => void;
   listenToCurrentMeeting: (meetingId: number) => () => void;
   createMeeting: (
     uid: string,
@@ -44,7 +47,9 @@ const defaultState: MeetingsStoreState = {
   loadingFutureMeetings: true,
   futureMeetingsError: null,
 
-  loadedPastMeetings: {},
+  loadingPastMeetings: true,
+  pastMeetings: {},
+  pastMeetingsError: null,
 
   currentMeeting: null,
   loadingCurrentMeeting: true,
@@ -65,7 +70,7 @@ export const useMeetingsStore = createWithEqualityFn<
             state.futureMeetingsError = null;
             if (replaceState) {
               state.futureMeetings = {};
-              state.meetings = { ...state.loadedPastMeetings };
+              state.meetings = { ...state.pastMeetings };
             }
             changedMeetings.forEach((meeting) => {
               state.futureMeetings[meeting.id] = meeting;
@@ -85,31 +90,43 @@ export const useMeetingsStore = createWithEqualityFn<
         },
       );
     },
-    listenToPastMeetings: (organizationIds) => {
-      return MeetingsService.listenToPastMeetings(
-        organizationIds,
+    listenToPastMeetings: (organizationId) => {
+      const unsubscribe = MeetingsService.listenToPastMeetings(
+        [organizationId],
         (changedMeetings, deletedMeetingIds, replaceState) => {
           set((state) => {
+            state.loadingPastMeetings = false;
+            state.pastMeetingsError = null;
             if (replaceState) {
               state.meetings = { ...state.futureMeetings };
-              state.loadedPastMeetings = {};
+              state.pastMeetings = {};
             }
             changedMeetings.forEach((meeting) => {
-              state.loadedPastMeetings[meeting.id] = meeting;
+              state.pastMeetings[meeting.id] = meeting;
               state.meetings[meeting.id] = meeting;
             });
             deletedMeetingIds.forEach((id) => {
-              delete state.loadedPastMeetings[id];
+              delete state.pastMeetings[id];
               delete state.meetings[id];
             });
           });
         },
         (error) => {
           set((state) => {
-            state.futureMeetingsError = error.message;
+            state.loadingPastMeetings = false;
+            state.pastMeetingsError = error.message;
           });
         },
       );
+
+      return () => {
+        unsubscribe();
+        set((store) => {
+          store.pastMeetings = {};
+          store.loadingPastMeetings = true;
+          store.pastMeetingsError = null;
+        });
+      };
     },
 
     listenToCurrentMeeting: (meetingId) => {
@@ -180,6 +197,16 @@ export function useSyncFutureMeetings() {
       unsubscribe();
     };
   }, [organizationIds, listenToFutureMeetings]);
+}
+
+export function useSyncPastMeetings() {
+  const organizationId = useOrganizationId();
+  const listenToPastMeetings = useMeetingsStore(
+    (store) => store.listenToPastMeetings,
+  );
+  useEffect(() => {
+    return listenToPastMeetings(organizationId);
+  }, [organizationId, listenToPastMeetings]);
 }
 
 export function useSyncCurrentMeeting() {
