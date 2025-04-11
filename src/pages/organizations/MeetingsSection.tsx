@@ -24,6 +24,7 @@ import { MeetingCardList } from "../meetings/MeetingCardList";
 import { useCallback } from "react";
 import { toaster } from "@/components/ui/toaster";
 import { Alert } from "@/components/ui/alert";
+import { PastMeetings } from "./PastMeetings";
 
 export function MeetingsSection() {
   const dashboardId = useDashboardId();
@@ -112,14 +113,17 @@ export function MeetingsSection() {
         meetings={upcomingMeetings}
         emptyText="No upcoming meetings"
       />
-      <Accordion.Root mt={8} collapsible variant="plain" mx={-2} w="auto">
-        <Accordion.Item value={"past-meetings"}>
-          <Accordion.ItemTrigger
-            cursor="pointer"
-            _hover={{ bg: "bg.muted" }}
-            pl={2}
-            pr={4}
-          >
+      <Accordion.Root
+        mt={8}
+        collapsible
+        variant="subtle"
+        colorPalette={"gray"}
+        mx={-4}
+        w="auto"
+        lazyMount
+      >
+        <Accordion.Item value={"past-meetings"} borderRadius={0}>
+          <Accordion.ItemTrigger cursor="pointer" _hover={{ bg: "bg.muted" }}>
             <Box flex="1">
               <Heading size="lg" flex="1">
                 Past Meetings
@@ -131,8 +135,8 @@ export function MeetingsSection() {
             <Accordion.ItemIndicator />
           </Accordion.ItemTrigger>
           <Accordion.ItemContent>
-            <Accordion.ItemBody px={2}>
-              TODO - insert a view of past meetings here
+            <Accordion.ItemBody>
+              <PastMeetings />
             </Accordion.ItemBody>
           </Accordion.ItemContent>
         </Accordion.Item>
