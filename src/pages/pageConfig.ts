@@ -20,4 +20,6 @@ export const pageConfig = {
     `~/dashboards/${dashboardId}/organizations/${orgId}/meetings/${meetingId}`,
   meetingEdit: (dashboardId: number, orgId: number, meetingId: number) =>
     `~/dashboards/${dashboardId}/organizations/${orgId}/meetings/${meetingId}/edit`,
+
+  userManagement: (dashboardId: number) => `~/dashboards/${dashboardId}/users`,
 };

@@ -78,6 +78,8 @@ export class BoardDocsScraper extends BaseScraper {
                     meetingDate,
                 );
 
+                this.logger.log("Meeting key", { meetingKey });
+
                 await meeting.click();
                 await delaySeconds(2); // Wait for page to switch, so we don't download the wrong agenda
                 const agendaDownloadButton = page.locator(
