@@ -4,6 +4,7 @@ import { Redirect, useLocation } from "wouter";
 
 import { ProgressBar } from "../common/ProgressBar";
 import { pageConfig } from "@/pages/pageConfig";
+import { ErrorBoundary } from "../ErrorBoundary";
 
 export interface PageWrapperProps {
   lazy: LazyExoticComponent<() => JSX.Element>;
@@ -21,8 +22,10 @@ export function PageWrapper(props: PageWrapperProps) {
   }
 
   return (
-    <Suspense fallback={<ProgressBar />}>
-      <LazyPage />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<ProgressBar />}>
+        <LazyPage />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
