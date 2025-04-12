@@ -162,6 +162,12 @@ export class BoardDocsScraper extends BaseScraper {
             this.addFilenameToMeeting(meetingKey, filenames);
           }
         }
+
+        const meetingsTab = page.locator('#mainMeetings');
+        await meetingsTab.click();
+
+        const meetingsPane = page.locator('#meeting-accordion');
+        await meetingsPane.waitFor({ state: 'visible' });
       }
     }
   }
