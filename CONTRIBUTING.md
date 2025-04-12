@@ -20,7 +20,8 @@
 
 1. Install [redis](https://redis.io/) locally
 2. Install project dependencies `cd functions && npm i`
-3. Setup a `.env` file in the functions directory (see backend .env below)
+3. Install a local chromium browser for playwright to use `npx playwright install`
+4. Setup a `.env` file in the functions directory (see backend .env below)
 
 ### Frontend .env.local
 
@@ -31,6 +32,7 @@ Copy the following into your `.env.local` file
 ```
 VITE_SUPABASE_URL=http://localhost:54321 # Yours might be different, but this is the default
 VITE_SUPABASE_ANON_KEY=RANDOM_KEY_HERE # This key will be spit out by the supabase CLI when starting it for the first time
+VITE_API_URL= # Wherever your nestjs server is running (probably http://localhost:3000)
 ```
 
 As you start up supabase locally, you will get values to fill these config values in.
