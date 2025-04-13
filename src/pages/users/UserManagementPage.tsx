@@ -7,12 +7,13 @@ import {
 import { pageConfig } from "../pageConfig";
 import { useDashboardId } from "@/hooks/useDashboardId";
 import { PageContent } from "@/components/layout/PageContent";
-import { Box, Button } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { useDashboardUsersStore } from "@/stores/dashboardUsers.store";
 import { PageProgressBar } from "@/components/layout/PageProgressBar";
 import { Alert } from "@/components/ui/alert";
 import { useEffect, useRef } from "react";
 import { UserTable } from "./UserTable";
+import { UserInviteDialog } from "./UserInviteDialog";
 
 export default function UserManagementPageWrapper() {
   const canInviteUsers = useIsUserAdmin();
@@ -74,7 +75,7 @@ function UserManagementPage(props: {
             href: pageConfig.dashboard(dashboardId),
           },
         ]}
-        action={canInviteUsers && <Button>Invite Users</Button>}
+        action={canInviteUsers && <UserInviteDialog />}
       />
       <PageContent p={4}>
         <PageProgressBar loading={dashboardUsersLoading} />

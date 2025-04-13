@@ -46,7 +46,7 @@ export function MeetingCard(props: MeetingCardProps) {
           <Box>
             {showOrganizationName && <Text>{organizationName}</Text>}
             <Text>{getMeetingDate(meeting.meetingDate)}</Text>
-            <Heading size="lg" asChild>
+            <Heading size="md" asChild>
               <LinkOverlay asChild>
                 <Link
                   to={pageConfig.meeting(

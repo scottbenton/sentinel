@@ -53,7 +53,11 @@ export function Dialog(props: DialogProps) {
               )}
             </CDialog.Header>
             <CDialog.CloseTrigger asChild>
-              <IconButton aria-label="Close Dialog" variant="ghost">
+              <IconButton
+                aria-label="Close Dialog"
+                colorPalette={"gray"}
+                variant="ghost"
+              >
                 <XIcon />
               </IconButton>
             </CDialog.CloseTrigger>
