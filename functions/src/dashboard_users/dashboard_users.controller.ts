@@ -1,5 +1,5 @@
 import { AuthGuard } from '../auth/auth.guard';
-import { DashboardUsersService } from '../dashboard_users/dashboard_users.service';
+import { DashboardUsersService } from './dashboard_users.service';
 import { OrganizationsService } from '../organizations/organizations.service';
 import {
   Controller,
@@ -9,17 +9,15 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ScraperService } from './scraper.service';
 
 @UseGuards(AuthGuard)
-@Controller('scraper')
+@Controller('dashboard-users')
 export class ScraperController {
   private readonly logger = new Logger(ScraperController.name);
 
   constructor(
     private readonly organizationService: OrganizationsService,
     private readonly dashboardUsersService: DashboardUsersService,
-    private readonly scraperService: ScraperService,
   ) {}
 
   @Post(':organizationId')

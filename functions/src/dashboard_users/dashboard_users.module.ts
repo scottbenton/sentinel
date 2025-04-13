@@ -1,6 +1,6 @@
-import { Module } from "@nestjs/common";
-import { DashboardUsersService } from "./dashboard_users.service";
-import { SupabaseModule } from "../supabase/supabase.module";
+import { Module } from '@nestjs/common';
+import { DashboardUsersService } from './dashboard_users.service';
+import { SupabaseModule } from '../supabase/supabase.module';
 
 @Module({
   providers: [DashboardUsersService],
