@@ -15,6 +15,7 @@ import { useEffect, useRef } from "react";
 import { UserTable } from "./UserTable";
 import { UserInviteDialog } from "./UserInviteDialog";
 import { useDashboardUserInvitesStore } from "@/stores/dashboardUserInvites.store";
+import { UserInviteTable } from "./UserInviteTable";
 
 export default function UserManagementPageWrapper() {
   const canInviteUsers = useIsUserAdmin();
@@ -40,6 +41,10 @@ function UserManagementPage(props: {
 
   const loadAllUsers = useDashboardUsersStore(
     (store) => store.getAllDashboardUsers
+  );
+
+  const hasAtLeastOneInvite = useDashboardUserInvitesStore(
+    (store) => store.invites.length > 0
   );
   const loadUserInvites = useDashboardUserInvitesStore(
     (store) => store.loadInvites
@@ -90,6 +95,9 @@ function UserManagementPage(props: {
         )}
         {!dashboardUsersLoading && !dashboardUsersError && (
           <Box>
+            {hasAtLeastOneInvite && (
+              <UserInviteTable canManageUsers={canManageUsers} />
+            )}
             <UserTable canManageUsers={canManageUsers} />
           </Box>
         )}

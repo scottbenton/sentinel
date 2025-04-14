@@ -40,6 +40,7 @@ export function UserInviteDialog() {
     register,
     formState: { errors },
     control,
+    reset,
   } = useForm({
     defaultValues: {
       emails: [
@@ -65,9 +66,13 @@ export function UserInviteDialog() {
       createInvites(
         dashboardId,
         formState.emails.map((email) => email.address)
-      ).catch(() => {});
+      )
+        .then(() => {
+          reset();
+        })
+        .catch(() => {});
     },
-    [dashboardId, createInvites]
+    [dashboardId, createInvites, reset]
   );
 
   return (

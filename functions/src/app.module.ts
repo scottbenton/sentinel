@@ -14,6 +14,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { BullModule } from "@nestjs/bullmq";
 import { ScheduleModule } from "@nestjs/schedule";
 import { DashboardUsersController } from "./dashboard_users/dashboard_users.controller";
+import { EmailService } from './email/email.service';
 
 @Module({
   imports: [
@@ -35,6 +36,6 @@ import { DashboardUsersController } from "./dashboard_users/dashboard_users.cont
     }),
   ],
   controllers: [AppController, ScraperController, DashboardUsersController],
-  providers: [AppService, AiScraperService],
+  providers: [AppService, AiScraperService, EmailService],
 })
 export class AppModule {}

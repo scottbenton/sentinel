@@ -22,4 +22,6 @@ export const pageConfig = {
     `~/dashboards/${dashboardId}/organizations/${orgId}/meetings/${meetingId}/edit`,
 
   userManagement: (dashboardId: number) => `~/dashboards/${dashboardId}/users`,
+
+  inviteLink: (inviteId: number) => `~/invite/${inviteId}`,
 };

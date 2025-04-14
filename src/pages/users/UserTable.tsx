@@ -1,7 +1,7 @@
 import { IDashboardUser } from "@/services/dashboardUsers.service";
 import { useUID } from "@/stores/auth.store";
 import { useDashboardUsersStore } from "@/stores/dashboardUsers.store";
-import { Box, Button, Table } from "@chakra-ui/react";
+import { Box, Button, Table, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { UserRoleDialog } from "./UserRoleDialog";
 import { useConfirm } from "@/providers/ConfirmProvider";
@@ -70,7 +70,10 @@ export function UserTable(props: UserTableProps) {
 
   return (
     <>
-      <Table.Root>
+      <Text fontSize="lg" fontWeight="bold">
+        Users
+      </Text>
+      <Table.Root mb={8} mx={-2}>
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeader>Name</Table.ColumnHeader>
