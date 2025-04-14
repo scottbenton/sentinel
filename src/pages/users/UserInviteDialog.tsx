@@ -1,5 +1,7 @@
 import { Dialog } from "@/components/common/Dialog";
 import { HookFormTextField } from "@/components/common/HookFormTextField";
+import { useDashboardId } from "@/hooks/useDashboardId";
+import { useDashboardUserInvitesStore } from "@/stores/dashboardUserInvites.store";
 import {
   Box,
   Button,
@@ -28,6 +30,11 @@ const schema = yup.object({
 });
 
 export function UserInviteDialog() {
+  const dashboardId = useDashboardId();
+  const createInvites = useDashboardUserInvitesStore(
+    (store) => store.createInvites
+  );
+
   const {
     handleSubmit,
     register,
@@ -55,12 +62,14 @@ export function UserInviteDialog() {
 
   const onSubmit = useCallback(
     (formState: { emails: { address: string }[] }) => {
-      console.log(formState);
+      createInvites(
+        dashboardId,
+        formState.emails.map((email) => email.address)
+      ).catch(() => {});
     },
-    []
+    [dashboardId, createInvites]
   );
 
-  console.debug(errors);
   return (
     <Dialog
       trigger={<Button>Invite Users</Button>}
@@ -112,7 +121,9 @@ export function UserInviteDialog() {
                   Close
                 </Button>
               </DialogActionTrigger>
-              <Button type="submit">Send Invite Emails</Button>
+              <DialogActionTrigger asChild>
+                <Button type="submit">Send Invite Emails</Button>
+              </DialogActionTrigger>
             </Group>
           </form>
         </CDialog.Body>

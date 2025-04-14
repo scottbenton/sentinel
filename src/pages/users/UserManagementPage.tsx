@@ -14,6 +14,7 @@ import { Alert } from "@/components/ui/alert";
 import { useEffect, useRef } from "react";
 import { UserTable } from "./UserTable";
 import { UserInviteDialog } from "./UserInviteDialog";
+import { useDashboardUserInvitesStore } from "@/stores/dashboardUserInvites.store";
 
 export default function UserManagementPageWrapper() {
   const canInviteUsers = useIsUserAdmin();
@@ -40,6 +41,10 @@ function UserManagementPage(props: {
   const loadAllUsers = useDashboardUsersStore(
     (store) => store.getAllDashboardUsers
   );
+  const loadUserInvites = useDashboardUserInvitesStore(
+    (store) => store.loadInvites
+  );
+
   const dashboardId = useDashboardId();
   const hasStartedLoadForId = useRef<number | undefined>(undefined);
   useEffect(() => {
@@ -53,8 +58,9 @@ function UserManagementPage(props: {
         .finally(() => {
           hasStartedLoadForId.current = undefined;
         });
+      loadUserInvites(dashboardId).catch(() => {});
     }
-  }, [dashboardId, loadAllUsers]);
+  }, [dashboardId, loadAllUsers, loadUserInvites]);
 
   const dashboardName = useDashboardStore(
     (store) => store.dashboard?.label ?? "Loading"
