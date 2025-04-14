@@ -1,59 +1,85 @@
-import { AuthGuard } from '../auth/auth.guard';
-import { DashboardUsersService } from './dashboard_users.service';
-import { OrganizationsService } from '../organizations/organizations.service';
+import { AuthGuard } from "../auth/auth.guard";
+import { DashboardUsersService } from "./dashboard_users.service";
 import {
+  Body,
   Controller,
   Logger,
   Param,
   Post,
   Request,
   UseGuards,
-} from '@nestjs/common';
+} from "@nestjs/common";
+import { ArrayNotEmpty, IsArray } from "class-validator";
+class InviteUserDTO {
+  @IsArray()
+  @ArrayNotEmpty()
+  emailAddresses: string[];
+}
 
 @UseGuards(AuthGuard)
-@Controller('dashboard-users')
-export class ScraperController {
-  private readonly logger = new Logger(ScraperController.name);
+@Controller("dashboard-users")
+export class DashboardUsersController {
+  private readonly logger = new Logger(DashboardUsersController.name);
 
   constructor(
-    private readonly organizationService: OrganizationsService,
     private readonly dashboardUsersService: DashboardUsersService,
   ) {}
 
-  @Post(':organizationId')
-  async scrapeOrganizationPage(
+  @Post(":dashboardId")
+  async inviteUsersToOrganization(
     @Request() req,
-    @Param('organizationId') organizationId: number,
-  ): Promise<void> {
+    @Param("dashboardId") dashboardId: number,
+    @Body() inviteUsersDTO: InviteUserDTO,
+  ): Promise<Record<string, number>> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const userId: string = req.user?.sub;
     this.logger.log(userId);
     if (!userId) {
-      this.logger.error('User ID is not available in the request');
-      throw new Error('User ID is not available in the request');
+      this.logger.error("User ID is not available in the request");
+      throw new Error("User ID is not available in the request");
     }
-
-    const org =
-      await this.organizationService.getOrganizationFromId(organizationId);
-
-    const isUserMeetingAdmin =
-      await this.dashboardUsersService.checkUserIsUserMeetingAdmin(
-        userId,
-        org.dashboard_id,
-      );
-
-    if (!isUserMeetingAdmin) {
+    const isUserUserAdmin = this.dashboardUsersService.checkUserIsUserUserAdmin(
+      userId,
+      dashboardId,
+    );
+    if (!isUserUserAdmin) {
       this.logger.error(
-        `User ${userId} is not an admin of the organization ${organizationId}`,
+        `User ${userId} is not an admin of the organization ${dashboardId}`,
       );
       throw new Error(
-        `User ${userId} is not an admin of the organization ${organizationId}`,
+        `User ${userId} is not an admin of the organization ${dashboardId}`,
       );
     }
     this.logger.log(
-      `User ${userId} is an admin of the organization ${organizationId}`,
+      `User ${userId} is an admin of the organization ${dashboardId}`,
     );
 
-    await this.scraperService.addOrganizationToQueue(organizationId);
+    const { existingInvites, nonPreExistingInvites } = await this
+      .dashboardUsersService.getExistingInvitesIfExists(
+        dashboardId,
+        inviteUsersDTO.emailAddresses,
+      );
+
+    let inviteKeys: Record<string, number> = {
+      ...existingInvites,
+    };
+
+    if (nonPreExistingInvites.length > 0) {
+      const createdInviteKeys = await this.dashboardUsersService.createInvites(
+        dashboardId,
+        nonPreExistingInvites,
+        userId,
+      );
+      inviteKeys = {
+        ...inviteKeys,
+        ...createdInviteKeys,
+      };
+    }
+
+    this.logger.log(
+      `User ${userId} invited ${inviteUsersDTO.emailAddresses.length} users to the organization ${dashboardId}`,
+    );
+
+    return inviteKeys;
   }
 }

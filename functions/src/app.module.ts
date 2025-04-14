@@ -13,6 +13,7 @@ import { ScraperController } from "./scraper/scraper.controller";
 import { JwtModule } from "@nestjs/jwt";
 import { BullModule } from "@nestjs/bullmq";
 import { ScheduleModule } from "@nestjs/schedule";
+import { DashboardUsersController } from "./dashboard_users/dashboard_users.controller";
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { ScheduleModule } from "@nestjs/schedule";
       },
     }),
   ],
-  controllers: [AppController, ScraperController],
+  controllers: [AppController, ScraperController, DashboardUsersController],
   providers: [AppService, AiScraperService],
 })
 export class AppModule {}
