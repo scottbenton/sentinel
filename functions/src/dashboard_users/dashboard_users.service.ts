@@ -1,7 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { SupabaseClient } from '../types/supabase.type';
-import { SupabaseService } from '../supabase/supabase.service';
-import { Tables } from 'src/types/supabase-generated.types';
+import { Injectable, Logger } from "@nestjs/common";
+import { SupabaseClient } from "../types/supabase.type";
+import { SupabaseService } from "../supabase/supabase.service";
+import { Tables } from "src/types/supabase-generated.types";
+import { EmailService } from "src/email/email.service";
 
 @Injectable()
 export class DashboardUsersService {
@@ -9,19 +10,37 @@ export class DashboardUsersService {
 
   private readonly logger = new Logger(DashboardUsersService.name);
 
-  constructor(supabaseService: SupabaseService) {
+  constructor(
+    supabaseService: SupabaseService,
+    private emailService: EmailService,
+  ) {
     this.supabase = supabaseService.supabase;
+  }
+
+  private async getDashboardName(
+    dashboardId: number,
+  ): Promise<string> {
+    const { data, error } = await this.supabase
+      .from("dashboards")
+      .select("label")
+      .eq("id", dashboardId)
+      .single();
+
+    if (error) {
+      throw new Error(`Error fetching dashboard name: ${error.message}`);
+    }
+    return data.label;
   }
 
   private async getDashboardUser(
     userId: string,
     dashboardId: number,
-  ): Promise<Tables<'dashboard_users'>> {
+  ): Promise<Tables<"dashboard_users">> {
     const result = await this.supabase
-      .from('dashboard_users')
+      .from("dashboard_users")
       .select()
-      .eq('user_id', userId)
-      .eq('dashboard_id', dashboardId)
+      .eq("user_id", userId)
+      .eq("dashboard_id", dashboardId)
       .single();
 
     if (result.error) {
@@ -56,10 +75,10 @@ export class DashboardUsersService {
     nonPreExistingInvites: string[];
   }> {
     const { data, error } = await this.supabase
-      .from('dashboard_user_invites')
-      .select('id, email_address')
-      .eq('dashboard_id', dashboardId)
-      .in('email_address', emails);
+      .from("dashboard_user_invites")
+      .select("id, email_address")
+      .eq("dashboard_id", dashboardId)
+      .in("email_address", emails);
 
     if (error) {
       throw new Error(`Error fetching existing invites: ${error.message}`);
@@ -82,7 +101,7 @@ export class DashboardUsersService {
     invitedBy: string,
   ): Promise<Record<string, number>> {
     const { data, error } = await this.supabase
-      .from('dashboard_user_invites')
+      .from("dashboard_user_invites")
       .insert(
         emailAddresses.map((email) => ({
           dashboard_id: dashboardId,
@@ -90,7 +109,7 @@ export class DashboardUsersService {
           invited_by: invitedBy,
         })),
       )
-      .select('id, email_address');
+      .select("id, email_address");
 
     if (error) {
       throw new Error(`Error creating invite: ${error.message}`);
@@ -103,9 +122,21 @@ export class DashboardUsersService {
     return inviteKeys;
   }
 
-  async sendInviteEmail(email: string, inviteId: number): Promise<void> {
+  async sendInviteEmail(
+    email: string,
+    inviteId: number,
+    dashboardId: number,
+  ): Promise<void> {
     this.logger.log(
       `Sending invite email to ${email} with invite ID ${inviteId}`,
+    );
+
+    const dashboardName = await this.getDashboardName(dashboardId);
+
+    await this.emailService.sendInviteEmail(
+      email,
+      inviteId,
+      dashboardName,
     );
   }
 }
