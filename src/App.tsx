@@ -38,12 +38,17 @@ const UserManagementPage = lazy(
   () => import("./pages/users/UserManagementPage")
 );
 
+const AcceptInvitePage = lazy(() => import("./pages/invite/InvitePage"));
+
 function App() {
   return (
     <>
       <Switch>
         <Route path="/">
           <PageWrapper lazy={HomePage} />
+        </Route>
+        <Route path="/invite/:inviteCode">
+          <PageWrapper requiresAuth lazy={AcceptInvitePage} />
         </Route>
         <Route path="/dashboards" nest>
           <Switch>

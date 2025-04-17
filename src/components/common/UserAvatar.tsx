@@ -34,8 +34,17 @@ export function UserAvatar(props: UserAvatarProps) {
       colorPalette={uid ? pickPalette(uid) : "gray"}
       variant={uid ? "subtle" : "solid"}
     >
-      <Avatar.Fallback name={uid ? name ?? "Loading" : "Sentinel Bot"}>
-        {!uid && <BotIcon />}
+      <Avatar.Fallback
+        css={
+          !uid && {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }
+        }
+        name={uid ? name ?? "Loading" : "Sentinel Bot"}
+      >
+        {!uid && <BotIcon width="60%" height="60%" />}
       </Avatar.Fallback>
     </Avatar.Root>
   );

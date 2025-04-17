@@ -73,27 +73,29 @@ export default function MeetingSheetPage() {
           { title: meeting?.name ?? "Loading" },
         ]}
         action={
-          <Group>
-            <Button variant="subtle" asChild>
-              <Link
-                to={pageConfig.meetingEdit(
-                  dashboardId,
-                  organizationId,
-                  meetingId
-                )}
+          isMeetingAdmin && (
+            <Group>
+              <Button variant="subtle" asChild>
+                <Link
+                  to={pageConfig.meetingEdit(
+                    dashboardId,
+                    organizationId,
+                    meetingId
+                  )}
+                >
+                  Edit Meeting
+                </Link>
+              </Button>
+              <IconButton
+                aria-label="Delete Meeting"
+                variant="ghost"
+                colorPalette={"gray"}
+                onClick={handleDelete}
               >
-                Edit Meeting
-              </Link>
-            </Button>
-            <IconButton
-              aria-label="Delete Meeting"
-              variant="ghost"
-              colorPalette={"gray"}
-              onClick={handleDelete}
-            >
-              <TrashIcon />
-            </IconButton>
-          </Group>
+                <TrashIcon />
+              </IconButton>
+            </Group>
+          )
         }
       />
       <PageContent p={4}>

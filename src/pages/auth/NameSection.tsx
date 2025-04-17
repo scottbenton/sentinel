@@ -2,7 +2,7 @@ import { ProgressBar } from "@/components/common/ProgressBar";
 import { useUID } from "@/stores/auth.store";
 import { Box, Button, Field, Input } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import { Redirect, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import * as yup from "yup";
 
 import { pageConfig } from "../pageConfig";
@@ -56,7 +56,7 @@ export function NameSection() {
   }
 
   if (usersName.name) {
-    return <Redirect to={continuePath ?? pageConfig.dashboards} />;
+    return null;
   }
 
   return (

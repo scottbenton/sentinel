@@ -91,12 +91,18 @@ export class OrganizationsService {
       throw new Error("No access token");
     }
     try {
-      await fetch(import.meta.env.VITE_API_URL + `/scraper/${organizationId}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
+      const response = await fetch(
+        import.meta.env.VITE_API_URL + `/scraper/${organizationId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          method: "POST",
         },
-        method: "POST",
-      });
+      );
+      if (!response.ok) {
+        throw new Error("Error requesting an organization sync");
+      }
     } catch (e) {
       console.error(e);
       throw new Error("Error requesting an organization sync");
