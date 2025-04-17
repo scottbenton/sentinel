@@ -11,7 +11,7 @@ export function UpcomingMeetings() {
 
   return (
     <Box>
-      <Heading>Upcoming Meetings (next 30 Days)</Heading>
+      <Heading>Upcoming Meetings</Heading>
       <MeetingCardList
         meetings={upcomingMeetings}
         emptyText="No upcoming meetings"

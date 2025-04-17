@@ -11,6 +11,7 @@ import { NameSection } from "./NameSection";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageContent } from "@/components/layout/PageContent";
 import { useUserNameWithStatus } from "@/stores/users.store";
+import { useContinueQueryParam } from "@/hooks/useContinueParam";
 
 enum AuthStep {
   Email,
@@ -20,6 +21,7 @@ enum AuthStep {
 export default function AuthPage() {
   const [step, setStep] = useState<AuthStep>(AuthStep.Email);
   const [email, setEmail] = useState<string>("");
+  const continuePath = useContinueQueryParam();
 
   const authStatus = useAuthStatus();
   const uid = useUID();
@@ -29,7 +31,7 @@ export default function AuthPage() {
     return <ProgressBar />;
   }
   if (authStatus === AuthStatus.Authenticated && !loading && name) {
-    return <Redirect to={pageConfig.dashboards} />;
+    return <Redirect to={continuePath ?? pageConfig.dashboards} />;
   }
 
   return (

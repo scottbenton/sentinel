@@ -15,6 +15,7 @@ interface DashboardUserInvitesStoreState {
 }
 interface DashboardUserInvitesStoreActions {
     loadInvites: (dashboardId: number) => Promise<void>;
+    acceptInvite: (inviteId: number) => Promise<number>;
     createInvites: (
         dashboardId: number,
         emails: string[],
@@ -57,6 +58,9 @@ export const useDashboardUserInvitesStore = createWithEqualityFn<
                     reject(error);
                 });
             });
+        },
+        acceptInvite: (inviteId: number) => {
+            return DashboardUserInvitesService.acceptInvite(inviteId);
         },
         createInvites: (dashboardId: number, emails: string[]) => {
             return new Promise((resolve, reject) => {

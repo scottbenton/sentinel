@@ -56,7 +56,7 @@ export function NameSection() {
   }
 
   if (usersName.name) {
-    return <Redirect to={continuePath ?? pageConfig.dashboards} />;
+    return null;
   }
 
   return (

@@ -22,7 +22,7 @@ export class DashboardUserInvitesService {
             throw new Error("No access token");
         }
         try {
-            await fetch(
+            const response = await fetch(
                 import.meta.env.VITE_API_URL +
                     `/dashboard-users/${dashboardId}`,
                 {
@@ -36,9 +36,46 @@ export class DashboardUserInvitesService {
                     method: "POST",
                 },
             );
+            if (!response.ok) {
+                throw new Error("Error creating invites");
+            }
         } catch (e) {
             console.error(e);
             throw new Error("Error creating invites");
+        }
+    }
+
+    public static async acceptInvite(
+        inviteId: number,
+    ): Promise<number> {
+        const accessToken = await AuthService.getAccessToken();
+        if (!accessToken) {
+            throw new Error("No access token");
+        }
+        try {
+            const response = await fetch(
+                import.meta.env.VITE_API_URL +
+                    `/dashboard-users/invite/${inviteId}/accept`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    method: "POST",
+                },
+            );
+            const { dashboardId, message } = await response.json();
+            if (!response.ok) {
+                throw new Error(message ?? "Error accepting invite");
+            }
+            if (!dashboardId) {
+                throw new Error(message ?? "No dashboardId returned");
+            }
+            return dashboardId;
+        } catch (e) {
+            console.error(e);
+            throw new Error(
+                e instanceof Error ? e.message : "Error accepting invite",
+            );
         }
     }
 
