@@ -1,7 +1,6 @@
 import { PageContent } from "@/components/layout/PageContent";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useDashboardUserInvitesStore } from "@/stores/dashboardUserInvites.store";
-import { Text } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { pageConfig } from "../pageConfig";
