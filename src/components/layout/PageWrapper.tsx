@@ -17,7 +17,7 @@ export function PageWrapper(props: PageWrapperProps) {
   const location = useLocation()[0];
   const status = useAuthStatus();
   if (requiresAuth && status === AuthStatus.Unauthenticated) {
-    const url = `${pageConfig.auth}?redirect=${encodeURIComponent(location)}`;
+    const url = `${pageConfig.auth}?continue=${encodeURIComponent(location)}`;
     return <Redirect to={url} />;
   }
 

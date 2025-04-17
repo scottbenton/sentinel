@@ -7,12 +7,15 @@ import {
 import { pageConfig } from "../pageConfig";
 import { useDashboardId } from "@/hooks/useDashboardId";
 import { PageContent } from "@/components/layout/PageContent";
-import { Box, Button } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { useDashboardUsersStore } from "@/stores/dashboardUsers.store";
 import { PageProgressBar } from "@/components/layout/PageProgressBar";
 import { Alert } from "@/components/ui/alert";
 import { useEffect, useRef } from "react";
 import { UserTable } from "./UserTable";
+import { UserInviteDialog } from "./UserInviteDialog";
+import { useDashboardUserInvitesStore } from "@/stores/dashboardUserInvites.store";
+import { UserInviteTable } from "./UserInviteTable";
 
 export default function UserManagementPageWrapper() {
   const canInviteUsers = useIsUserAdmin();
@@ -39,6 +42,14 @@ function UserManagementPage(props: {
   const loadAllUsers = useDashboardUsersStore(
     (store) => store.getAllDashboardUsers
   );
+
+  const hasAtLeastOneInvite = useDashboardUserInvitesStore(
+    (store) => store.invites.length > 0
+  );
+  const loadUserInvites = useDashboardUserInvitesStore(
+    (store) => store.loadInvites
+  );
+
   const dashboardId = useDashboardId();
   const hasStartedLoadForId = useRef<number | undefined>(undefined);
   useEffect(() => {
@@ -52,8 +63,9 @@ function UserManagementPage(props: {
         .finally(() => {
           hasStartedLoadForId.current = undefined;
         });
+      loadUserInvites(dashboardId).catch(() => {});
     }
-  }, [dashboardId, loadAllUsers]);
+  }, [dashboardId, loadAllUsers, loadUserInvites]);
 
   const dashboardName = useDashboardStore(
     (store) => store.dashboard?.label ?? "Loading"
@@ -74,7 +86,7 @@ function UserManagementPage(props: {
             href: pageConfig.dashboard(dashboardId),
           },
         ]}
-        action={canInviteUsers && <Button>Invite Users</Button>}
+        action={canInviteUsers && <UserInviteDialog />}
       />
       <PageContent p={4}>
         <PageProgressBar loading={dashboardUsersLoading} />
@@ -83,6 +95,9 @@ function UserManagementPage(props: {
         )}
         {!dashboardUsersLoading && !dashboardUsersError && (
           <Box>
+            {hasAtLeastOneInvite && (
+              <UserInviteTable canManageUsers={canManageUsers} />
+            )}
             <UserTable canManageUsers={canManageUsers} />
           </Box>
         )}

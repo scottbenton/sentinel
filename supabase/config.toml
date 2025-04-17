@@ -80,10 +80,10 @@ enabled = true
 # Port to use for the email testing server web interface.
 port = 44324
 # Uncomment to expose additional ports for testing user applications that send emails.
-# smtp_port = 54325
+smtp_port = 54325
 # pop3_port = 54326
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
+admin_email = "sentinel@scottbenton.dev"
+sender_name = "Sentinel"
 
 [storage]
 enabled = true

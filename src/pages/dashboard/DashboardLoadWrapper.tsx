@@ -1,4 +1,5 @@
 import { useListenToCurrentDashboard } from "@/stores/dashboard.store";
+import { useSyncDashboardUserInvites } from "@/stores/dashboardUserInvites.store";
 import { useSyncDashboardUsers } from "@/stores/dashboardUsers.store";
 import { useSyncFutureMeetings } from "@/stores/meetings.store";
 import { useSyncOrganizations } from "@/stores/organizations.store";
@@ -10,6 +11,7 @@ export function DashboardLoadWrapper(props: PropsWithChildren) {
   useSyncOrganizations();
   useSyncFutureMeetings();
   useSyncDashboardUsers();
+  useSyncDashboardUserInvites();
 
   return children;
 }
