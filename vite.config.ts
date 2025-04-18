@@ -12,7 +12,7 @@ export default defineConfig({
       registerType: "autoUpdate",
       injectRegister: "auto",
       devOptions: {
-        enabled: true,
+        enabled: false,
         suppressWarnings: true,
       },
       manifest: {
@@ -20,7 +20,7 @@ export default defineConfig({
         short_name: "Sentinel",
         description:
           "Sentinel is a web application for monitoring local governments.",
-        display: "minimal-ui",
+        display: "standalone",
         theme_color: "#111111",
         background_color: "#ffffff",
         icons: [
