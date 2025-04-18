@@ -49,7 +49,6 @@ function App() {
     onRegisteredSW: (_, r) => {
       if (r) {
         setInterval(() => {
-          console.debug("Updating service worker");
           r.update();
         }, SERVICE_WORKER_UPDATE_INTERVAL_MINUTES * 60 * 1000);
       }
