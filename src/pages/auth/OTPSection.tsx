@@ -44,19 +44,21 @@ export function OTPSection(props: OTPSectionProps) {
 
   return (
     <Box w="100%" as="form" onSubmit={onSubmit}>
-      <Alert.Root status="info">
-        <Alert.Indicator />
-        <Alert.Content>
-          <Alert.Description>
-            In a local environment, emails are sent to fake inboxes. You can
-            check the inbox for {email} to get the OTP{" "}
-            <Link href={`http://localhost:44324/`} target="_blank">
-              here
-            </Link>
-            .
-          </Alert.Description>
-        </Alert.Content>
-      </Alert.Root>
+      {import.meta.env.DEV && (
+        <Alert.Root status="info">
+          <Alert.Indicator />
+          <Alert.Content>
+            <Alert.Description>
+              In a local environment, emails are sent to fake inboxes. You can
+              check the inbox for {email} to get the OTP{" "}
+              <Link href={`http://localhost:44324/`} target="_blank">
+                here
+              </Link>
+              .
+            </Alert.Description>
+          </Alert.Content>
+        </Alert.Root>
+      )}
       <Field.Root
         mt={4}
         required
