@@ -45,6 +45,7 @@ const SERVICE_WORKER_UPDATE_INTERVAL_MINUTES = 0.5;
 
 function App() {
   useRegisterSW({
+    immediate: true,
     onRegisteredSW: (_, r) => {
       if (r) {
         setInterval(() => {
