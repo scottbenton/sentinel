@@ -15,6 +15,9 @@ export default defineConfig({
         enabled: false,
         suppressWarnings: true,
       },
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,png,svg}"], // Ensure all chunks are cached
+      },
       manifest: {
         name: "Sentinel",
         short_name: "Sentinel",
