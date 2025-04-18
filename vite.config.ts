@@ -10,8 +10,7 @@ export default defineConfig({
     tsconfigPaths(),
     VitePWA({
       registerType: "autoUpdate",
-      injectRegister: "auto",
-      base: "/",
+      injectRegister: false,
       devOptions: {
         enabled: false,
         suppressWarnings: true,
