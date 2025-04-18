@@ -36,10 +36,7 @@ export default function AuthPage() {
 
   return (
     <>
-      <PageHeader
-        title="Login or Create an Account Test Changes"
-        maxW="breakpoint-sm"
-      />
+      <PageHeader title="Login or Create an Account" maxW="breakpoint-sm" />
       <PageContent maxW="breakpoint-sm" p={4}>
         <Box display="flex" mb={4}>
           <Image src={"/SentinelWordmark.png"} alt="Sentinel" h={16} />
