@@ -21,6 +21,8 @@ export default defineConfig({
       manifest: {
         name: "Sentinel",
         short_name: "Sentinel",
+        start_url: "/dashboards",
+        scope: "/",
         description:
           "Sentinel is a web application for monitoring local governments.",
         display: "standalone",
