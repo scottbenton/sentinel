@@ -3,6 +3,7 @@ import { Route, Switch } from "wouter";
 import { PageWrapper } from "./components/layout/PageWrapper";
 import { DashboardLoadWrapper } from "./pages/dashboard/DashboardLoadWrapper";
 import { MeetingLoadWrapper } from "./pages/meetings/MeetingLoadWrapper";
+import { useRegisterSW } from "virtual:pwa-register/react";
 
 const HomePage = lazy(() => import("./pages/home/HomePage"));
 const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
@@ -40,7 +41,20 @@ const UserManagementPage = lazy(
 
 const AcceptInvitePage = lazy(() => import("./pages/invite/InvitePage"));
 
+const SERVICE_WORKER_UPDATE_INTERVAL_MINUTES = 0.5;
+
 function App() {
+  useRegisterSW({
+    onRegisteredSW: (_, r) => {
+      if (r) {
+        setInterval(() => {
+          console.debug("Updating service worker");
+          r.update();
+        }, SERVICE_WORKER_UPDATE_INTERVAL_MINUTES * 60 * 1000);
+      }
+    },
+  });
+
   return (
     <>
       <Switch>
