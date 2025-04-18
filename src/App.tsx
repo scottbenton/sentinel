@@ -3,6 +3,7 @@ import { Route, Switch } from "wouter";
 import { PageWrapper } from "./components/layout/PageWrapper";
 import { DashboardLoadWrapper } from "./pages/dashboard/DashboardLoadWrapper";
 import { MeetingLoadWrapper } from "./pages/meetings/MeetingLoadWrapper";
+import { usePWA } from "./hooks/usePWA";
 
 const HomePage = lazy(() => import("./pages/home/HomePage"));
 const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
@@ -41,6 +42,7 @@ const UserManagementPage = lazy(
 const AcceptInvitePage = lazy(() => import("./pages/invite/InvitePage"));
 
 function App() {
+  usePWA();
   return (
     <>
       <Switch>
