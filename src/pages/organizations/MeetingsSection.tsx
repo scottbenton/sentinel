@@ -32,6 +32,9 @@ export function MeetingsSection() {
 
   const lastSynced = useCurrentOrganization((org) => org?.lastSynced ?? null);
   const syncError = useCurrentOrganization((org) => org?.syncError ?? null);
+  const syncLoading = useCurrentOrganization(
+    (org) => org?.syncLoading ?? false
+  );
 
   const upcomingMeetings = useMeetingsStore((store) => {
     return Object.values(store.futureMeetings)
@@ -86,6 +89,7 @@ export function MeetingsSection() {
                 aria-label="Sync Now"
                 variant="subtle"
                 onClick={handleRunOrganizationSync}
+                loading={syncLoading}
               >
                 <RefreshCcw />
               </IconButton>

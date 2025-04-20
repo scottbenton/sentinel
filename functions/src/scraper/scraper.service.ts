@@ -21,6 +21,16 @@ export class ScraperService {
         // Placeholder for adding organization to queue logic
         this.logger.log(`Adding organization ${organizationId} to queue`);
 
+        try {
+            await this.organizationsService.bulkUpdateSyncPending(
+                [organizationId],
+                true,
+            );
+        } catch {
+            this.logger.error(
+                `Error updating sync pending status for organization ${organizationId}`,
+            );
+        }
         await this.organizationScrapeQueue.add(
             "scrape-organization",
             { organizationId },
@@ -41,13 +51,30 @@ export class ScraperService {
         );
 
         while (orgIds.length > 0) {
+            const successfulOrgIds: number[] = [];
             orgIds.forEach((orgId) => {
-                this.addOrganizationToQueue(orgId).catch((err) => {
+                this.addOrganizationToQueue(orgId).then(() =>
+                    successfulOrgIds.push(orgId)
+                ).catch((err) => {
                     this.logger.error(
                         `Error adding organization ${orgId} to queue: ${err}`,
                     );
                 });
             });
+
+            try {
+                await this.organizationsService.bulkUpdateSyncPending(
+                    successfulOrgIds,
+                    true,
+                );
+            } catch {
+                this.logger.error(
+                    `Error updating sync pending status for organizations: ${
+                        successfulOrgIds.join(", ")
+                    }`,
+                );
+            }
+
             orgIds = await this.organizationsService.getNextNOrganizationIds(
                 100,
                 orgIds[orgIds.length - 1],
