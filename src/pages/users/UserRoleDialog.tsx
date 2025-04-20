@@ -56,7 +56,7 @@ export function UserRoleDialog(props: UserRoleDialogProps) {
   return (
     <Dialog
       open={isOpen}
-      onClose={onClose}
+      onOpenChange={onClose}
       title={`Edit ${user.name ?? ""}'s roles`}
       content={
         <Box
@@ -110,9 +110,10 @@ export function UserRoleDialog(props: UserRoleDialogProps) {
       }
       actions={
         <>
-          {" "}
-          <DialogActionTrigger>
-            <Button variant="ghost">Cancel</Button>
+          <DialogActionTrigger asChild>
+            <Button variant="ghost" colorPalette={"gray"}>
+              Cancel
+            </Button>
           </DialogActionTrigger>
           <Button loading={isLoading} onClick={handleUpdateUsersRoles}>
             Save Changes

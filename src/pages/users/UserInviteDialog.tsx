@@ -1,5 +1,6 @@
 import { Dialog } from "@/components/common/Dialog";
 import { HookFormTextField } from "@/components/common/HookFormTextField";
+import { Alert } from "@/components/ui/alert";
 import { useDashboardId } from "@/hooks/useDashboardId";
 import { useDashboardUserInvitesStore } from "@/stores/dashboardUserInvites.store";
 import {
@@ -13,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { XIcon } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import * as yup from "yup";
 
@@ -30,6 +31,8 @@ const schema = yup.object({
 });
 
 export function UserInviteDialog() {
+  const [open, setOpen] = useState(false);
+
   const dashboardId = useDashboardId();
   const createInvites = useDashboardUserInvitesStore(
     (store) => store.createInvites
@@ -61,22 +64,33 @@ export function UserInviteDialog() {
     },
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const onSubmit = useCallback(
     (formState: { emails: { address: string }[] }) => {
+      setIsLoading(true);
+      setErrorMessage(null);
       createInvites(
         dashboardId,
         formState.emails.map((email) => email.address)
       )
         .then(() => {
+          setIsLoading(false);
+          setOpen(false);
           reset();
         })
-        .catch(() => {});
+        .catch(() => {
+          setIsLoading(false);
+          setErrorMessage("Error sending invites. Please try again.");
+        });
     },
     [dashboardId, createInvites, reset]
   );
 
   return (
     <Dialog
+      open={open}
+      onOpenChange={setOpen}
       trigger={<Button>Invite Users</Button>}
       title="Invite Users"
       fullContent={
@@ -120,15 +134,25 @@ export function UserInviteDialog() {
               </Button>
             </Box>
 
+            {errorMessage && (
+              <Alert status="error" mt={4} title="Error">
+                <Text>{errorMessage}</Text>
+              </Alert>
+            )}
+
             <Group width={"100%"} mt={4} alignSelf="end" justifyContent="end">
               <DialogActionTrigger asChild>
-                <Button colorPalette="gray" variant="ghost">
+                <Button
+                  colorPalette="gray"
+                  variant="ghost"
+                  disabled={isLoading}
+                >
                   Close
                 </Button>
               </DialogActionTrigger>
-              <DialogActionTrigger asChild>
-                <Button type="submit">Send Invite Emails</Button>
-              </DialogActionTrigger>
+              <Button type="submit" loading={isLoading}>
+                Send Invite Emails
+              </Button>
             </Group>
           </form>
         </CDialog.Body>
