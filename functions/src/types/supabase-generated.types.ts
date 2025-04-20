@@ -271,6 +271,7 @@ export type Database = {
           last_synced: string | null
           name: string
           sync_error: string | null
+          sync_pending: boolean
           url: string
         }
         Insert: {
@@ -281,6 +282,7 @@ export type Database = {
           last_synced?: string | null
           name: string
           sync_error?: string | null
+          sync_pending?: boolean
           url: string
         }
         Update: {
@@ -291,6 +293,7 @@ export type Database = {
           last_synced?: string | null
           name?: string
           sync_error?: string | null
+          sync_pending?: boolean
           url?: string
         }
         Relationships: [

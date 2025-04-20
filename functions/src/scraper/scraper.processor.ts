@@ -18,7 +18,15 @@ export class ScraperProcessor extends WorkerHost {
         super();
     }
 
-    async process(job: Job<any, any, string>) {
+    async process(
+        job: Job<
+            {
+                organizationId: string;
+            },
+            any,
+            string
+        >,
+    ) {
         const { organizationId: orgIdString } = job.data;
         const orgId = parseInt(orgIdString);
 

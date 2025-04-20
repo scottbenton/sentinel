@@ -11,6 +11,7 @@ export interface IOrganization {
   description: string | null;
   url: string;
 
+  syncLoading: boolean;
   syncError: string | null;
   lastSynced: Date | null;
   createdAt: Date;
@@ -122,6 +123,7 @@ export class OrganizationsService {
       name: organizationDTO.name,
       description: organizationDTO.description,
       url: organizationDTO.url,
+      syncLoading: organizationDTO.sync_pending,
       syncError: organizationDTO.sync_error,
       lastSynced: organizationDTO.last_synced
         ? new Date(organizationDTO.last_synced)

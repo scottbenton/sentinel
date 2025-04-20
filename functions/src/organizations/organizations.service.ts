@@ -28,6 +28,21 @@ export class OrganizationsService {
         return result.data;
     }
 
+    async bulkUpdateSyncPending(
+        organizationIds: number[],
+        syncPending: boolean,
+    ) {
+        const result = await this.supabase.from("organizations").update({
+            sync_pending: syncPending,
+        }).in("id", organizationIds);
+
+        if (result.error) {
+            throw new Error(
+                `Error updating sync pending status: ${result.error.message}`,
+            );
+        }
+    }
+
     async updateLastScrapedDate(
         organizationId: number,
         lastScrapedDate: Date,
@@ -35,6 +50,7 @@ export class OrganizationsService {
         const result = await this.supabase.from("organizations").update({
             last_synced: lastScrapedDate.toISOString(),
             sync_error: null,
+            sync_pending: false,
         }).eq("id", organizationId);
 
         if (result.error) {
@@ -50,6 +66,7 @@ export class OrganizationsService {
     ) {
         const result = await this.supabase.from("organizations").update({
             sync_error: errorMessage,
+            sync_pending: false,
         }).eq("id", organizationId);
 
         if (result.error) {
