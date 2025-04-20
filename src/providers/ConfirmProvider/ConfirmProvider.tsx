@@ -78,7 +78,7 @@ export function ConfirmProvider(props: PropsWithChildren) {
             </Button>
           </>
         }
-        onClose={handleClose}
+        onOpenChange={handleClose}
       />
     </>
   );

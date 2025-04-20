@@ -10,7 +10,7 @@ export interface DialogProps {
   fullContent?: ReactNode;
   actions?: ReactNode;
   open?: boolean;
-  onClose?: () => void;
+  onOpenChange?: (open: boolean) => void;
   scrollOutside?: boolean;
   role?: "dialog" | "alertdialog";
   size?: DialogRootProps["size"];
@@ -24,7 +24,7 @@ export function Dialog(props: DialogProps) {
     fullContent,
     actions,
     open,
-    onClose,
+    onOpenChange,
     scrollOutside,
     role,
     size,
@@ -34,7 +34,7 @@ export function Dialog(props: DialogProps) {
     <CDialog.Root
       role={role}
       open={open}
-      onOpenChange={() => onClose && onClose()}
+      onOpenChange={({ open }) => onOpenChange?.(open)}
       lazyMount
       scrollBehavior={scrollOutside ? "outside" : "inside"}
       size={size}
