@@ -13,7 +13,7 @@ export default function OrganizationCreatePage() {
   return (
     <>
       <PageHeader
-        maxW="breakpoint-sm"
+        maxW="2xl"
         title="Add Organization"
         breadcrumbs={[
           { title: dashboardName, href: pageConfig.dashboard(dashboardId) },
@@ -21,7 +21,7 @@ export default function OrganizationCreatePage() {
         ]}
       />
 
-      <PageContent maxW="breakpoint-sm" p={4}>
+      <PageContent maxW="2xl" p={4}>
         <OrganizationForm />
       </PageContent>
     </>
