@@ -17,6 +17,7 @@ import {
   useIsDashboardAdmin,
 } from "@/stores/dashboard.store";
 import { MeetingsSection } from "./MeetingsSection";
+import { OrganizationDescription } from "./OrganizationDescription";
 
 export default function OrganizationSheetPage() {
   const dashboardId = useDashboardId();
@@ -66,11 +67,12 @@ export default function OrganizationSheetPage() {
           </Group>
         }
       />
-      <PageContent p={4}>
+      <PageContent p={4} display="flex" flexDir="column" gap={6}>
         <PageProgressBar loading={orgsLoading} />
         {orgsError && <Alert status="error">{orgsError}</Alert>}
         {org && (
           <>
+            <OrganizationDescription />
             <MeetingsSection />
           </>
         )}

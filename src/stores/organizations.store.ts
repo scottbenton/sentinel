@@ -20,11 +20,13 @@ interface OrganizationsStoreActions {
     dashboardId: number,
     name: string,
     url: string,
+    description: string | null,
   ) => Promise<number>;
   updateOrganization: (
     organizationId: number,
     name: string,
     url: string,
+    description: string | null,
   ) => Promise<void>;
   deleteOrganization: (
     organizationId: number,
@@ -72,14 +74,20 @@ export const useOrganizationsStore = createWithEqualityFn<
         },
       );
     },
-    createOrganization: (dashboardId, name, url) => {
-      return OrganizationsService.createOrganization(dashboardId, name, url);
+    createOrganization: (dashboardId, name, url, description) => {
+      return OrganizationsService.createOrganization(
+        dashboardId,
+        name,
+        url,
+        description,
+      );
     },
-    updateOrganization: (organizationId, name, url) => {
+    updateOrganization: (organizationId, name, url, description) => {
       return OrganizationsService.updateOrganization(
         organizationId,
         name,
         url,
+        description,
       );
     },
     deleteOrganization: (organizationId) => {
