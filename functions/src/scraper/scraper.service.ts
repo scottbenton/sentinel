@@ -32,7 +32,7 @@ export class ScraperService {
         );
     }
 
-    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+    @Cron(CronExpression.EVERY_DAY_AT_1PM, { timeZone: "America/New_York" })
     async runAllSyncJobs() {
         this.logger.log("Running all sync jobs");
 
@@ -42,7 +42,11 @@ export class ScraperService {
 
         while (orgIds.length > 0) {
             orgIds.forEach((orgId) => {
-                this.addOrganizationToQueue(orgId);
+                this.addOrganizationToQueue(orgId).catch((err) => {
+                    this.logger.error(
+                        `Error adding organization ${orgId} to queue: ${err}`,
+                    );
+                });
             });
             orgIds = await this.organizationsService.getNextNOrganizationIds(
                 100,

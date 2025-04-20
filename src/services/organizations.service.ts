@@ -8,6 +8,7 @@ import { AuthService } from "./auth.service";
 export interface IOrganization {
   id: number;
   name: string;
+  description: string | null;
   url: string;
 
   syncError: string | null;
@@ -44,12 +45,14 @@ export class OrganizationsService {
     dashboardId: number,
     name: string,
     url: string,
+    description: string | null,
   ): Promise<number> {
     const orgId = await OrganizationsRepository.createOrganization(
       {
         dashboard_id: dashboardId,
         name,
         url,
+        description,
       },
     );
 
@@ -66,11 +69,13 @@ export class OrganizationsService {
     organizationId: number,
     name: string,
     url: string,
+    description: string | null,
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       OrganizationsRepository.updateOrganization(organizationId, {
         name,
         url,
+        description,
       })
         .then(() => resolve())
         .catch((e) => reject(e));
@@ -115,6 +120,7 @@ export class OrganizationsService {
     return {
       id: organizationDTO.id,
       name: organizationDTO.name,
+      description: organizationDTO.description,
       url: organizationDTO.url,
       syncError: organizationDTO.sync_error,
       lastSynced: organizationDTO.last_synced

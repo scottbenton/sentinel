@@ -31,7 +31,7 @@ export default function OrganizationSheetPage() {
   return (
     <>
       <PageHeader
-        maxW="breakpoint-sm"
+        maxW="2xl"
         title="Edit Organization"
         breadcrumbs={[
           { title: dashboardName, href: pageConfig.dashboard(dashboardId) },
@@ -45,7 +45,7 @@ export default function OrganizationSheetPage() {
         ]}
       />
 
-      <PageContent maxW="breakpoint-sm" p={4}>
+      <PageContent maxW="2xl" p={4}>
         <PageProgressBar loading={loading} />
 
         {error && (

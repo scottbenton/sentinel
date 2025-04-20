@@ -16,6 +16,7 @@ export function PageContent(props: PropsWithChildren<PageContentProps>) {
   return (
     <Container {...containerProps} maxW={maxW} flexGrow={1} display="flex">
       <Box
+        w="100%"
         borderTopRadius={"md"}
         bg="bg.panel"
         flexGrow={1}

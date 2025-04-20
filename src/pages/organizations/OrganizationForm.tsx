@@ -10,6 +10,7 @@ import { useUID } from "@/stores/auth.store";
 import { useDashboardId } from "@/hooks/useDashboardId";
 import { useOrganizationsStore } from "@/stores/organizations.store";
 import { IOrganization } from "@/services/organizations.service";
+import { HookFormRichTextEditor } from "@/components/common/RichTextEditor/HookFormRichTextEditor";
 
 interface OrganizationFormProps {
   existingOrganization?: IOrganization;
@@ -18,6 +19,7 @@ interface OrganizationFormProps {
 const schema = yup.object({
   name: yup.string().required(),
   url: yup.string().url().required(),
+  description: yup.string().nullable(),
 });
 
 export function OrganizationForm(props: OrganizationFormProps) {
@@ -27,6 +29,7 @@ export function OrganizationForm(props: OrganizationFormProps) {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -34,6 +37,7 @@ export function OrganizationForm(props: OrganizationFormProps) {
     defaultValues: {
       name: existingOrganization?.name ?? "",
       url: existingOrganization?.url ?? "",
+      description: existingOrganization?.description ?? null,
     },
   });
 
@@ -58,7 +62,12 @@ export function OrganizationForm(props: OrganizationFormProps) {
     setSubmitLoading(true);
 
     if (existingOrganization) {
-      updateOrganization(existingOrganization.id, data.name, data.url)
+      updateOrganization(
+        existingOrganization.id,
+        data.name,
+        data.url,
+        data.description || null
+      )
         .then(() => {
           navigate(
             pageConfig.organization(dashboardId, existingOrganization.id)
@@ -70,7 +79,12 @@ export function OrganizationForm(props: OrganizationFormProps) {
           setSubmitLoading(false);
         });
     } else {
-      createOrganization(dashboardId, data.name, data.url)
+      createOrganization(
+        dashboardId,
+        data.name,
+        data.url,
+        data.description || null
+      )
         .then((organizationId) => {
           navigate(pageConfig.organization(dashboardId, organizationId));
         })
@@ -105,9 +119,29 @@ export function OrganizationForm(props: OrganizationFormProps) {
           </Field.HelperText>
           <Field.ErrorText>{errors.url?.message}</Field.ErrorText>
         </Field.Root>
+
+        <HookFormRichTextEditor
+          label="Description"
+          control={control}
+          formField="description"
+          errorMessage={errors.description?.message}
+          required={false}
+        />
+
         <Group justifyContent={"flex-end"} mt={2}>
           <Button asChild variant="ghost" colorPalette={"gray"}>
-            <Link to={pageConfig.dashboard(dashboardId)}>Cancel</Link>
+            <Link
+              to={
+                existingOrganization
+                  ? pageConfig.organization(
+                      dashboardId,
+                      existingOrganization.id
+                    )
+                  : pageConfig.dashboard(dashboardId)
+              }
+            >
+              Cancel
+            </Link>
           </Button>
           <Button type="submit" loading={submitLoading}>
             Save Organization
