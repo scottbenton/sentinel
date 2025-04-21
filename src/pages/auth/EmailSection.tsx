@@ -47,6 +47,17 @@ export function EmailSection(props: EmailSectionProps) {
         Sentinel will send a one-time code to your email address to verify your
         identity.
       </Alert>
+      {import.meta.env.DEV && (
+        <Alert status="info" mt={2}>
+          The following accounts are configured for local testing:
+          <ul>
+            <li>admin@scottbenton.dev</li>
+            <li>inviter@scottbenton.dev</li>
+            <li>meeting-editor@scottbenton.dev</li>
+            <li>viewer@scottbenton.dev</li>
+          </ul>
+        </Alert>
+      )}
       <Field.Root
         mt={4}
         required
