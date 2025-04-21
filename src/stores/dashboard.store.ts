@@ -18,6 +18,7 @@ interface DashboardStoreState {
 }
 interface DashboardStoreActions {
     listenToDashboard: (dashboardId: number, userId: string) => () => void;
+    runAllSyncJobs: () => Promise<void>;
     updateDashboardLabel: (label: string) => Promise<void>;
     resetStore: () => void;
 }
@@ -63,6 +64,14 @@ export const useDashboardStore = createWithEqualityFn<
                     });
                 },
             );
+        },
+        runAllSyncJobs: () => {
+            const dashboardId = getState().dashboard?.id;
+            if (!dashboardId) {
+                console.error("No dashboard to sync");
+                return Promise.reject("No dashboard to sync");
+            }
+            return DashboardsService.runDashboardSync(dashboardId);
         },
         updateDashboardLabel: (label) => {
             const dashboardId = getState().dashboard?.id;

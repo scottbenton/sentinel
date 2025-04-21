@@ -28,6 +28,23 @@ export class OrganizationsService {
         return result.data;
     }
 
+    async getAllOrganizationIdsFromDashboardId(
+        dashboardId: number,
+    ): Promise<number[]> {
+        const result = await this.supabase.from("organizations").select("id")
+            .eq("dashboard_id", dashboardId);
+
+        if (result.error) {
+            throw new Error(
+                `Error fetching organization IDs: ${result.error.message}`,
+            );
+        }
+        if (!result.data) {
+            throw new Error(`No organization IDs found`);
+        }
+        return result.data.map((org) => org.id);
+    }
+
     async bulkUpdateSyncPending(
         organizationIds: number[],
         syncPending: boolean,

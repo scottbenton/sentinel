@@ -5,6 +5,7 @@ import {
   InsertDashboardDTO,
 } from "@/repository/dashboards.repository";
 import { DashboardUsersRepository } from "@/repository/dashboardUsers.repository";
+import { AuthService } from "./auth.service";
 
 export interface IDashboard {
   id: number;
@@ -85,6 +86,32 @@ export class DashboardsService {
 
   public static deleteDashboard(dashboardId: number): Promise<void> {
     return DashboardsRepository.deleteDashboard(dashboardId);
+  }
+
+  public static async runDashboardSync(
+    dashboardId: number,
+  ): Promise<void> {
+    const accessToken = await AuthService.getAccessToken();
+    if (!accessToken) {
+      throw new Error("No access token");
+    }
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_API_URL + `/scraper/dashboard/${dashboardId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          method: "POST",
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Error requesting a dashboard sync");
+      }
+    } catch (e) {
+      console.error(e);
+      throw new Error("Error requesting a dashboard sync");
+    }
   }
 
   private static convertDashboardDTOToIDashboard(

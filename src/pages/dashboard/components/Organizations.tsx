@@ -2,15 +2,20 @@ import { ProgressBar } from "@/components/common/ProgressBar";
 import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Tag } from "@/components/ui/tag";
+import { toaster } from "@/components/ui/toaster";
 import { useDashboardId } from "@/hooks/useDashboardId";
 import { getDateString } from "@/lib/getDateString";
 import { pageConfig } from "@/pages/pageConfig";
 import { useConfirm } from "@/providers/ConfirmProvider";
-import { useIsDashboardAdmin } from "@/stores/dashboard.store";
+import {
+  useDashboardStore,
+  useIsDashboardAdmin,
+} from "@/stores/dashboard.store";
 import { useOrganizationsStore } from "@/stores/organizations.store";
 import {
   Box,
   Button,
+  Group,
   Heading,
   Icon,
   IconButton,
@@ -24,12 +29,37 @@ import {
   LandmarkIcon,
   MoreVerticalIcon,
   PlusIcon,
+  RefreshCcw,
 } from "lucide-react";
 import { useCallback } from "react";
 import { Link } from "wouter";
 
 export function Organizations() {
   const dashboardId = useDashboardId();
+
+  const areAnyOrganizationsLoading = useOrganizationsStore((store) =>
+    Object.values(store.organizations).some((org) => org.syncLoading)
+  );
+  const runDashboardSync = useDashboardStore((store) => store.runAllSyncJobs);
+
+  const handleRunDashboardSync = useCallback(() => {
+    runDashboardSync()
+      .then(() => {
+        toaster.create({
+          type: "success",
+          title: "Sync Started",
+          description:
+            "Full dashboard sync requested. This process may take a few minutes.",
+        });
+      })
+      .catch((e) => {
+        toaster.create({
+          type: "error",
+          title: "Sync Failed",
+          description: e.message,
+        });
+      });
+  }, [runDashboardSync]);
 
   const error = useOrganizationsStore((store) => store.organizationsError);
   const loading = useOrganizationsStore((store) => store.organizationsLoading);
@@ -68,11 +98,20 @@ export function Organizations() {
       <Box display="flex" alignItems="center" justifyContent={"space-between"}>
         <Heading>Organizations</Heading>
         {isAdmin && (
-          <Button variant="subtle" asChild>
-            <Link to={pageConfig.organizationCreate(dashboardId)}>
-              Add Organization <PlusIcon />
-            </Link>
-          </Button>
+          <Group>
+            <IconButton
+              loading={areAnyOrganizationsLoading}
+              variant="subtle"
+              onClick={handleRunDashboardSync}
+            >
+              <RefreshCcw />
+            </IconButton>
+            <Button variant="subtle" asChild>
+              <Link to={pageConfig.organizationCreate(dashboardId)}>
+                Add Organization <PlusIcon />
+              </Link>
+            </Button>
+          </Group>
         )}
       </Box>
       {error && (
