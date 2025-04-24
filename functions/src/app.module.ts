@@ -3,7 +3,6 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 
 import { ConfigModule } from "@nestjs/config";
-import { AiScraperService } from "./aiScraper.service";
 import { SupabaseModule } from "./supabase/supabase.module";
 import { DashboardUsersModule } from "./dashboard_users/dashboard_users.module";
 import { OrganizationsModule } from "./organizations/organizations.module";
@@ -14,7 +13,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { BullModule } from "@nestjs/bullmq";
 import { ScheduleModule } from "@nestjs/schedule";
 import { DashboardUsersController } from "./dashboard_users/dashboard_users.controller";
-import { EmailService } from './email/email.service';
+import { EmailService } from "./email/email.service";
 
 @Module({
   imports: [
@@ -36,6 +35,6 @@ import { EmailService } from './email/email.service';
     }),
   ],
   controllers: [AppController, ScraperController, DashboardUsersController],
-  providers: [AppService, AiScraperService, EmailService],
+  providers: [AppService, EmailService],
 })
 export class AppModule {}
