@@ -119,6 +119,8 @@ export class ScraperProcessor extends WorkerHost {
             this.logger.error(
                 `Error scraping organization ${orgId}: ${errorMessage}`,
             );
+            await browser.shutdown();
+            return;
         }
 
         this.logger.log(

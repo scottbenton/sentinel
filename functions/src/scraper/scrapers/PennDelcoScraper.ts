@@ -85,15 +85,25 @@ export class PennDelcoScraper extends BaseScraper {
                 throw new Error("Meeting title not found");
             }
             const meetingDateString = meetingTitle.split(" - ")[0];
-            const meetingDate = new Date(`${meetingDateString} UTC`);
-            if (!meetings[meetingDate.toISOString()]) {
+            let meetingDate: string | undefined;
+            try {
+                meetingDate = new Date(`${meetingDateString} UTC`)
+                    .toISOString();
+            } catch (error) {
                 this.logger.log(
-                    `Skipping meeting materials for meeting date: ${meetingDate.toDateString()}`,
+                    `Error parsing meeting date: ${meetingDateString}, skipping this section`,
+                    error,
+                );
+                continue;
+            }
+            if (!meetings[meetingDate]) {
+                this.logger.log(
+                    `Skipping meeting materials for meeting date: ${meetingDate}`,
                 );
                 continue;
             } else {
                 this.logger.log(
-                    `Will parse meeting materials for meeting date: ${meetingDate.toDateString()}`,
+                    `Will parse meeting materials for meeting date: ${meetingDate}`,
                 );
             }
 
@@ -104,7 +114,7 @@ export class PennDelcoScraper extends BaseScraper {
                     "td",
                 ).nth(2).locator("a").all();
                 for (const meetingDocumentLink of meetingDocumentLinks) {
-                    const meetingKey = meetings[meetingDate.toISOString()];
+                    const meetingKey = meetings[meetingDate];
                     const agendaDownloadPromise = page.waitForEvent("download");
                     try {
                         await meetingDocumentLink.waitFor({

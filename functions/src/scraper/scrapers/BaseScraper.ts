@@ -75,7 +75,11 @@ export abstract class BaseScraper {
     download: Download,
   ): Promise<ScrapedDocument> {
     try {
-      const storedFilename = download.suggestedFilename();
+      const storedFilename = download.suggestedFilename().replace(
+        /[^a-zA-Z0-9/!-.()*'&$@=;:+,? ]/g,
+        "",
+      );
+
       const filePath = this.getMeetingPath(meetingKey, storedFilename);
       await download.saveAs(filePath);
       return {
