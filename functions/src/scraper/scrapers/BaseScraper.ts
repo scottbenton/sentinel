@@ -1,10 +1,10 @@
-import { Download, Page } from 'playwright';
-import { readFile } from 'fs/promises';
-import { ScrapedDocument, ScrapedMeeting } from './scrapeResult.type';
-import { MeetingsService } from '../../meetings/meetings.service';
-import { Logger } from '@nestjs/common';
-import * as mime from 'mime';
-import { randomUUID } from 'crypto';
+import { Download, Page } from "playwright";
+import { readFile } from "fs/promises";
+import { ScrapedDocument, ScrapedMeeting } from "./scrapeResult.type";
+import { MeetingsService } from "../../meetings/meetings.service";
+import { Logger } from "@nestjs/common";
+import * as mime from "mime";
+import { randomUUID } from "crypto";
 
 export abstract class BaseScraper {
   protected logger = new Logger(BaseScraper.name);
@@ -12,7 +12,7 @@ export abstract class BaseScraper {
   private dashboardId: number;
   private orgId: number;
 
-  private meetingMap: Map<string, ScrapedMeeting> = new Map();
+  protected meetingMap: Map<string, ScrapedMeeting> = new Map();
   private meetingNameMap: Map<string, number> = new Map();
 
   // Today minus one day
@@ -25,7 +25,7 @@ export abstract class BaseScraper {
 
   // eslint-disable-next-line @typescript-eslint/require-await, @typescript-eslint/no-unused-vars
   static async checkWillScrape(_page: Page): Promise<boolean> {
-    throw new Error('checkWillScrape not implemented');
+    throw new Error("checkWillScrape not implemented");
   }
   abstract scrape(page: Page): Promise<void>;
 
@@ -85,7 +85,7 @@ export abstract class BaseScraper {
     } catch {
       // Try again, in case the pathname was too long
       const uuid = crypto.randomUUID();
-      const filename = uuid + '.pdf';
+      const filename = uuid + ".pdf";
       const filePath = this.getMeetingPath(meetingKey, filename);
 
       await download.saveAs(filePath);
@@ -113,7 +113,7 @@ export abstract class BaseScraper {
     meeting: ScrapedMeeting,
     meetingService: MeetingsService,
   ): Promise<void> {
-    this.logger.log('Committing meeting', meeting);
+    this.logger.log("Committing meeting", meeting);
     // Create a meeting (or get the existing one)
     const meetingId = await meetingService.createMeetingIfNotExists(
       this.orgId,
@@ -123,7 +123,7 @@ export abstract class BaseScraper {
 
     // Go through the files
     for (const document of meeting.documents) {
-      this.logger.log('Uploading document', {
+      this.logger.log("Uploading document", {
         name: document.originalFilename,
         meetingId,
       });
@@ -140,10 +140,10 @@ export abstract class BaseScraper {
           document.originalFilename,
         );
       } catch (e) {
-        let errorMessage = 'Unknown error';
+        let errorMessage = "Unknown error";
         if (e instanceof Error) {
           errorMessage = e.message;
-        } else if (typeof e === 'string') {
+        } else if (typeof e === "string") {
           errorMessage = e;
         }
 
@@ -160,7 +160,7 @@ export abstract class BaseScraper {
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       const promises = [...this.meetingMap.values()].map((scrapedMeeting) =>
-        this.commitMeeting(scrapedMeeting, meetingsService),
+        this.commitMeeting(scrapedMeeting, meetingsService)
       );
 
       Promise.all(promises)

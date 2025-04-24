@@ -6,6 +6,9 @@ import { OrganizationsService } from "src/organizations/organizations.service";
 import { BaseScraper } from "./scrapers/BaseScraper";
 import { BoardDocsScraper } from "./scrapers/BoardDocs.scraper";
 import { MeetingsService } from "src/meetings/meetings.service";
+import { GarnetValleyScraper } from "./scrapers/GarnetValleyScraper";
+import { PennDelcoScraper } from "./scrapers/PennDelcoScraper";
+import { RidleyScraper } from "./scrapers/RidleyScraper";
 
 @Processor({ name: "organization-scrape-queue", scope: Scope.REQUEST })
 export class ScraperProcessor extends WorkerHost {
@@ -70,6 +73,18 @@ export class ScraperProcessor extends WorkerHost {
         if (await BoardDocsScraper.checkWillScrape(browser.page)) {
             scraper = new BoardDocsScraper(org.dashboard_id, org.id);
             this.logger.log(`Using BoardDocsScraper for organization ${orgId}`);
+        } else if (await GarnetValleyScraper.checkWillScrape(browser.page)) {
+            scraper = new GarnetValleyScraper(org.dashboard_id, org.id);
+            this.logger.log(
+                `Using GarnetValleyScraper for organization ${orgId}`,
+            );
+        } else if (await PennDelcoScraper.checkWillScrape(browser.page)) {
+            scraper = new PennDelcoScraper(org.dashboard_id, org.id);
+        } else if (await RidleyScraper.checkWillScrape(browser.page)) {
+            scraper = new RidleyScraper(org.dashboard_id, org.id);
+            this.logger.log(
+                `Using RidleyScraper for organization ${orgId}`,
+            );
         }
 
         if (!scraper) {
