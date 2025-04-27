@@ -69,6 +69,14 @@ export function Layout(props: PropsWithChildren) {
                   >
                     <RouterLink to="/dashboards">Dashboards</RouterLink>
                   </Button>
+                  <Button variant="ghost" colorPalette="gray" asChild>
+                    <a
+                      href="https://docs.google.com/document/d/1bT0stDRKtAQXqri9UyU2z6X09VYOkkX1kh5ZtYZ0S-8/edit?usp=sharing"
+                      target="_blank"
+                    >
+                      Help
+                    </a>
+                  </Button>
                 </Box>
               </Box>
               <Box display={"flex"} alignItems="center" gap={1}>
