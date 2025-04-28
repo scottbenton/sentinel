@@ -125,7 +125,7 @@ export class BoardDocsScraper extends BaseScraper {
           const currentAgendaInput = page.locator(
             'input[name="agenda-item-unique"]',
           );
-          await delaySeconds(1);
+          await delaySeconds(3);
           const currentAgendaInputValue = await currentAgendaInput.inputValue();
           if (currentAgendaInputValue !== agendaItemId) {
             this.logger.warn(
@@ -147,6 +147,9 @@ export class BoardDocsScraper extends BaseScraper {
           for (const agendaItemDownloadButton of agendaItemDownloadButtons) {
             const downloadPromise = page.waitForEvent("download");
 
+            const filename = await agendaItemDownloadButton.textContent();
+            this.logger.log(`Downloading file ${filename}`);
+
             // Add the download attribute to the button
             await agendaItemDownloadButton.evaluate((el) =>
               el.setAttribute("download", "")
@@ -161,6 +164,7 @@ export class BoardDocsScraper extends BaseScraper {
             );
             this.logger.log("Downloaded file", { filenames });
             this.addFilenameToMeeting(meetingKey, filenames);
+            await delaySeconds(.25);
           }
         }
 
