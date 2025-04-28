@@ -12,6 +12,11 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  @Get("/health-check")
+  healthCheck(): string {
+    return "OK";
+  }
+
   // @Get("scrape")
   // async scrape(): Promise<string> {
   //   const currentDate = new Date();
