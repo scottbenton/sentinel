@@ -1,16 +1,36 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { SupabaseService } from "src/supabase/supabase.service";
-import { Tables, TablesInsert } from "src/types/supabase-generated.types";
+import {
+    Database,
+    Tables,
+    TablesInsert,
+} from "src/types/supabase-generated.types";
 import { createHash } from "crypto";
 
 @Injectable()
 export class MeetingsService {
     private logger = new Logger(MeetingsService.name);
 
-    private readonly supabase: SupabaseClient;
+    private readonly supabase: SupabaseClient<Database>;
     constructor(supabaseService: SupabaseService) {
         this.supabase = supabaseService.supabase;
+    }
+
+    async createLog(
+        log: TablesInsert<"logs">,
+    ): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.supabase.from("logs")
+                .insert(log)
+                .then(({ error }) => {
+                    if (error && log.type === "comment") {
+                        reject(new Error("Error creating comment log"));
+                    } else {
+                        resolve();
+                    }
+                });
+        });
     }
 
     async getMeetingByOrganizationIdNameAndDate(
@@ -31,7 +51,7 @@ export class MeetingsService {
         }
 
         if (response.data) {
-            return response.data;
+            return response.data as Tables<"meetings">;
         }
 
         return null;
@@ -53,6 +73,15 @@ export class MeetingsService {
         }
 
         if (data) {
+            try {
+                await this.createLog({
+                    meeting_id: data.id,
+                    type: "meeting_created",
+                });
+            } catch (e) {
+                this.logger.error("Error creating log", e);
+            }
+
             return data.id;
         }
 
@@ -90,9 +119,10 @@ export class MeetingsService {
         fileBuffer: Buffer,
         fileType: string,
         fileName: string,
-    ): Promise<number> {
+        skipLogIfHashIsDifferent: boolean,
+    ): Promise<{ docId: number; alreadyExists: boolean }> {
         this.logger.log(`Uploading document: ${fileName}`);
-        const fileHash = await this.getFileHash(fileBuffer);
+        const fileHash = this.getFileHash(fileBuffer);
         const meetingDocumentId = await this.checkIfFileHasBeenUploaded(
             meetingId,
             fileHash,
@@ -101,7 +131,10 @@ export class MeetingsService {
             this.logger.log(
                 `File ${fileName} has already been uploaded`,
             );
-            return meetingDocumentId;
+            return {
+                docId: meetingDocumentId,
+                alreadyExists: true,
+            };
         }
 
         this.logger.log(
@@ -121,26 +154,31 @@ export class MeetingsService {
         this.logger.log(
             `File ${fileName} has been uploaded to storage, deleting old documents with same name`,
         );
-        await this.deleteAllMeetingDocumentsWithSameNameIfExists(
+        const count = await this.deleteAllMeetingDocumentsWithSameNameIfExists(
             meetingId,
             fileName,
         );
+        this.logger.log("Count", count);
 
         this.logger.log(
             `File ${fileName} has been uploaded to storage, adding to database`,
         );
 
         // Insert document metadata into the database
-        return await this.addDocumentToDatabase(
+        const docId = await this.addDocumentToDatabase(
             meetingId,
             fileName,
             fileHash,
         );
+        return {
+            docId,
+            alreadyExists: skipLogIfHashIsDifferent ? count > 0 : false,
+        };
     }
 
-    private async getFileHash(
+    private getFileHash(
         file: Buffer,
-    ): Promise<string> {
+    ): string {
         const hash = createHash("md5").update(file).digest("hex");
         return hash;
     }
@@ -169,10 +207,10 @@ export class MeetingsService {
     private async deleteAllMeetingDocumentsWithSameNameIfExists(
         meetingId: number,
         filename: string,
-    ): Promise<void> {
-        const { error } = await this.supabase
+    ): Promise<number> {
+        const { count, error } = await this.supabase
             .from("meeting_documents")
-            .delete()
+            .delete({ count: "exact" })
             .eq("meeting_id", meetingId)
             .eq("filename", filename);
 
@@ -185,6 +223,7 @@ export class MeetingsService {
                 `Error deleting meeting documents: ${error.message}`,
             );
         }
+        return count ?? 0;
     }
 
     private async uploadDocumentToStorage(

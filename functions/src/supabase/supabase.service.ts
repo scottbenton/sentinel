@@ -6,7 +6,7 @@ import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class SupabaseService {
-    public supabase: SupabaseClient<Database, "public">;
+    public supabase: SupabaseClient<Database>;
 
     constructor(private configService: ConfigService) {
         const supabaseUrl = this.configService.getOrThrow<string>(

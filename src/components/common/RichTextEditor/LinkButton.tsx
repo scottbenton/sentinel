@@ -31,7 +31,6 @@ export function LinkButton() {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  console.debug("IS OPEN", isOpen);
   const onSubmit = handleSubmit(({ link }) => {
     if (editor) {
       editor

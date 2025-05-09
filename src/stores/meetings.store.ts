@@ -34,7 +34,9 @@ interface MeetingsStoreActions {
   updateMeeting: (
     uid: string,
     meetingId: number,
+    oldName: string,
     meetingName: string,
+    oldDate: Date,
     meetingDate: Date,
   ) => Promise<void>;
   deleteMeeting: (meetingId: number) => Promise<void>;
@@ -165,11 +167,20 @@ export const useMeetingsStore = createWithEqualityFn<
         meetingDate,
       );
     },
-    updateMeeting: async (uid, meetingId, meetingName, meetingDate) => {
+    updateMeeting: async (
+      uid,
+      meetingId,
+      oldName,
+      meetingName,
+      oldDate,
+      meetingDate,
+    ) => {
       return MeetingsService.updateMeeting(
         uid,
         meetingId,
+        oldName,
         meetingName,
+        oldDate,
         meetingDate,
       );
     },

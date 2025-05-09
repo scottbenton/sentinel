@@ -20,22 +20,14 @@ export function MeetingFileUploadButton() {
   const organizationId = useOrganizationId();
   const meetingId = useMeetingId();
 
-  const uploadFile = useMeetingDocumentsStore(
-    (store) => store.uploadMeetingDocument
+  const uploadFiles = useMeetingDocumentsStore(
+    (store) => store.uploadMeetingDocuments
   );
 
   const handleFiles = (files: File[]) => {
     if (!uid) return;
 
-    const promises = files.map((file) =>
-      uploadFile(uid, dashboardId, organizationId, meetingId, file)
-    );
-    // Clear the input value to allow re-uploading the same file
-    if (ref.current) {
-      ref.current.value = "";
-      ref.current.files = null;
-    }
-    Promise.all(promises)
+    uploadFiles(uid, dashboardId, organizationId, meetingId, files)
       .then(() => {
         toaster.success({
           description: "Files uploaded successfully",
@@ -44,6 +36,12 @@ export function MeetingFileUploadButton() {
       .catch((error) => {
         console.error(error);
       });
+
+    // Clear the input value to allow re-uploading the same file
+    if (ref.current) {
+      ref.current.value = "";
+      ref.current.files = null;
+    }
   };
 
   const handleFilesRejected = (details: FileUploadFileRejectDetails) => {

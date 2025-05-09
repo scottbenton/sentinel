@@ -24,6 +24,7 @@ import { useOrganizationId } from "@/hooks/useOrganizationId";
 import { useMeetingId } from "@/hooks/useMeetingId";
 import { useConfirm } from "@/providers/ConfirmProvider";
 import { useCurrentOrganization } from "@/stores/organizations.store";
+import { MeetingLog } from "./MeetingLog";
 
 export default function MeetingSheetPage() {
   const meeting = useMeetingsStore((store) => store.currentMeeting);
@@ -98,7 +99,7 @@ export default function MeetingSheetPage() {
           )
         }
       />
-      <PageContent p={4}>
+      <PageContent p={4} sidebarContent={<MeetingLog />}>
         {meeting && (
           <>
             <Box display="flex" alignItems={"center"} gap={2}>

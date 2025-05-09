@@ -16,12 +16,14 @@ export interface BaseEditorProps {
   content?: Content;
   onChange?: (content: string) => void;
   readOnly?: boolean;
+  oneLineEditor?: boolean;
   slotBefore?: React.ReactNode;
   slotAfter?: React.ReactNode;
 }
 
 export function BaseEditor(props: BaseEditorProps) {
-  const { content, onChange, readOnly, slotBefore, slotAfter } = props;
+  const { content, onChange, readOnly, slotBefore, slotAfter, oneLineEditor } =
+    props;
 
   const handleUpdate = useCallback(
     ({ editor }: EditorEvents["update"]) => {
@@ -38,7 +40,7 @@ export function BaseEditor(props: BaseEditorProps) {
         w: "100%",
         "& .tiptap": {
           w: "100%",
-          minH: readOnly ? "unset" : "48",
+          minH: readOnly || oneLineEditor ? "unset" : "48",
           p: readOnly ? 0 : 4,
 
           wordBreak: "break-word",

@@ -4,7 +4,7 @@ import {
     MeetingDocumentsRepository,
 } from "@/repository/meetingDocuments.repository";
 import { StorageRepository } from "@/repository/storage.repository";
-import { MeetingLogsService, MeetingLogTypes } from "./meetingLogs.service";
+import { LogsService, LogTypes } from "./logs.service";
 
 export interface IMeetingDoc {
     id: number;
@@ -39,38 +39,46 @@ export class MeetingDocumentsService {
         );
     }
 
-    public static async uploadMeetingDocument(
+    public static async uploadMeetingDocuments(
         userId: string,
         dashboardId: number,
         organizationId: number,
         meetingId: number,
-        file: File,
-    ): Promise<number> {
-        await StorageRepository.uploadMeetingDocument(
-            dashboardId,
-            organizationId,
-            meetingId,
-            file,
-        );
-        const documentId = await MeetingDocumentsRepository
-            .uploadMeetingDocument({
-                created_by: userId,
-                meeting_id: meetingId,
-                filename: file.name,
-            });
+        files: File[],
+    ): Promise<number[]> {
+        const documentIds: number[] = [];
+        for (const file of files) {
+            await StorageRepository.uploadMeetingDocument(
+                dashboardId,
+                organizationId,
+                meetingId,
+                file,
+            );
+            documentIds.push(
+                await MeetingDocumentsRepository
+                    .uploadMeetingDocument({
+                        created_by: userId,
+                        meeting_id: meetingId,
+                        filename: file.name,
+                    }),
+            );
+        }
 
         try {
-            MeetingLogsService.createLog(
-                userId,
+            LogsService.createLog({
+                uid: userId,
+                organizationId: null,
                 meetingId,
-                `uploaded ${file.name} to this meeting`,
-                MeetingLogTypes.Lifecycle,
-            );
+                type: LogTypes.MeetingDocumentAdded,
+                additionalContext: {
+                    document_names: files.map((file) => file.name),
+                },
+            });
         } catch (error) {
             console.error(error);
         }
 
-        return documentId;
+        return documentIds;
     }
 
     public static getMeetingDocumentUrl(
@@ -94,11 +102,16 @@ export class MeetingDocumentsService {
         documentId: number,
     ): Promise<void> {
         try {
-            MeetingLogsService.createLog(
-                uid,
-                meetingId,
-                `deleted ${filename} from this meeting`,
-                MeetingLogTypes.Lifecycle,
+            LogsService.createLog(
+                {
+                    uid,
+                    organizationId: null,
+                    meetingId,
+                    type: LogTypes.MeetingDocumentDeleted,
+                    additionalContext: {
+                        document_names: [filename],
+                    },
+                },
             );
         } catch (error) {
             console.error(error);

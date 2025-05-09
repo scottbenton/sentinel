@@ -17,35 +17,45 @@ import {
 import { Tooltip } from "@/components/ui/tooltip";
 import { LinkButton } from "./LinkButton";
 
-export function RichTextEditorToolbar() {
+export interface RichTextEditorToolbarProps {
+  minimal?: boolean;
+}
+
+export function RichTextEditorToolbar(props: RichTextEditorToolbarProps) {
+  const { minimal } = props;
+
   const { editor } = useCurrentEditor();
 
   return (
     <Box display="flex" alignItems="center" justifyContent={"flex-start"}>
-      <Tooltip content="Undo">
-        <IconButton
-          colorPalette={"gray"}
-          variant="ghost"
-          size="sm"
-          aria-label="Undo"
-          onClick={() => editor?.chain().focus().undo().run()}
-        >
-          <Undo2Icon />
-        </IconButton>
-      </Tooltip>
-      <Tooltip content="Redo">
-        <IconButton
-          colorPalette={"gray"}
-          variant="ghost"
-          size="sm"
-          aria-label="Redo"
-          onClick={() => editor?.chain().focus().redo().run()}
-        >
-          <Redo2Icon />
-        </IconButton>
-      </Tooltip>
-      <Separator orientation="vertical" alignSelf={"stretch"} mx={1} />
-      <HeadingLevelSelect />
+      {!minimal && (
+        <>
+          <Tooltip content="Undo">
+            <IconButton
+              colorPalette={"gray"}
+              variant="ghost"
+              size="sm"
+              aria-label="Undo"
+              onClick={() => editor?.chain().focus().undo().run()}
+            >
+              <Undo2Icon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip content="Redo">
+            <IconButton
+              colorPalette={"gray"}
+              variant="ghost"
+              size="sm"
+              aria-label="Redo"
+              onClick={() => editor?.chain().focus().redo().run()}
+            >
+              <Redo2Icon />
+            </IconButton>
+          </Tooltip>
+          <Separator orientation="vertical" alignSelf={"stretch"} mx={1} />
+          <HeadingLevelSelect />
+        </>
+      )}
       <ToggleIconButton
         label="Bold"
         isActive={editor?.isActive("bold")}
@@ -68,13 +78,15 @@ export function RichTextEditorToolbar() {
       >
         <UnderlineIcon />
       </ToggleIconButton>
-      <ToggleIconButton
-        label="Strikethrough"
-        isActive={editor?.isActive("strike")}
-        onClick={() => editor?.chain().focus().toggleStrike().run()}
-      >
-        <StrikethroughIcon />
-      </ToggleIconButton>
+      {!minimal && (
+        <ToggleIconButton
+          label="Strikethrough"
+          isActive={editor?.isActive("strike")}
+          onClick={() => editor?.chain().focus().toggleStrike().run()}
+        >
+          <StrikethroughIcon />
+        </ToggleIconButton>
+      )}
       <Separator orientation="vertical" alignSelf={"stretch"} mx={1} />
       <ToggleIconButton
         label="Bullet List"
@@ -98,13 +110,15 @@ export function RichTextEditorToolbar() {
       >
         <QuoteIcon />
       </ToggleIconButton>
-      <ToggleIconButton
-        label="Divider"
-        isActive={editor?.isActive("horizontalRule")}
-        onClick={() => editor?.chain().focus().setHorizontalRule().run()}
-      >
-        <MinusIcon />
-      </ToggleIconButton>
+      {!minimal && (
+        <ToggleIconButton
+          label="Divider"
+          isActive={editor?.isActive("horizontalRule")}
+          onClick={() => editor?.chain().focus().setHorizontalRule().run()}
+        >
+          <MinusIcon />
+        </ToggleIconButton>
+      )}
     </Box>
   );
 }
