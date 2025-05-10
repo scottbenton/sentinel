@@ -1,6 +1,7 @@
 export interface ScrapedDocument {
     originalFilename: string;
     storedFilename: string;
+    skipLogIfHashIsDifferent?: boolean;
 }
 
 export interface ScrapedMeeting {

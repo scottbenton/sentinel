@@ -133,6 +133,67 @@ export type Database = {
         }
         Relationships: []
       }
+      logs: {
+        Row: {
+          additional_context: Json
+          created_at: string
+          created_by: string | null
+          edited_at: string | null
+          id: number
+          is_bot_action: boolean
+          meeting_id: number | null
+          org_id: number | null
+          text: string | null
+          type: Database["public"]["Enums"]["meeting_log_types"]
+        }
+        Insert: {
+          additional_context?: Json
+          created_at?: string
+          created_by?: string | null
+          edited_at?: string | null
+          id?: number
+          is_bot_action?: boolean
+          meeting_id?: number | null
+          org_id?: number | null
+          text?: string | null
+          type: Database["public"]["Enums"]["meeting_log_types"]
+        }
+        Update: {
+          additional_context?: Json
+          created_at?: string
+          created_by?: string | null
+          edited_at?: string | null
+          id?: number
+          is_bot_action?: boolean
+          meeting_id?: number | null
+          org_id?: number | null
+          text?: string | null
+          type?: Database["public"]["Enums"]["meeting_log_types"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meeting_logs_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meeting_logs_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meeting_documents: {
         Row: {
           created_at: string
@@ -168,51 +229,6 @@ export type Database = {
           },
           {
             foreignKeyName: "meeting_document_meeting_id_fkey"
-            columns: ["meeting_id"]
-            isOneToOne: false
-            referencedRelation: "meetings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      meeting_logs: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          id: number
-          is_bot_action: boolean
-          meeting_id: number
-          text: string
-          type: Database["public"]["Enums"]["meeting_log_types"]
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          id?: number
-          is_bot_action?: boolean
-          meeting_id: number
-          text: string
-          type: Database["public"]["Enums"]["meeting_log_types"]
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          id?: number
-          is_bot_action?: boolean
-          meeting_id?: number
-          text?: string
-          type?: Database["public"]["Enums"]["meeting_log_types"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "meeting_logs_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "meeting_logs_meeting_id_fkey"
             columns: ["meeting_id"]
             isOneToOne: false
             referencedRelation: "meetings"
@@ -335,7 +351,15 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      meeting_log_types: "lifecycle" | "comment"
+      meeting_log_types:
+        | "lifecycle"
+        | "comment"
+        | "meeting_created"
+        | "meeting_document_added"
+        | "meeting_document_deleted"
+        | "meeting_name_changed"
+        | "meeting_date_changed"
+        | "meeting_deleted"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -454,7 +478,16 @@ export const Constants = {
   },
   public: {
     Enums: {
-      meeting_log_types: ["lifecycle", "comment"],
+      meeting_log_types: [
+        "lifecycle",
+        "comment",
+        "meeting_created",
+        "meeting_document_added",
+        "meeting_document_deleted",
+        "meeting_name_changed",
+        "meeting_date_changed",
+        "meeting_deleted",
+      ],
     },
   },
 } as const

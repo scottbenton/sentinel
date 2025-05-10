@@ -34,10 +34,12 @@ interface MeetingsStoreActions {
   updateMeeting: (
     uid: string,
     meetingId: number,
+    oldName: string,
     meetingName: string,
+    oldDate: Date,
     meetingDate: Date,
   ) => Promise<void>;
-  deleteMeeting: (meetingId: number) => Promise<void>;
+  deleteMeeting: (uid: string, meetingId: number) => Promise<void>;
   resetStore: () => void;
 }
 
@@ -59,7 +61,7 @@ const defaultState: MeetingsStoreState = {
 export const useMeetingsStore = createWithEqualityFn<
   MeetingsStoreState & MeetingsStoreActions
 >()(
-  immer((set) => ({
+  immer((set, getState) => ({
     ...defaultState,
     listenToFutureMeetings: (organizationIds) => {
       return MeetingsService.listenToFutureMeetings(
@@ -165,16 +167,34 @@ export const useMeetingsStore = createWithEqualityFn<
         meetingDate,
       );
     },
-    updateMeeting: async (uid, meetingId, meetingName, meetingDate) => {
+    updateMeeting: async (
+      uid,
+      meetingId,
+      oldName,
+      meetingName,
+      oldDate,
+      meetingDate,
+    ) => {
       return MeetingsService.updateMeeting(
         uid,
         meetingId,
+        oldName,
         meetingName,
+        oldDate,
         meetingDate,
       );
     },
-    deleteMeeting: async (meetingId) => {
-      return MeetingsService.deleteMeeting(meetingId);
+    deleteMeeting: async (uid, meetingId) => {
+      const meeting = getState().meetings[meetingId];
+      if (!meeting) {
+        throw new Error("Meeting not found");
+      }
+      return MeetingsService.deleteMeeting(
+        uid,
+        meeting.organizationId,
+        meetingId,
+        meeting.name,
+      );
     },
 
     resetStore: () => {

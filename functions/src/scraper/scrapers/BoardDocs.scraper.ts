@@ -85,7 +85,10 @@ export class BoardDocsScraper extends BaseScraper {
           download,
         );
         this.logger.log("Downloaded file", { filenames });
-        this.addFilenameToMeeting(meetingKey, filenames);
+        this.addFilenameToMeeting(meetingKey, {
+          ...filenames,
+          skipLogIfHashIsDifferent: true,
+        });
 
         // Click the button to view the agenda
         const viewAgendaButton = page.locator("a#btn-view-agenda");
@@ -145,6 +148,7 @@ export class BoardDocsScraper extends BaseScraper {
             `Found ${agendaItemDownloadButtons.length} agenda item download buttons`,
           );
           for (const agendaItemDownloadButton of agendaItemDownloadButtons) {
+            await delaySeconds(.25);
             const downloadPromise = page.waitForEvent("download");
 
             const filename = await agendaItemDownloadButton.textContent();
@@ -154,9 +158,9 @@ export class BoardDocsScraper extends BaseScraper {
             await agendaItemDownloadButton.evaluate((el) =>
               el.setAttribute("download", "")
             );
-
             // Adding modifiers to the click to force download rather than open in new tab
-            await agendaItemDownloadButton.click();
+            await agendaItemDownloadButton.focus();
+            await agendaItemDownloadButton.press("Enter");
             const download = await downloadPromise;
             const filenames = await this.downloadFileToTempFolder(
               meetingKey,
@@ -164,7 +168,6 @@ export class BoardDocsScraper extends BaseScraper {
             );
             this.logger.log("Downloaded file", { filenames });
             this.addFilenameToMeeting(meetingKey, filenames);
-            await delaySeconds(.25);
           }
         }
 
@@ -275,6 +278,7 @@ export class BoardDocsScraper extends BaseScraper {
           `Found ${agendaItemDownloadButtons.length} agenda item download buttons`,
         );
         for (const agendaItemDownloadButton of agendaItemDownloadButtons) {
+          await delaySeconds(.25);
           const downloadPromise = page.waitForEvent("download");
 
           const filename = await agendaItemDownloadButton.textContent();
@@ -286,7 +290,9 @@ export class BoardDocsScraper extends BaseScraper {
           );
 
           // Adding modifiers to the click to force download rather than open in new tab
-          await agendaItemDownloadButton.click();
+          await agendaItemDownloadButton.focus();
+          await agendaItemDownloadButton.press("Enter");
+
           const download = await downloadPromise;
           const filenames = await this.downloadFileToTempFolder(
             meetingKey,
@@ -294,7 +300,6 @@ export class BoardDocsScraper extends BaseScraper {
           );
           this.logger.log("Downloaded file", { filenames });
           this.addFilenameToMeeting(meetingKey, filenames);
-          await delaySeconds(.25);
         }
       }
     }

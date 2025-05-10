@@ -3,7 +3,6 @@ import { useRegisterSW } from "virtual:pwa-register/react";
 const UPDATE_CHECK_INTERVAL_MINUTES = 2;
 
 export function usePWA() {
-    console.debug("IN USE PWA");
     return useRegisterSW({
         immediate: true,
         onRegisteredSW: (_, r) => {

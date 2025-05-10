@@ -125,6 +125,8 @@ export abstract class BaseScraper {
       meeting.date,
     );
 
+    const uploadedDocumentNames: string[] = [];
+
     // Go through the files
     for (const document of meeting.documents) {
       this.logger.log("Uploading document", {
@@ -135,14 +137,18 @@ export abstract class BaseScraper {
       try {
         const file = await readFile(document.storedFilename);
         const mimeType = this.getFileMimeType(document);
-        await meetingService.uploadMeetingDocument(
+        const { alreadyExists } = await meetingService.uploadMeetingDocument(
           this.dashboardId,
           this.orgId,
           meetingId,
           file,
           mimeType,
           document.originalFilename,
+          document.skipLogIfHashIsDifferent ?? false,
         );
+        if (!alreadyExists) {
+          uploadedDocumentNames.push(document.originalFilename);
+        }
       } catch (e) {
         let errorMessage = "Unknown error";
         if (e instanceof Error) {
@@ -155,6 +161,20 @@ export abstract class BaseScraper {
           `Error uploading document ${document.originalFilename}: ${errorMessage}`,
         );
         throw e;
+      }
+    }
+
+    if (uploadedDocumentNames.length > 0) {
+      try {
+        await meetingService.createLogs([{
+          meeting_id: meetingId,
+          type: "meeting_document_added",
+          additional_context: {
+            document_names: uploadedDocumentNames,
+          },
+        }]);
+      } catch (e) {
+        this.logger.error("Error creating log", e);
       }
     }
   }

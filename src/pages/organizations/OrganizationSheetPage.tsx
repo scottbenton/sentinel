@@ -18,6 +18,7 @@ import {
 } from "@/stores/dashboard.store";
 import { MeetingsSection } from "./MeetingsSection";
 import { OrganizationDescription } from "./OrganizationDescription";
+import { OrganizationLog } from "./OrganizationLog";
 
 export default function OrganizationSheetPage() {
   const dashboardId = useDashboardId();
@@ -67,7 +68,13 @@ export default function OrganizationSheetPage() {
           </Group>
         }
       />
-      <PageContent p={4} display="flex" flexDir="column" gap={6}>
+      <PageContent
+        p={4}
+        display="flex"
+        flexDir="column"
+        gap={6}
+        sidebarContent={<OrganizationLog />}
+      >
         <PageProgressBar loading={orgsLoading} />
         {orgsError && <Alert status="error">{orgsError}</Alert>}
         {org && (

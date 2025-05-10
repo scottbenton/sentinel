@@ -18,13 +18,13 @@ interface MeetingDocumentsStoreActions {
     listenToMeetingDocuments: (
         meetingId: number,
     ) => () => void;
-    uploadMeetingDocument: (
+    uploadMeetingDocuments: (
         userId: string,
         dashboardId: number,
         organizationId: number,
         meetingId: number,
-        file: File,
-    ) => Promise<number>;
+        file: File[],
+    ) => Promise<number[]>;
     getMeetingDocumentURL: (
         dashboardId: number,
         organizationId: number,
@@ -86,19 +86,19 @@ export const useMeetingDocumentsStore = createWithEqualityFn<
                 set(defaultMeetingDocumentsStoreState);
             };
         },
-        uploadMeetingDocument: (
+        uploadMeetingDocuments: (
             userId: string,
             dashboardId: number,
             organizationId: number,
             meetingId: number,
-            file: File,
+            files: File[],
         ) => {
-            return MeetingDocumentsService.uploadMeetingDocument(
+            return MeetingDocumentsService.uploadMeetingDocuments(
                 userId,
                 dashboardId,
                 organizationId,
                 meetingId,
-                file,
+                files,
             );
         },
         getMeetingDocumentURL: (

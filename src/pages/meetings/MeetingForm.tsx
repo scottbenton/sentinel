@@ -52,7 +52,14 @@ export function MeetingForm(props: MeetingFormProps) {
     if (!uid) return;
     setLoading(true);
     if (existingMeeting) {
-      updateMeeting(uid, existingMeeting.id, data.name, data.meetingDate)
+      updateMeeting(
+        uid,
+        existingMeeting.id,
+        existingMeeting.name,
+        data.name,
+        existingMeeting.meetingDate,
+        data.meetingDate
+      )
         .then(() => {
           navigate(
             pageConfig.meeting(dashboardId, organizationId, existingMeeting.id)

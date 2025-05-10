@@ -3,7 +3,7 @@ import {
   MeetingDTO,
   MeetingsRepository,
 } from "@/repository/meetings.repository";
-import { MeetingLogsService, MeetingLogTypes } from "./meetingLogs.service";
+import { LogsService, LogTypes } from "./logs.service";
 
 export interface IMeeting {
   id: number;
@@ -112,12 +112,26 @@ export class MeetingsService {
     });
 
     try {
-      MeetingLogsService.createLog(
+      LogsService.createLog({
         uid,
         meetingId,
-        `Meeting ${meetingName} created`,
-        MeetingLogTypes.Lifecycle,
-      );
+        organizationId: null,
+        type: LogTypes.MeetingCreated,
+        additionalContext: {
+          meeting_id: meetingId,
+          initial_meeting_name: meetingName,
+        },
+      });
+      LogsService.createLog({
+        uid,
+        meetingId: null,
+        organizationId: organizationId,
+        type: LogTypes.MeetingCreated,
+        additionalContext: {
+          meeting_id: meetingId,
+          initial_meeting_name: meetingName,
+        },
+      });
     } catch (error) {
       console.error(error);
     }
@@ -128,16 +142,40 @@ export class MeetingsService {
   public static updateMeeting(
     uid: string,
     meetingId: number,
+    previousMeetingName: string,
     meetingName: string,
+    previousMeetingDate: Date,
     meetingDate: Date,
   ): Promise<void> {
     try {
-      MeetingLogsService.createLog(
-        uid,
-        meetingId,
-        `Meeting ${meetingName} updated`,
-        MeetingLogTypes.Lifecycle,
-      );
+      if (previousMeetingName !== meetingName) {
+        LogsService.createLog({
+          uid,
+          meetingId,
+          organizationId: null,
+          type: LogTypes.MeetingNameChanged,
+          additionalContext: {
+            previous_name: previousMeetingName,
+            new_name: meetingName,
+          },
+        });
+      }
+
+      const getMeetingDate = (date: Date) =>
+        date.toLocaleDateString("en-US", { timeZone: "UTC" });
+
+      if (getMeetingDate(previousMeetingDate) !== getMeetingDate(meetingDate)) {
+        LogsService.createLog({
+          uid,
+          meetingId,
+          organizationId: null,
+          type: LogTypes.MeetingDateChanged,
+          additionalContext: {
+            previous_date: previousMeetingDate.toISOString(),
+            new_date: meetingDate.toISOString(),
+          },
+        });
+      }
     } catch (error) {
       console.error(error);
     }
@@ -148,8 +186,23 @@ export class MeetingsService {
     });
   }
 
-  public static deleteMeeting(meetingId: number): Promise<void> {
-    return MeetingsRepository.deleteMeeting(meetingId);
+  public static async deleteMeeting(
+    uid: string,
+    organizationId: number,
+    meetingId: number,
+    meetingName: string,
+  ): Promise<void> {
+    await MeetingsRepository.deleteMeeting(meetingId);
+
+    LogsService.createLog({
+      uid,
+      meetingId: null,
+      organizationId,
+      type: LogTypes.MeetingDeleted,
+      additionalContext: {
+        meeting_name: meetingName,
+      },
+    }).catch(() => {});
   }
 
   private static convertMeetingDTOToMeeting(meetingDTO: MeetingDTO): IMeeting {
