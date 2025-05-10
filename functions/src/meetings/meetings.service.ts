@@ -17,18 +17,15 @@ export class MeetingsService {
         this.supabase = supabaseService.supabase;
     }
 
-    async createLog(
-        log: TablesInsert<"logs">,
+    async createLogs(
+        logs: TablesInsert<"logs">[],
     ): Promise<void> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this.supabase.from("logs")
-                .insert(log)
+                .insert(logs)
                 .then(({ error }) => {
-                    if (error && log.type === "comment") {
-                        reject(new Error("Error creating comment log"));
-                    } else {
-                        resolve();
-                    }
+                    this.logger.error("Error creating logs:", error);
+                    resolve();
                 });
         });
     }
@@ -74,10 +71,21 @@ export class MeetingsService {
 
         if (data) {
             try {
-                await this.createLog({
+                await this.createLogs([{
                     meeting_id: data.id,
                     type: "meeting_created",
-                });
+                    additional_context: {
+                        meeting_id: data.id,
+                        initial_meeting_name: meeting.name,
+                    },
+                }, {
+                    org_id: meeting.organization_id,
+                    type: "meeting_created",
+                    additional_context: {
+                        meeting_id: data.id,
+                        initial_meeting_name: meeting.name,
+                    },
+                }]);
             } catch (e) {
                 this.logger.error("Error creating log", e);
             }

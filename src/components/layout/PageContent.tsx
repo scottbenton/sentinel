@@ -20,8 +20,8 @@ export function PageContent(props: PropsWithChildren<PageContentProps>) {
       {...containerProps}
       maxW={maxW}
       flexGrow={1}
-      display="flex"
-      flexDirection={{ base: "column", lg: "row" }}
+      display="grid"
+      gridTemplateColumns={{ base: "1fr", lg: "1fr auto" }}
       gap={2}
       px={{ base: 0, sm: 4, md: 6, lg: 8 }}
     >
@@ -53,7 +53,6 @@ export function PageContent(props: PropsWithChildren<PageContentProps>) {
           maxH={"85vh"}
           h="100%"
           mb={2}
-          overflow="hidden"
         >
           {sidebarContent}
         </Box>

@@ -8,6 +8,6 @@
 
 ## Features
 
-- Added log feature that shows a timeline of comments, manual, and automated events.
+- Added log feature to organizations and meetings that shows a timeline of comments, manual, and automated events.
 
 ## Bug Fixes

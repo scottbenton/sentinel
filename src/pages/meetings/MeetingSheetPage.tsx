@@ -25,10 +25,12 @@ import { useMeetingId } from "@/hooks/useMeetingId";
 import { useConfirm } from "@/providers/ConfirmProvider";
 import { useCurrentOrganization } from "@/stores/organizations.store";
 import { MeetingLog } from "./MeetingLog";
+import { useUID } from "@/stores/auth.store";
 
 export default function MeetingSheetPage() {
   const meeting = useMeetingsStore((store) => store.currentMeeting);
 
+  const uid = useUID();
   const userName = useUserName(meeting?.createdBy ?? null);
   const isMeetingAdmin = useIsMeetingAdmin();
 
@@ -44,12 +46,16 @@ export default function MeetingSheetPage() {
   const confirm = useConfirm();
   const navigate = useLocation()[1];
   const handleDelete = () => {
+    if (!uid) {
+      console.error("No user id");
+      return;
+    }
     confirm({
       title: "Delete Meeting",
       message: "Are you sure you want to delete this meeting?",
     }).then(({ confirmed }) => {
       if (confirmed) {
-        deleteMeeting(meetingId)
+        deleteMeeting(uid, meetingId)
           .then(() => {
             navigate(pageConfig.organization(dashboardId, organizationId));
           })

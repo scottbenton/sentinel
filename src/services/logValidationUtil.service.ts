@@ -1,4 +1,4 @@
-import { array, object, string } from "yup";
+import { array, number, object, string } from "yup";
 import { LogTypes } from "./logs.service";
 import { LogDTO } from "@/repository/logs.repository";
 
@@ -15,8 +15,15 @@ interface BaseLog {
 export interface ICommentLog extends BaseLog {
     type: LogTypes.Comment;
 }
+
+const meetingCreatedAdditionalContextSchema = object({
+    meeting_id: number().required(),
+    initial_meeting_name: string().required(),
+});
 export interface IMeetingCreatedLog extends BaseLog {
     type: LogTypes.MeetingCreated;
+    meetingId: number;
+    initialMeetingName: string;
 }
 
 const meetingNameChangedLogAdditionalContextSchema = object({
@@ -55,13 +62,22 @@ export interface IMeetingDocumentDeletedLog extends BaseLog {
     documentNames: string[];
 }
 
+const meetingDeletedLogAdditionalContextSchema = object({
+    meeting_name: string().required(),
+});
+export interface IMeetingDeletedLog extends BaseLog {
+    type: LogTypes.MeetingDeleted;
+    meetingName: string;
+}
+
 export type ILog =
     | ICommentLog
     | IMeetingCreatedLog
     | IMeetingNameChangedLog
     | IMeetingDateChangedLog
     | IMeetingDocumentAddedLog
-    | IMeetingDocumentDeletedLog;
+    | IMeetingDocumentDeletedLog
+    | IMeetingDeletedLog;
 
 export class LogValidationUtilService {
     static async getValidatedLog(
@@ -74,11 +90,19 @@ export class LogValidationUtilService {
                     ...defaultLogFields,
                     type: LogTypes.Comment,
                 };
-            case LogTypes.MeetingCreated:
+            case LogTypes.MeetingCreated: {
+                const meetingCreatedAdditionalContext =
+                    await meetingCreatedAdditionalContextSchema.validate(
+                        log.additional_context,
+                    );
                 return {
                     ...defaultLogFields,
                     type: LogTypes.MeetingCreated,
+                    meetingId: meetingCreatedAdditionalContext.meeting_id,
+                    initialMeetingName:
+                        meetingCreatedAdditionalContext.initial_meeting_name,
                 };
+            }
             case LogTypes.MeetingNameChanged: {
                 const meetingNameChangedLogAdditionalContext =
                     await meetingNameChangedLogAdditionalContextSchema.validate(
@@ -126,6 +150,17 @@ export class LogValidationUtilService {
                     ...defaultLogFields,
                     type: LogTypes.MeetingDocumentDeleted,
                     documentNames: additionalContext.document_names,
+                };
+            }
+            case LogTypes.MeetingDeleted: {
+                const additionalContext =
+                    await meetingDeletedLogAdditionalContextSchema.validate(
+                        log.additional_context,
+                    );
+                return {
+                    ...defaultLogFields,
+                    type: LogTypes.MeetingDeleted,
+                    meetingName: additionalContext.meeting_name,
                 };
             }
             default:

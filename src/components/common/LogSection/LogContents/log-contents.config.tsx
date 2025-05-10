@@ -3,6 +3,7 @@ import {
   ICommentLog,
   IMeetingCreatedLog,
   IMeetingDateChangedLog,
+  IMeetingDeletedLog,
   IMeetingDocumentAddedLog,
   IMeetingDocumentDeletedLog,
   IMeetingNameChangedLog,
@@ -17,6 +18,7 @@ type LogTypeToInterfaceMap = {
   [LogTypes.MeetingDateChanged]: IMeetingDateChangedLog;
   [LogTypes.MeetingDocumentAdded]: IMeetingDocumentAddedLog;
   [LogTypes.MeetingDocumentDeleted]: IMeetingDocumentDeletedLog;
+  [LogTypes.MeetingDeleted]: IMeetingDeletedLog;
 };
 
 export const logContentsConfig: {
@@ -32,8 +34,10 @@ export const logContentsConfig: {
     contents?: ReactNode;
   };
 } = {
-  [LogTypes.MeetingCreated]: (username) => ({
-    title: `${username} created this meeting`,
+  [LogTypes.MeetingCreated]: (username, log, meetingId) => ({
+    title: meetingId
+      ? `${username} created this meeting`
+      : `${username} created meeting ${log.initialMeetingName}`,
   }),
   [LogTypes.MeetingDateChanged]: (username, log) => ({
     title: `${username} changed the meeting date`,
@@ -74,5 +78,8 @@ export const logContentsConfig: {
   ) => ({
     title: `${username} deleted ${log.documentNames.length} document(s)`,
     description: log.documentNames.join(", "),
+  }),
+  [LogTypes.MeetingDeleted]: (username, log: IMeetingDeletedLog) => ({
+    title: `${username} deleted meeting ${log.meetingName}`,
   }),
 };

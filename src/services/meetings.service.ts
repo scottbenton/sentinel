@@ -117,6 +117,20 @@ export class MeetingsService {
         meetingId,
         organizationId: null,
         type: LogTypes.MeetingCreated,
+        additionalContext: {
+          meeting_id: meetingId,
+          initial_meeting_name: meetingName,
+        },
+      });
+      LogsService.createLog({
+        uid,
+        meetingId: null,
+        organizationId: organizationId,
+        type: LogTypes.MeetingCreated,
+        additionalContext: {
+          meeting_id: meetingId,
+          initial_meeting_name: meetingName,
+        },
       });
     } catch (error) {
       console.error(error);
@@ -172,8 +186,23 @@ export class MeetingsService {
     });
   }
 
-  public static deleteMeeting(meetingId: number): Promise<void> {
-    return MeetingsRepository.deleteMeeting(meetingId);
+  public static async deleteMeeting(
+    uid: string,
+    organizationId: number,
+    meetingId: number,
+    meetingName: string,
+  ): Promise<void> {
+    await MeetingsRepository.deleteMeeting(meetingId);
+
+    LogsService.createLog({
+      uid,
+      meetingId: null,
+      organizationId,
+      type: LogTypes.MeetingDeleted,
+      additionalContext: {
+        meeting_name: meetingName,
+      },
+    }).catch(() => {});
   }
 
   private static convertMeetingDTOToMeeting(meetingDTO: MeetingDTO): IMeeting {

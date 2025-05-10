@@ -166,13 +166,13 @@ export abstract class BaseScraper {
 
     if (uploadedDocumentNames.length > 0) {
       try {
-        await meetingService.createLog({
+        await meetingService.createLogs([{
           meeting_id: meetingId,
           type: "meeting_document_added",
           additional_context: {
             document_names: uploadedDocumentNames,
           },
-        });
+        }]);
       } catch (e) {
         this.logger.error("Error creating log", e);
       }

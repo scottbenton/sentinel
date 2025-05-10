@@ -9,6 +9,7 @@ export enum LogTypes {
     MeetingDateChanged = "meeting_date_changed",
     MeetingDocumentAdded = "meeting_document_added",
     MeetingDocumentDeleted = "meeting_document_deleted",
+    MeetingDeleted = "meeting_deleted",
 }
 
 export class LogsService {
