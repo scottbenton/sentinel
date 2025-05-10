@@ -414,7 +414,7 @@ SELECT pg_catalog.setval('"public"."meeting_documents_id_seq"', 152, true);
 -- Name: meeting_logs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('"public"."meeting_logs_id_seq"', 1, false);
+SELECT pg_catalog.setval('"public"."logs_id_seq"', 1, false);
 
 
 --
