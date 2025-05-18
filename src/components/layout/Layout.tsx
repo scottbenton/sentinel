@@ -13,6 +13,7 @@ import { ProgressBar } from "../common/ProgressBar";
 import { SettingsIcon } from "lucide-react";
 import { Toaster } from "../ui/toaster";
 import { color } from "@/providers/ThemeProvider";
+import { NotificationBell } from "../NotificationBell";
 
 export function Layout(props: PropsWithChildren) {
   const { children } = props;
@@ -82,20 +83,23 @@ export function Layout(props: PropsWithChildren) {
               <Box display={"flex"} alignItems="center" gap={1}>
                 <ColorModeButton colorPalette={"gray"} />
                 {authStatus === AuthStatus.Authenticated && (
-                  <Menu.Root>
-                    <Menu.Trigger asChild>
-                      <IconButton variant="ghost" colorPalette="gray">
-                        <SettingsIcon />
-                      </IconButton>
-                    </Menu.Trigger>
-                    <Menu.Positioner>
-                      <Menu.Content>
-                        <Menu.Item value="logout" onClick={handleSignOut}>
-                          Sign Out
-                        </Menu.Item>
-                      </Menu.Content>
-                    </Menu.Positioner>
-                  </Menu.Root>
+                  <>
+                    <NotificationBell />
+                    <Menu.Root>
+                      <Menu.Trigger asChild>
+                        <IconButton variant="ghost" colorPalette="gray">
+                          <SettingsIcon />
+                        </IconButton>
+                      </Menu.Trigger>
+                      <Menu.Positioner>
+                        <Menu.Content>
+                          <Menu.Item value="logout" onClick={handleSignOut}>
+                            Sign Out
+                          </Menu.Item>
+                        </Menu.Content>
+                      </Menu.Positioner>
+                    </Menu.Root>
+                  </>
                 )}
               </Box>
             </Box>

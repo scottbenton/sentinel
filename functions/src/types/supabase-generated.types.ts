@@ -339,21 +339,27 @@ export type Database = {
       }
       notifications: {
         Row: {
+          additional_context: Json
           created_at: string
+          has_been_read: boolean
           id: string
           log_id: number | null
           type: Database["public"]["Enums"]["notification_types"]
           user_id: string
         }
         Insert: {
+          additional_context?: Json
           created_at?: string
+          has_been_read?: boolean
           id?: string
           log_id?: number | null
           type: Database["public"]["Enums"]["notification_types"]
           user_id: string
         }
         Update: {
+          additional_context?: Json
           created_at?: string
+          has_been_read?: boolean
           id?: string
           log_id?: number | null
           type?: Database["public"]["Enums"]["notification_types"]
