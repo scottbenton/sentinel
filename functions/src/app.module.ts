@@ -14,6 +14,7 @@ import { BullModule } from "@nestjs/bullmq";
 import { ScheduleModule } from "@nestjs/schedule";
 import { DashboardUsersController } from "./dashboard_users/dashboard_users.controller";
 import { EmailService } from "./email/email.service";
+import { WebhooksModule } from "./webhooks/webhooks.module";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { EmailService } from "./email/email.service";
     MeetingsModule,
     ScraperModule,
     JwtModule,
+    WebhooksModule,
     ScheduleModule.forRoot(),
     BullModule.forRoot({
       connection: {
