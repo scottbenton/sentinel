@@ -10,6 +10,8 @@ export enum ErrorNoun {
   Meetings = "meetings",
   MeetingDocuments = "meeting documents",
   MeetingLogs = "meeting logs",
+  NotificationSettings = "notification settings",
+  Notifications = "notifications",
 }
 
 export enum ErrorVerb {
@@ -173,6 +175,10 @@ function getTranslatedNoun(noun: ErrorNoun, plural: boolean): string {
       return plural ? "documents" : "document";
     case ErrorNoun.MeetingLogs:
       return plural ? "logs" : "log";
+    case ErrorNoun.NotificationSettings:
+      return plural ? "notification settings" : "notification settings";
+    case ErrorNoun.Notifications:
+      return plural ? "notifications" : "notification";
     default:
       return "";
   }
