@@ -59,15 +59,13 @@ export class NotificationsService {
     private static convertNotificationDTOToINotification(
         notification: NotificationDTO,
     ): INotification | null {
-        const context = notification.additional_context;
-
-        if (notification.type === "user_invited" && context) {
+        if (notification.type === "user_invited") {
             return {
                 id: notification.id,
                 type: NotificationType.UserInvitation,
-                inviteId: context.invite_id,
-                inviterName: context.inviter_name,
-                dashboardName: context.dashboard_name,
+                inviteId: notification.additional_context.invite_id,
+                inviterName: notification.additional_context.inviter_name,
+                dashboardName: notification.additional_context.dashboard_name,
                 createdAt: new Date(notification.created_at),
                 hasBeenRead: notification.has_been_read,
             };

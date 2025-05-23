@@ -2,7 +2,8 @@ import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 import deepEqual from "fast-deep-equal";
 import { INotification, NotificationsService } from "./notifications.service";
-import { useAuthStore } from "@/stores/auth.store";
+import { useUID } from "@/stores/auth.store";
+import { useEffect } from "react";
 
 interface NotificationsState {
     notifications: Record<string, INotification>;
@@ -28,23 +29,8 @@ export const useNotificationsStore = createWithEqualityFn<
     immer((set) => ({
         ...defaultState,
 
-        deleteNotification: async (id: string) => {
-            const { error } = await service.deleteNotification(id);
-            if (error) {
-                set((state) => {
-                    state.error = error.message;
-                });
-                return;
-            }
-
-            set((state) => {
-                state.notifications = state.notifications.filter((n) =>
-                    n.id !== id
-                );
-                state.unreadCount = state.notifications.filter((n) =>
-                    !n.read_at
-                ).length;
-            });
+        deleteNotification: (id: string) => {
+            return NotificationsService.deleteNotification(id);
         },
 
         subscribeToNotifications: (userId: string) => {
@@ -83,3 +69,16 @@ export const useNotificationsStore = createWithEqualityFn<
     })),
     deepEqual,
 );
+
+export function useSyncNotifications() {
+    const subscribeToNotifications = useNotificationsStore((store) =>
+        store.subscribeToNotifications
+    );
+    const uid = useUID();
+
+    useEffect(() => {
+        if (uid) {
+            return subscribeToNotifications(uid);
+        }
+    }, [subscribeToNotifications, uid]);
+}

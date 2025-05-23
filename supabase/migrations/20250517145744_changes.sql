@@ -6,4 +6,4 @@ alter table "public"."notifications" add constraint "notifications_log_id_fkey" 
 
 alter table "public"."notifications" validate constraint "notifications_log_id_fkey";
 
-
+ALTER TABLE notifications REPLICA IDENTITY FULL;

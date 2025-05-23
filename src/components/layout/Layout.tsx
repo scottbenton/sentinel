@@ -13,7 +13,7 @@ import { ProgressBar } from "../common/ProgressBar";
 import { SettingsIcon } from "lucide-react";
 import { Toaster } from "../ui/toaster";
 import { color } from "@/providers/ThemeProvider";
-import { NotificationBell } from "../NotificationBell";
+import { NotificationBell } from "./NotificationBell/NotificationBell";
 
 export function Layout(props: PropsWithChildren) {
   const { children } = props;
