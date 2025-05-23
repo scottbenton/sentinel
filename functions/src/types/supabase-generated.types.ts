@@ -278,6 +278,110 @@ export type Database = {
           },
         ]
       }
+      notification_settings: {
+        Row: {
+          created_at: string
+          dashboard_id: number | null
+          id: number
+          meeting_id: number | null
+          organization_id: number | null
+          settings: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dashboard_id?: number | null
+          id?: number
+          meeting_id?: number | null
+          organization_id?: number | null
+          settings?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dashboard_id?: number | null
+          id?: number
+          meeting_id?: number | null
+          organization_id?: number | null
+          settings?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_settings_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "dashboards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_settings_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_settings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          additional_context: Json
+          created_at: string
+          has_been_read: boolean
+          id: string
+          log_id: number | null
+          type: Database["public"]["Enums"]["notification_types"]
+          user_id: string
+        }
+        Insert: {
+          additional_context?: Json
+          created_at?: string
+          has_been_read?: boolean
+          id?: string
+          log_id?: number | null
+          type: Database["public"]["Enums"]["notification_types"]
+          user_id: string
+        }
+        Update: {
+          additional_context?: Json
+          created_at?: string
+          has_been_read?: boolean
+          id?: string
+          log_id?: number | null
+          type?: Database["public"]["Enums"]["notification_types"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_log_id_fkey"
+            columns: ["log_id"]
+            isOneToOne: false
+            referencedRelation: "logs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string
@@ -360,6 +464,11 @@ export type Database = {
         | "meeting_name_changed"
         | "meeting_date_changed"
         | "meeting_deleted"
+      notification_types:
+        | "meeting_created"
+        | "comment_added"
+        | "meeting_document_added"
+        | "user_invited"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -487,6 +596,12 @@ export const Constants = {
         "meeting_name_changed",
         "meeting_date_changed",
         "meeting_deleted",
+      ],
+      notification_types: [
+        "meeting_created",
+        "comment_added",
+        "meeting_document_added",
+        "user_invited",
       ],
     },
   },
