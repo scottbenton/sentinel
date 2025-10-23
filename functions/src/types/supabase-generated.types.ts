@@ -447,6 +447,62 @@ export type Database = {
         }
         Relationships: []
       }
+      watchers: {
+        Row: {
+          created_at: string
+          dashboard_id: number
+          id: number
+          meeting_id: number | null
+          organization_id: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dashboard_id: number
+          id?: number
+          meeting_id?: number | null
+          organization_id?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dashboard_id?: number
+          id?: number
+          meeting_id?: number | null
+          organization_id?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watchers_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "dashboards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "watchers_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "watchers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "watchers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
