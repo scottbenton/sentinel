@@ -11,6 +11,9 @@ vi.mock("./notifications.repository", () => ({
     deleteNotification: vi.fn(),
     updateNotification: vi.fn(),
     subscribeToNotifications: vi.fn(),
+    markNotificationsAsReadByIds: vi.fn(),
+    markMeetingNotificationsAsRead: vi.fn(),
+    markOrganizationNotificationsAsRead: vi.fn(),
   },
 }));
 
@@ -501,6 +504,89 @@ describe("NotificationsService", () => {
       );
 
       expect(onNotifications).toHaveBeenCalledWith(expect.any(Array), [], true);
+    });
+  });
+
+  describe("markNotificationsAsReadByIds", () => {
+    it("should call repository method with notification IDs", async () => {
+      vi.mocked(
+        NotificationsRepository.markNotificationsAsReadByIds,
+      ).mockResolvedValue(undefined);
+
+      await NotificationsService.markNotificationsAsReadByIds([
+        "notif-1",
+        "notif-2",
+        "notif-3",
+      ]);
+
+      expect(
+        NotificationsRepository.markNotificationsAsReadByIds,
+      ).toHaveBeenCalledWith(["notif-1", "notif-2", "notif-3"]);
+    });
+
+    it("should handle empty array", async () => {
+      vi.mocked(
+        NotificationsRepository.markNotificationsAsReadByIds,
+      ).mockResolvedValue(undefined);
+
+      await NotificationsService.markNotificationsAsReadByIds([]);
+
+      expect(
+        NotificationsRepository.markNotificationsAsReadByIds,
+      ).toHaveBeenCalledWith([]);
+    });
+  });
+
+  describe("markMeetingNotificationsAsRead", () => {
+    it("should call repository method with user and meeting ID", async () => {
+      vi.mocked(
+        NotificationsRepository.markMeetingNotificationsAsRead,
+      ).mockResolvedValue(undefined);
+
+      await NotificationsService.markMeetingNotificationsAsRead("user-1", 200);
+
+      expect(
+        NotificationsRepository.markMeetingNotificationsAsRead,
+      ).toHaveBeenCalledWith("user-1", 200);
+    });
+
+    it("should propagate errors from repository", async () => {
+      const mockError = new Error("Database error");
+      vi.mocked(
+        NotificationsRepository.markMeetingNotificationsAsRead,
+      ).mockRejectedValue(mockError);
+
+      await expect(
+        NotificationsService.markMeetingNotificationsAsRead("user-1", 200),
+      ).rejects.toThrow("Database error");
+    });
+  });
+
+  describe("markOrganizationNotificationsAsRead", () => {
+    it("should call repository method with user and organization ID", async () => {
+      vi.mocked(
+        NotificationsRepository.markOrganizationNotificationsAsRead,
+      ).mockResolvedValue(undefined);
+
+      await NotificationsService.markOrganizationNotificationsAsRead(
+        "user-1",
+        100,
+      );
+
+      expect(
+        NotificationsRepository.markOrganizationNotificationsAsRead,
+      ).toHaveBeenCalledWith("user-1", 100);
+    });
+
+    it("should propagate errors from repository", async () => {
+      const mockError = new Error("Database error");
+      vi.mocked(
+        NotificationsRepository.markOrganizationNotificationsAsRead,
+      ).mockRejectedValue(mockError);
+
+      await expect(
+        NotificationsService.markOrganizationNotificationsAsRead("user-1", 100),
+      ).rejects.toThrow("Database error");
     });
   });
 });

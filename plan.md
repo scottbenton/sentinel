@@ -1252,6 +1252,85 @@ private static convertNotificationDTOToINotification(
 
     return null;
 }
+
+// Add batch clearing methods
+public static async markNotificationsAsReadByIds(
+    notificationIds: string[]
+): Promise<void> {
+    await NotificationsRepository.markNotificationsAsReadByIds(notificationIds);
+}
+
+public static async markMeetingNotificationsAsRead(
+    userId: string,
+    meetingId: number
+): Promise<void> {
+    await NotificationsRepository.markMeetingNotificationsAsRead(userId, meetingId);
+}
+
+public static async markOrganizationNotificationsAsRead(
+    userId: string,
+    organizationId: number
+): Promise<void> {
+    await NotificationsRepository.markOrganizationNotificationsAsRead(userId, organizationId);
+}
+```
+
+**Batch Clearing Feature**:
+
+The notifications system supports batch clearing to improve UX. When a user views a meeting or organization, all related unread notifications are automatically marked as read in a single API call.
+
+**Use cases**:
+- Opening a meeting → clear all unread "comment added" notifications for that meeting
+- Opening an organization → clear all unread notifications for that organization
+- Dismissing multiple notifications at once by ID
+
+**Repository methods** (`notifications.repository.ts`):
+```typescript
+// Mark multiple notifications by IDs (batch operation)
+public static async markNotificationsAsReadByIds(
+    notificationIds: string[]
+): Promise<void> {
+    if (notificationIds.length === 0) return;
+    
+    await this.notifications()
+        .update({ has_been_read: true })
+        .in("id", notificationIds);
+}
+
+// Mark all notifications for a specific meeting
+public static async markMeetingNotificationsAsRead(
+    userId: string,
+    meetingId: number
+): Promise<void> {
+    await this.notifications()
+        .update({ has_been_read: true })
+        .eq("user_id", userId)
+        .eq("has_been_read", false)
+        .contains("additional_context", { meeting_id: meetingId });
+}
+
+// Mark all notifications for a specific organization
+public static async markOrganizationNotificationsAsRead(
+    userId: string,
+    organizationId: number
+): Promise<void> {
+    await this.notifications()
+        .update({ has_been_read: true })
+        .eq("user_id", userId)
+        .eq("has_been_read", false)
+        .contains("additional_context", { organization_id: organizationId });
+}
+```
+
+**Usage example**:
+```typescript
+// When user opens a meeting page
+useEffect(() => {
+    if (userId && meetingId) {
+        // Clear all notifications for this meeting
+        NotificationsService.markMeetingNotificationsAsRead(userId, meetingId);
+    }
+}, [userId, meetingId]);
 ```
 
 ---

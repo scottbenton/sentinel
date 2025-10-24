@@ -145,4 +145,39 @@ export class NotificationsService {
       has_been_read: true,
     });
   }
+
+  /**
+   * Mark multiple notifications as read by their IDs
+   */
+  public static async markNotificationsAsReadByIds(
+    notificationIds: string[],
+  ): Promise<void> {
+    await NotificationsRepository.markNotificationsAsReadByIds(notificationIds);
+  }
+
+  /**
+   * Mark all unread notifications for a specific meeting as read
+   */
+  public static async markMeetingNotificationsAsRead(
+    userId: string,
+    meetingId: number,
+  ): Promise<void> {
+    await NotificationsRepository.markMeetingNotificationsAsRead(
+      userId,
+      meetingId,
+    );
+  }
+
+  /**
+   * Mark all unread notifications for a specific organization as read
+   */
+  public static async markOrganizationNotificationsAsRead(
+    userId: string,
+    organizationId: number,
+  ): Promise<void> {
+    await NotificationsRepository.markOrganizationNotificationsAsRead(
+      userId,
+      organizationId,
+    );
+  }
 }
