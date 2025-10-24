@@ -26,6 +26,10 @@ import { useConfirm } from "@/providers/ConfirmProvider";
 import { useCurrentOrganization } from "@/stores/organizations.store";
 import { MeetingLog } from "./MeetingLog";
 import { useUID } from "@/stores/auth.store";
+import { WatchButton } from "@/components/common/WatchButton/WatchButton";
+import { useSyncWatchers } from "@/stores/watchers.store";
+import { useEffect } from "react";
+import { NotificationsService } from "@/notifications/notifications.service";
 
 export default function MeetingSheetPage() {
   const meeting = useMeetingsStore((store) => store.currentMeeting);
@@ -36,11 +40,23 @@ export default function MeetingSheetPage() {
 
   const dashboardId = useDashboardId();
   const dashboardName = useDashboardStore(
-    (store) => store.dashboard?.label ?? ""
+    (store) => store.dashboard?.label ?? "",
   );
   const organizationId = useOrganizationId();
   const organizationName = useCurrentOrganization((org) => org?.name ?? "");
   const meetingId = useMeetingId();
+
+  // Sync watchers for this dashboard
+  useSyncWatchers(uid, dashboardId);
+
+  // Auto-clear notifications when viewing this meeting
+  useEffect(() => {
+    if (uid && meetingId) {
+      NotificationsService.markMeetingNotificationsAsRead(uid, meetingId).catch(
+        console.error,
+      );
+    }
+  }, [uid, meetingId]);
 
   const deleteMeeting = useMeetingsStore((store) => store.deleteMeeting);
   const confirm = useConfirm();
@@ -80,29 +96,36 @@ export default function MeetingSheetPage() {
           { title: meeting?.name ?? "Loading" },
         ]}
         action={
-          isMeetingAdmin && (
-            <Group>
-              <Button variant="subtle" asChild>
-                <Link
-                  to={pageConfig.meetingEdit(
-                    dashboardId,
-                    organizationId,
-                    meetingId
-                  )}
+          <Group>
+            <WatchButton
+              type="meeting"
+              id={meetingId}
+              dashboardId={dashboardId}
+            />
+            {isMeetingAdmin && (
+              <>
+                <Button variant="subtle" asChild>
+                  <Link
+                    to={pageConfig.meetingEdit(
+                      dashboardId,
+                      organizationId,
+                      meetingId,
+                    )}
+                  >
+                    Edit Meeting
+                  </Link>
+                </Button>
+                <IconButton
+                  aria-label="Delete Meeting"
+                  variant="ghost"
+                  colorPalette={"gray"}
+                  onClick={handleDelete}
                 >
-                  Edit Meeting
-                </Link>
-              </Button>
-              <IconButton
-                aria-label="Delete Meeting"
-                variant="ghost"
-                colorPalette={"gray"}
-                onClick={handleDelete}
-              >
-                <TrashIcon />
-              </IconButton>
-            </Group>
-          )
+                  <TrashIcon />
+                </IconButton>
+              </>
+            )}
+          </Group>
         }
       />
       <PageContent p={4} sidebarContent={<MeetingLog />}>

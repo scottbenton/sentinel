@@ -19,21 +19,40 @@ import {
 import { MeetingsSection } from "./MeetingsSection";
 import { OrganizationDescription } from "./OrganizationDescription";
 import { OrganizationLog } from "./OrganizationLog";
+import { WatchButton } from "@/components/common/WatchButton/WatchButton";
+import { useSyncWatchers } from "@/stores/watchers.store";
+import { useUID } from "@/stores/auth.store";
+import { useEffect } from "react";
+import { NotificationsService } from "@/notifications/notifications.service";
 
 export default function OrganizationSheetPage() {
   const dashboardId = useDashboardId();
   const organizationId = useOrganizationId();
+  const uid = useUID();
 
   const dashboardName = useDashboardStore(
-    (store) => store.dashboard?.label ?? ""
+    (store) => store.dashboard?.label ?? "",
   );
   const org = useCurrentOrganization((org) => org);
   const orgsLoading = useOrganizationsStore(
-    (state) => state.organizationsLoading
+    (state) => state.organizationsLoading,
   );
   const orgsError = useOrganizationsStore((state) => state.organizationsError);
 
   const isAdmin = useIsDashboardAdmin();
+
+  // Sync watchers for this dashboard
+  useSyncWatchers(uid, dashboardId);
+
+  // Auto-clear notifications when viewing this organization
+  useEffect(() => {
+    if (uid && organizationId) {
+      NotificationsService.markOrganizationNotificationsAsRead(
+        uid,
+        organizationId,
+      ).catch(console.error);
+    }
+  }, [uid, organizationId]);
 
   return (
     <>
@@ -45,12 +64,17 @@ export default function OrganizationSheetPage() {
         ]}
         action={
           <Group>
+            <WatchButton
+              type="organization"
+              id={organizationId}
+              dashboardId={dashboardId}
+            />
             {isAdmin ? (
               <Button asChild variant="subtle">
                 <Link
                   href={pageConfig.organizationEdit(
                     dashboardId,
-                    organizationId
+                    organizationId,
                   )}
                 >
                   Edit

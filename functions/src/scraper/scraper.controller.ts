@@ -35,8 +35,8 @@ export class ScraperController {
       throw new Error("User ID is not available in the request");
     }
 
-    const isUserMeetingAdmin = await this.dashboardUsersService
-      .checkUserIsUserMeetingAdmin(
+    const isUserMeetingAdmin =
+      await this.dashboardUsersService.checkUserIsUserMeetingAdmin(
         userId,
         dashboardId,
       );
@@ -52,14 +52,14 @@ export class ScraperController {
     this.logger.log(
       `User ${userId} is an admin of the dashboard ${dashboardId}`,
     );
-    const organizationIds = await this.organizationService
-      .getAllOrganizationIdsFromDashboardId(
+    const organizationIds =
+      await this.organizationService.getAllOrganizationIdsFromDashboardId(
         dashboardId,
       );
     this.logger.log(
-      `User ${userId} is an admin of the dashboard ${dashboardId}, scraping organizations: ${
-        organizationIds.join(", ")
-      }`,
+      `User ${userId} is an admin of the dashboard ${dashboardId}, scraping organizations: ${organizationIds.join(
+        ", ",
+      )}`,
     );
     organizationIds.forEach((orgId) => {
       this.scraperService.addOrganizationToQueue(orgId).catch((err) => {
@@ -83,12 +83,11 @@ export class ScraperController {
       throw new Error("User ID is not available in the request");
     }
 
-    const org = await this.organizationService.getOrganizationFromId(
-      organizationId,
-    );
+    const org =
+      await this.organizationService.getOrganizationFromId(organizationId);
 
-    const isUserMeetingAdmin = await this.dashboardUsersService
-      .checkUserIsUserMeetingAdmin(
+    const isUserMeetingAdmin =
+      await this.dashboardUsersService.checkUserIsUserMeetingAdmin(
         userId,
         org.dashboard_id,
       );
