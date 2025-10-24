@@ -12,6 +12,7 @@ export enum ErrorNoun {
   MeetingLogs = "meeting logs",
   NotificationSettings = "notification settings",
   Notifications = "notifications",
+  Watchers = "watchers",
 }
 
 export enum ErrorVerb {

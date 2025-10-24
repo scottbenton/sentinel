@@ -1043,7 +1043,7 @@ sentinel/
 │   ├── migrations/            # SQL migrations
 │   └── config.toml            # Supabase config
 ├── plan.md                     # Feature implementation plan
-├── ARCHITECTURE.md             # This file
+├── AGENTS.md                   # This file
 └── README.md                   # Project overview
 ```
 
@@ -1069,6 +1069,49 @@ npm run start:dev
 npx supabase start
 # Runs local Supabase stack
 ```
+
+### Build & Test Verification
+
+**⚠️ IMPORTANT**: After making changes to either the frontend or backend, you MUST verify that builds and tests pass before considering work complete.
+
+**Frontend verification**:
+```bash
+# Run tests
+npm test -- --run
+
+# Run build
+npm run build
+```
+
+**Backend verification**:
+```bash
+cd functions
+
+# Run tests
+npm test
+
+# Run build
+npm run build
+```
+
+**When to verify**:
+- After adding new features
+- After modifying existing code
+- After updating dependencies
+- Before committing changes
+- Before marking tasks as complete
+
+**What to check**:
+- ✅ All tests pass (no failures)
+- ✅ Build completes without errors
+- ✅ No TypeScript errors
+- ✅ No unused variables/imports warnings (these fail builds)
+
+**Common build errors to fix**:
+- Unused imports → Remove them
+- Unused variables → Prefix with `_` or remove
+- Type errors → Fix type mismatches
+- Missing dependencies → Install them
 
 ### Adding a New Feature
 

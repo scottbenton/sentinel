@@ -8,6 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
     "generate-pwa-assets": "pwa-assets-generator",
     "supabase:start": "supabase start -x vector",
     "supabase:stop": "supabase stop",
@@ -51,15 +53,18 @@
     "@types/react-dom": "^19.0.4",
     "@vite-pwa/assets-generator": "^1.0.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/ui": "^4.0.2",
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
+    "jsdom": "^27.0.1",
     "sass-embedded": "^1.86.3",
     "supabase": "^2.20.12",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0",
-    "vite-plugin-pwa": "^1.0.0"
+    "vite-plugin-pwa": "^1.0.0",
+    "vitest": "^4.0.2"
   }
 }
