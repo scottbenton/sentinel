@@ -5,13 +5,11 @@ import {
   TablesUpdate,
 } from "@/types/supabase-generated.types";
 import { ErrorNoun, ErrorVerb, getRepositoryError } from "./_repositoryErrors";
+import { NotificationType } from "@/notifications/notifications.service";
 
-export enum NotificationType {
-  MeetingCreated = "meeting_created",
-  CommentAdded = "comment_added",
-  MeetingDocumentAdded = "meeting_document_added",
-  UserInvited = "user_invited",
-}
+// Re-export NotificationType for convenience
+export { NotificationType };
+
 // The notification settings JSON column should contain the following object:
 /**
  * {
