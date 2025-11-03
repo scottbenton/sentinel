@@ -27,6 +27,7 @@ interface UserInvitationNotification extends BaseNotification {
 
 interface MeetingCreatedNotification extends BaseNotification {
   type: NotificationType.MeetingCreated;
+  dashboardId: number;
   meetingId: number;
   meetingName: string;
   meetingDate: string;
@@ -37,15 +38,17 @@ interface MeetingCreatedNotification extends BaseNotification {
 interface CommentAddedNotification extends BaseNotification {
   type: NotificationType.CommentAdded;
   logId: number;
+  dashboardId: number;
   meetingId?: number;
   meetingName?: string;
-  organizationId?: number;
+  organizationId: number;
   organizationName?: string;
 }
 
 interface MeetingDocumentAddedNotification extends BaseNotification {
   type: NotificationType.MeetingDocumentAdded;
   logId: number;
+  dashboardId: number;
   meetingId: number;
   meetingName: string;
   organizationId: number;
@@ -61,6 +64,10 @@ export type INotification =
 export class NotificationsService {
   public static async deleteNotification(id: string) {
     return NotificationsRepository.deleteNotification(id);
+  }
+
+  public static async deleteAllNotifications(userId: string) {
+    return NotificationsRepository.deleteAllNotifications(userId);
   }
 
   public static subscribeToNotifications(
@@ -110,6 +117,7 @@ export class NotificationsService {
       return {
         ...baseNotification,
         type: NotificationType.MeetingCreated,
+        dashboardId: context.dashboard_id,
         meetingId: context.meeting_id,
         meetingName: context.meeting_name,
         meetingDate: context.meeting_date,
@@ -121,6 +129,7 @@ export class NotificationsService {
         ...baseNotification,
         type: NotificationType.CommentAdded,
         logId: notification.log_id!,
+        dashboardId: context.dashboard_id,
         meetingId: context.meeting_id,
         meetingName: context.meeting_name,
         organizationId: context.organization_id,
@@ -131,6 +140,7 @@ export class NotificationsService {
         ...baseNotification,
         type: NotificationType.MeetingDocumentAdded,
         logId: notification.log_id!,
+        dashboardId: context.dashboard_id,
         meetingId: context.meeting_id,
         meetingName: context.meeting_name,
         organizationId: context.organization_id,

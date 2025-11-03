@@ -1,23 +1,43 @@
 import { useMemo } from "react";
-import { IconButton, Menu, Text, Box, Badge } from "@chakra-ui/react";
+import {
+  IconButton,
+  Menu,
+  Text,
+  Box,
+  Badge,
+  Button,
+  Separator,
+} from "@chakra-ui/react";
 import { Bell } from "lucide-react";
 import {
   useNotificationsStore,
   useSyncNotifications,
 } from "../../../notifications/notifications.store";
 import { NotificationItem } from "./NotificationItem";
+import { useUID } from "@/stores/auth.store";
 
 export function NotificationBell() {
   useSyncNotifications();
 
+  const uid = useUID();
   const notifications = useNotificationsStore((state) =>
     Object.values(state.notifications).sort(
-      (n1, n2) => n2.createdAt.getTime() - n1.createdAt.getTime()
-    )
+      (n1, n2) => n2.createdAt.getTime() - n1.createdAt.getTime(),
+    ),
   );
+  const deleteAllNotifications = useNotificationsStore(
+    (store) => store.deleteAllNotifications,
+  );
+
   const unreadCount = useMemo(() => {
     return notifications.filter((n) => !n.hasBeenRead).length;
   }, [notifications]);
+
+  const handleClearAll = () => {
+    if (uid) {
+      deleteAllNotifications(uid).catch(console.error);
+    }
+  };
 
   return (
     <Box position="relative">
@@ -50,12 +70,24 @@ export function NotificationBell() {
                 <Text>No notifications</Text>
               </Menu.Item>
             ) : (
-              notifications.map((notification) => (
-                <NotificationItem
-                  key={notification.id}
-                  notification={notification}
-                />
-              ))
+              <>
+                <Box p={2} borderBottomWidth={1} borderColor="border">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    width="100%"
+                    onClick={handleClearAll}
+                  >
+                    Clear All
+                  </Button>
+                </Box>
+                {notifications.map((notification) => (
+                  <NotificationItem
+                    key={notification.id}
+                    notification={notification}
+                  />
+                ))}
+              </>
             )}
           </Menu.Content>
         </Menu.Positioner>

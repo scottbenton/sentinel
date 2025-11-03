@@ -59,7 +59,11 @@ export function NotificationItem(props: NotificationItemProps) {
   }
 
   if (notification.type === NotificationType.MeetingCreated) {
-    const meetingUrl = `/dashboard/${notification.organizationId}/meeting/${notification.meetingId}`;
+    const meetingUrl = pageConfig.meeting(
+      notification.dashboardId,
+      notification.organizationId,
+      notification.meetingId,
+    );
     return (
       <NotificationItemWrapper
         notification={notification}
@@ -74,8 +78,15 @@ export function NotificationItem(props: NotificationItemProps) {
 
   if (notification.type === NotificationType.CommentAdded) {
     const url = notification.meetingId
-      ? `/dashboard/${notification.organizationId}/meeting/${notification.meetingId}`
-      : `/dashboard/${notification.organizationId}`;
+      ? pageConfig.meeting(
+          notification.dashboardId,
+          notification.organizationId,
+          notification.meetingId,
+        )
+      : pageConfig.organization(
+          notification.dashboardId,
+          notification.organizationId,
+        );
 
     const locationText = notification.meetingName
       ? `on ${notification.meetingName}`
@@ -94,7 +105,11 @@ export function NotificationItem(props: NotificationItemProps) {
   }
 
   if (notification.type === NotificationType.MeetingDocumentAdded) {
-    const meetingUrl = `/dashboard/${notification.organizationId}/meeting/${notification.meetingId}`;
+    const meetingUrl = pageConfig.meeting(
+      notification.dashboardId,
+      notification.organizationId,
+      notification.meetingId,
+    );
     return (
       <NotificationItemWrapper
         notification={notification}
@@ -124,9 +139,18 @@ function NotificationItemWrapper(props: {
       value={notification.id}
       onClick={onClick}
       cursor={onClick ? "pointer" : "default"}
+      bg={notification.hasBeenRead ? "transparent" : "bg.muted"}
+      _hover={{
+        bg: notification.hasBeenRead ? "bg.muted" : "bg.emphasized",
+      }}
     >
       <Box width="100%">
-        <Text fontSize="sm">{text}</Text>
+        <Text
+          fontSize="sm"
+          fontWeight={notification.hasBeenRead ? "normal" : "semibold"}
+        >
+          {text}
+        </Text>
         <Text fontSize="xs" color="fg.muted">
           {formatDistanceToNow(new Date(notification.createdAt), {
             addSuffix: true,

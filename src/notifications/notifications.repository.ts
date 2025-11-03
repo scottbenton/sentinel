@@ -117,6 +117,29 @@ export class NotificationsRepository {
     });
   }
 
+  public static deleteAllNotifications(userId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.notifications()
+        .delete()
+        .eq("user_id", userId)
+        .then(({ error, status }) => {
+          if (error) {
+            reject(
+              getRepositoryError(
+                error,
+                ErrorVerb.Delete,
+                ErrorNoun.MeetingDocuments,
+                false,
+                status,
+              ),
+            );
+          } else {
+            resolve();
+          }
+        });
+    });
+  }
+
   public static updateNotification(
     id: string,
     dto: UpdateNotificationDTO,

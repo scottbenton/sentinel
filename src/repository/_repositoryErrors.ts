@@ -180,6 +180,8 @@ function getTranslatedNoun(noun: ErrorNoun, plural: boolean): string {
       return plural ? "notification settings" : "notification settings";
     case ErrorNoun.Notifications:
       return plural ? "notifications" : "notification";
+    case ErrorNoun.Watchers:
+      return plural ? "watchers" : "watcher";
     default:
       return "";
   }

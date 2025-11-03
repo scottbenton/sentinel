@@ -1,4 +1,7 @@
-import { WatcherDTO, WatchersRepository } from "@/repository/watchers.repository";
+import {
+  WatcherDTO,
+  WatchersRepository,
+} from "@/repository/watchers.repository";
 
 export interface IWatcher {
   id: number;
@@ -27,14 +30,8 @@ export class WatchersService {
   /**
    * Get all watchers for a user in a dashboard
    */
-  public static async getWatchersForUserInDashboard(
-    userId: string,
-    dashboardId: number
-  ): Promise<IWatcher[]> {
-    const dtos = await WatchersRepository.getWatchersForUserInDashboard(
-      userId,
-      dashboardId
-    );
+  public static async getWatchersForUser(userId: string): Promise<IWatcher[]> {
+    const dtos = await WatchersRepository.getWatchersForUser(userId);
     return dtos.map(this.convertDTOToIWatcher);
   }
 
@@ -43,9 +40,12 @@ export class WatchersService {
    */
   public static async isWatchingOrganization(
     userId: string,
-    organizationId: number
+    organizationId: number,
   ): Promise<boolean> {
-    return await WatchersRepository.isWatchingOrganization(userId, organizationId);
+    return await WatchersRepository.isWatchingOrganization(
+      userId,
+      organizationId,
+    );
   }
 
   /**
@@ -53,7 +53,7 @@ export class WatchersService {
    */
   public static async isWatchingMeeting(
     userId: string,
-    meetingId: number
+    meetingId: number,
   ): Promise<boolean> {
     return await WatchersRepository.isWatchingMeeting(userId, meetingId);
   }
@@ -65,15 +65,18 @@ export class WatchersService {
     userId: string,
     dashboardId: number,
     organizationId: number,
-    isCurrentlyWatching: boolean
+    isCurrentlyWatching: boolean,
   ): Promise<void> {
     if (isCurrentlyWatching) {
-      await WatchersRepository.removeOrganizationWatcher(userId, organizationId);
+      await WatchersRepository.removeOrganizationWatcher(
+        userId,
+        organizationId,
+      );
     } else {
       await WatchersRepository.addOrganizationWatcher(
         userId,
         dashboardId,
-        organizationId
+        organizationId,
       );
     }
   }
@@ -85,12 +88,16 @@ export class WatchersService {
     userId: string,
     dashboardId: number,
     meetingId: number,
-    isCurrentlyWatching: boolean
+    isCurrentlyWatching: boolean,
   ): Promise<void> {
     if (isCurrentlyWatching) {
       await WatchersRepository.removeMeetingWatcher(userId, meetingId);
     } else {
-      await WatchersRepository.addMeetingWatcher(userId, dashboardId, meetingId);
+      await WatchersRepository.addMeetingWatcher(
+        userId,
+        dashboardId,
+        meetingId,
+      );
     }
   }
 
@@ -99,16 +106,14 @@ export class WatchersService {
    */
   public static subscribeToWatchers(
     userId: string,
-    dashboardId: number,
-    onUpdate: (watchers: IWatcher[], type: "initial" | "insert" | "delete") => void
+    onUpdate: (
+      watchers: IWatcher[],
+      type: "initial" | "insert" | "delete",
+    ) => void,
   ): () => void {
-    return WatchersRepository.subscribeToWatchers(
-      userId,
-      dashboardId,
-      (dtos, type) => {
-        const watchers = dtos.map(this.convertDTOToIWatcher);
-        onUpdate(watchers, type);
-      }
-    );
+    return WatchersRepository.subscribeToWatchers(userId, (dtos, type) => {
+      const watchers = dtos.map(this.convertDTOToIWatcher);
+      onUpdate(watchers, type);
+    });
   }
 }

@@ -151,6 +151,12 @@ ALTER TABLE "public"."notifications" REPLICA IDENTITY FULL;
 ALTER TABLE "public"."watchers" REPLICA IDENTITY FULL;
 
 -- ============================================================================
+-- 10. Enable realtime with full row data for notification_settings table
+-- ============================================================================
+
+ALTER TABLE "public"."notification_settings" REPLICA IDENTITY FULL;
+
+-- ============================================================================
 -- 10. Create webhook triggers for meeting creation
 -- ============================================================================
 
@@ -179,3 +185,8 @@ CREATE TRIGGER "logs/insert"
         '{}',
         '5000'
     );
+
+alter publication supabase_realtime add table logs;
+alter publication supabase_realtime add table notification_settings;
+alter publication supabase_realtime add table notifications;
+alter publication supabase_realtime add table watchers;

@@ -210,6 +210,7 @@ export class WebhooksService {
           user_id: userId,
           log_id: null, // No log yet
           additional_context: {
+            dashboard_id: dashboardId,
             meeting_id: meetingId,
             meeting_name: meetingName,
             meeting_date: meetingDate,
@@ -300,6 +301,7 @@ export class WebhooksService {
 
       dashboardId = org.dashboard_id;
       contextInfo = {
+        dashboard_id: dashboardId,
         meeting_id: meetingId,
         meeting_name: meeting.name,
         organization_id: meeting.organization_id,
@@ -323,6 +325,7 @@ export class WebhooksService {
 
       dashboardId = org.dashboard_id;
       contextInfo = {
+        dashboard_id: dashboardId,
         organization_id: organizationId,
         organization_name: org.name,
       };

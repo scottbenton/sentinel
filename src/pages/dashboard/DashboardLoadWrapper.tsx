@@ -3,6 +3,7 @@ import { useSyncDashboardUserInvites } from "@/stores/dashboardUserInvites.store
 import { useSyncDashboardUsers } from "@/stores/dashboardUsers.store";
 import { useSyncFutureMeetings } from "@/stores/meetings.store";
 import { useSyncOrganizations } from "@/stores/organizations.store";
+import { useSyncWatchers } from "@/stores/watchers.store";
 import { PropsWithChildren } from "react";
 
 export function DashboardLoadWrapper(props: PropsWithChildren) {
@@ -12,6 +13,7 @@ export function DashboardLoadWrapper(props: PropsWithChildren) {
   useSyncFutureMeetings();
   useSyncDashboardUsers();
   useSyncDashboardUserInvites();
+  useSyncWatchers();
 
   return children;
 }

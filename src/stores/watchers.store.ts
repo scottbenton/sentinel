@@ -3,6 +3,7 @@ import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
 import deepEqual from "fast-deep-equal";
 import { useEffect } from "react";
+import { useAuthStore } from "./auth.store";
 
 export interface WatchersStoreState {
   // Map of organizationId/meetingId to watcher record
@@ -13,16 +14,16 @@ export interface WatchersStoreState {
 }
 
 export interface WatchersStoreActions {
-  subscribeToWatchers: (userId: string, dashboardId: number) => () => void;
+  subscribeToWatchers: (userId: string) => () => void;
   toggleOrganizationWatch: (
     userId: string,
     dashboardId: number,
-    organizationId: number
+    organizationId: number,
   ) => Promise<void>;
   toggleMeetingWatch: (
     userId: string,
     dashboardId: number,
-    meetingId: number
+    meetingId: number,
   ) => Promise<void>;
   isWatchingOrganization: (organizationId: number) => boolean;
   isWatchingMeeting: (meetingId: number) => boolean;
@@ -42,56 +43,72 @@ export const useWatchersStore = createWithEqualityFn<
   immer((set, get) => ({
     ...defaultState,
 
-    subscribeToWatchers: (userId: string, dashboardId: number) => {
+    subscribeToWatchers: (userId: string) => {
       set({ isLoading: true, error: null });
 
-      return WatchersService.subscribeToWatchers(
-        userId,
-        dashboardId,
-        (watchers, type) => {
-          set((state) => {
-            if (type === "initial") {
-              // Reset and populate
-              state.organizationWatchers = {};
-              state.meetingWatchers = {};
+      return WatchersService.subscribeToWatchers(userId, (watchers, type) => {
+        set((state) => {
+          if (type === "initial") {
+            // Reset and populate
+            state.organizationWatchers = {};
+            state.meetingWatchers = {};
 
-              watchers.forEach((watcher) => {
-                if (watcher.organizationId) {
-                  state.organizationWatchers[watcher.organizationId] =
-                    watcher;
-                } else if (watcher.meetingId) {
-                  state.meetingWatchers[watcher.meetingId] = watcher;
-                }
-              });
+            watchers.forEach((watcher) => {
+              if (watcher.organizationId) {
+                state.organizationWatchers[watcher.organizationId] = watcher;
+              } else if (watcher.meetingId) {
+                state.meetingWatchers[watcher.meetingId] = watcher;
+              }
+            });
 
-              state.isLoading = false;
-            } else if (type === "insert") {
-              watchers.forEach((watcher) => {
-                if (watcher.organizationId) {
-                  state.organizationWatchers[watcher.organizationId] =
-                    watcher;
-                } else if (watcher.meetingId) {
-                  state.meetingWatchers[watcher.meetingId] = watcher;
-                }
-              });
-            } else if (type === "delete") {
-              watchers.forEach((watcher) => {
-                if (watcher.organizationId) {
-                  delete state.organizationWatchers[watcher.organizationId];
-                } else if (watcher.meetingId) {
-                  delete state.meetingWatchers[watcher.meetingId];
-                }
-              });
-            }
-          });
-        }
-      );
+            state.isLoading = false;
+          } else if (type === "insert") {
+            watchers.forEach((watcher) => {
+              if (watcher.organizationId) {
+                state.organizationWatchers[watcher.organizationId] = watcher;
+              } else if (watcher.meetingId) {
+                state.meetingWatchers[watcher.meetingId] = watcher;
+              }
+            });
+          } else if (type === "delete") {
+            watchers.forEach((watcher) => {
+              const id = watcher.id;
+
+              const orgId = Object.values(state.organizationWatchers).find(
+                (orgWatcher) => {
+                  if (orgWatcher.id === id) {
+                    return true;
+                  }
+                  return false;
+                },
+              )?.organizationId;
+              if (orgId) {
+                delete state.organizationWatchers[orgId];
+                return;
+              }
+
+              const meetingId = Object.values(state.meetingWatchers).find(
+                (meetingWatcher) => {
+                  if (meetingWatcher.id === id) {
+                    return true;
+                  }
+                  return false;
+                },
+              )?.meetingId;
+              if (meetingId) {
+                delete state.meetingWatchers[meetingId];
+                return;
+              }
+            });
+          }
+        });
+      });
     },
 
     toggleOrganizationWatch: async (
       userId: string,
       dashboardId: number,
-      organizationId: number
+      organizationId: number,
     ) => {
       const isCurrentlyWatching = get().isWatchingOrganization(organizationId);
 
@@ -100,7 +117,7 @@ export const useWatchersStore = createWithEqualityFn<
           userId,
           dashboardId,
           organizationId,
-          isCurrentlyWatching
+          isCurrentlyWatching,
         );
       } catch (error: any) {
         set({ error: error.message });
@@ -111,7 +128,7 @@ export const useWatchersStore = createWithEqualityFn<
     toggleMeetingWatch: async (
       userId: string,
       dashboardId: number,
-      meetingId: number
+      meetingId: number,
     ) => {
       const isCurrentlyWatching = get().isWatchingMeeting(meetingId);
 
@@ -120,7 +137,7 @@ export const useWatchersStore = createWithEqualityFn<
           userId,
           dashboardId,
           meetingId,
-          isCurrentlyWatching
+          isCurrentlyWatching,
         );
       } catch (error: any) {
         set({ error: error.message });
@@ -140,21 +157,19 @@ export const useWatchersStore = createWithEqualityFn<
       set(defaultState);
     },
   })),
-  deepEqual
+  deepEqual,
 );
 
 /**
  * Hook to sync watchers for the current dashboard
  */
-export function useSyncWatchers(
-  userId: string | null,
-  dashboardId: number | null
-) {
+export function useSyncWatchers() {
+  const uid = useAuthStore((store) => store.userId);
   const subscribeToWatchers = useWatchersStore((s) => s.subscribeToWatchers);
 
   useEffect(() => {
-    if (userId && dashboardId) {
-      return subscribeToWatchers(userId, dashboardId);
+    if (uid) {
+      return subscribeToWatchers(uid);
     }
-  }, [userId, dashboardId, subscribeToWatchers]);
+  }, [uid, subscribeToWatchers]);
 }

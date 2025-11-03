@@ -12,14 +12,12 @@ export class WatchersRepository {
   /**
    * Get all watchers for a user in a dashboard
    */
-  public static async getWatchersForUserInDashboard(
+  public static async getWatchersForUser(
     userId: string,
-    dashboardId: number,
   ): Promise<WatcherDTO[]> {
     const { data, error, status } = await this.watchers()
       .select("*")
-      .eq("user_id", userId)
-      .eq("dashboard_id", dashboardId);
+      .eq("user_id", userId);
 
     if (error) {
       throw getRepositoryError(
@@ -193,17 +191,13 @@ export class WatchersRepository {
    */
   public static subscribeToWatchers(
     userId: string,
-    dashboardId: number,
     onPayload: (
       payload: WatcherDTO[],
       type: "initial" | "insert" | "delete",
     ) => void,
   ): () => void {
     const loadInitialData = async () => {
-      const data = await this.getWatchersForUserInDashboard(
-        userId,
-        dashboardId,
-      );
+      const data = await this.getWatchersForUser(userId);
       onPayload(data, "initial");
     };
 
@@ -218,9 +212,9 @@ export class WatchersRepository {
     };
 
     return createSubscription(
-      `watchers:${userId}:${dashboardId}`,
+      `watchers:${userId}`,
       "watchers",
-      `user_id=eq.${userId},dashboard_id=eq.${dashboardId}`,
+      `user_id=eq.${userId}`,
       loadInitialData,
       handlePayload,
     );

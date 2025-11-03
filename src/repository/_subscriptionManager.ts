@@ -13,7 +13,6 @@ export function createSubscription<T extends { [key: string]: any }>(
 
   const createSubscription = () => {
     let channel = supabase.channel(channelName);
-
     if (Array.isArray(filter)) {
       filter.forEach((f) => {
         channel = channel.on<T>(

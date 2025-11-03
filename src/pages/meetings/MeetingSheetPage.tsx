@@ -27,9 +27,6 @@ import { useCurrentOrganization } from "@/stores/organizations.store";
 import { MeetingLog } from "./MeetingLog";
 import { useUID } from "@/stores/auth.store";
 import { WatchButton } from "@/components/common/WatchButton/WatchButton";
-import { useSyncWatchers } from "@/stores/watchers.store";
-import { useEffect } from "react";
-import { NotificationsService } from "@/notifications/notifications.service";
 
 export default function MeetingSheetPage() {
   const meeting = useMeetingsStore((store) => store.currentMeeting);
@@ -45,18 +42,6 @@ export default function MeetingSheetPage() {
   const organizationId = useOrganizationId();
   const organizationName = useCurrentOrganization((org) => org?.name ?? "");
   const meetingId = useMeetingId();
-
-  // Sync watchers for this dashboard
-  useSyncWatchers(uid, dashboardId);
-
-  // Auto-clear notifications when viewing this meeting
-  useEffect(() => {
-    if (uid && meetingId) {
-      NotificationsService.markMeetingNotificationsAsRead(uid, meetingId).catch(
-        console.error,
-      );
-    }
-  }, [uid, meetingId]);
 
   const deleteMeeting = useMeetingsStore((store) => store.deleteMeeting);
   const confirm = useConfirm();

@@ -6,9 +6,10 @@ import { UserAvatar } from "../UserAvatar";
 import { LogContents } from "./LogContents/LogContents";
 import { LogRTE } from "./LogRTE";
 import { useUID } from "@/stores/auth.store";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useNotificationsStore } from "@/notifications/notifications.store";
 
 export interface LogSectionProps extends BoxProps {
   meetingId: number | null;
@@ -25,12 +26,36 @@ export function LogSection(props: LogSectionProps) {
     organizationId,
   });
 
+  // Auto-clear notifications when viewing this meeting or organization
+  const markMeetingNotificationsAsRead = useNotificationsStore(
+    (store) => store.markMeetingNotificationsAsRead,
+  );
+  const markOrganizationNotificationsAsRead = useNotificationsStore(
+    (store) => store.markOrganizationNotificationsAsRead,
+  );
+
+  useEffect(() => {
+    if (uid && meetingId) {
+      markMeetingNotificationsAsRead(uid, meetingId).catch(console.error);
+    } else if (uid && organizationId) {
+      markOrganizationNotificationsAsRead(uid, organizationId).catch(
+        console.error,
+      );
+    }
+  }, [
+    uid,
+    meetingId,
+    organizationId,
+    markMeetingNotificationsAsRead,
+    markOrganizationNotificationsAsRead,
+  ]);
+
   const [onlyShowComments, setOnlyShowComments] = useState(false);
 
   const logs = useLogsStore((store) =>
     [...store.logs].sort(
-      (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-    )
+      (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+    ),
   );
 
   const filteredLogs = useMemo(() => {

@@ -14,21 +14,18 @@ export function WatchButton(props: WatchButtonProps) {
   const { type, id, dashboardId } = props;
 
   const uid = useUID();
-  const isWatchingOrganization = useWatchersStore(
-    (s) => s.isWatchingOrganization
+  const isWatching = useWatchersStore((store) =>
+    type === "organization"
+      ? store.organizationWatchers[id]
+      : store.meetingWatchers[id],
   );
-  const isWatchingMeeting = useWatchersStore((s) => s.isWatchingMeeting);
+
   const toggleOrganizationWatch = useWatchersStore(
-    (s) => s.toggleOrganizationWatch
+    (s) => s.toggleOrganizationWatch,
   );
   const toggleMeetingWatch = useWatchersStore((s) => s.toggleMeetingWatch);
 
   const [isLoading, setIsLoading] = useState(false);
-
-  const isWatching =
-    type === "organization"
-      ? isWatchingOrganization(id)
-      : isWatchingMeeting(id);
 
   const handleToggle = useCallback(async () => {
     if (!uid) return;
@@ -45,14 +42,7 @@ export function WatchButton(props: WatchButtonProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [
-    uid,
-    type,
-    id,
-    dashboardId,
-    toggleOrganizationWatch,
-    toggleMeetingWatch,
-  ]);
+  }, [uid, type, id, dashboardId, toggleOrganizationWatch, toggleMeetingWatch]);
 
   return (
     <Button
