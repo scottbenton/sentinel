@@ -19,17 +19,18 @@ import {
 import { MeetingsSection } from "./MeetingsSection";
 import { OrganizationDescription } from "./OrganizationDescription";
 import { OrganizationLog } from "./OrganizationLog";
+import { WatchButton } from "@/components/common/WatchButton/WatchButton";
 
 export default function OrganizationSheetPage() {
   const dashboardId = useDashboardId();
   const organizationId = useOrganizationId();
 
   const dashboardName = useDashboardStore(
-    (store) => store.dashboard?.label ?? ""
+    (store) => store.dashboard?.label ?? "",
   );
   const org = useCurrentOrganization((org) => org);
   const orgsLoading = useOrganizationsStore(
-    (state) => state.organizationsLoading
+    (state) => state.organizationsLoading,
   );
   const orgsError = useOrganizationsStore((state) => state.organizationsError);
 
@@ -45,12 +46,17 @@ export default function OrganizationSheetPage() {
         ]}
         action={
           <Group>
+            <WatchButton
+              type="organization"
+              id={organizationId}
+              dashboardId={dashboardId}
+            />
             {isAdmin ? (
               <Button asChild variant="subtle">
                 <Link
                   href={pageConfig.organizationEdit(
                     dashboardId,
-                    organizationId
+                    organizationId,
                   )}
                 >
                   Edit

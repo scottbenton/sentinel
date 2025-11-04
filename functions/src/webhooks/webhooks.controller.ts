@@ -3,85 +3,113 @@ import { WebhooksService } from "./webhooks.service";
 import { Tables } from "src/types/supabase-generated.types";
 
 interface WebhookPayload<T> {
-    type: "INSERT" | "UPDATE" | "DELETE";
-    table: string;
-    schema: string;
-    record: T;
-    old_record: T | null;
+  type: "INSERT" | "UPDATE" | "DELETE";
+  table: string;
+  schema: string;
+  record: T;
+  old_record: T | null;
 }
 
 @Controller("webhooks")
 export class WebhooksController {
-    private readonly logger = new Logger(WebhooksController.name);
+  private readonly logger = new Logger(WebhooksController.name);
 
-    constructor(private readonly webhooksService: WebhooksService) {}
+  constructor(private readonly webhooksService: WebhooksService) {}
 
-    @Post("dashboard-user-invites/insert")
-    async handleDashboardUserInvite(
-        @Body() payload: WebhookPayload<Tables<"dashboard_user_invites">>,
+  @Post("dashboard-user-invites/insert")
+  async handleDashboardUserInvite(
+    @Body() payload: WebhookPayload<Tables<"dashboard_user_invites">>,
+  ) {
+    this.logger.log(
+      `Received webhook for ${payload.table} with type ${payload.type}`,
+    );
+
+    if (
+      payload.type !== "INSERT" ||
+      payload.table !== "dashboard_user_invites"
     ) {
-        this.logger.log(
-            `Received webhook for ${payload.table} with type ${payload.type}`,
-        );
-
-        if (
-            payload.type !== "INSERT" ||
-            payload.table !== "dashboard_user_invites"
-        ) {
-            this.logger.warn(
-                `Invalid webhook payload: ${JSON.stringify(payload)}`,
-            );
-            return { success: false, message: "Invalid webhook payload" };
-        }
-
-        await this.webhooksService.handleDashboardUserInvite(payload.record);
-        this.logger.log("Successfully processed dashboard user invite webhook");
-        return { success: true };
+      this.logger.warn(`Invalid webhook payload: ${JSON.stringify(payload)}`);
+      return { success: false, message: "Invalid webhook payload" };
     }
 
-    @Post("users/insert")
-    async handleNewUser(@Body() payload: WebhookPayload<Tables<"users">>) {
-        this.logger.log(
-            `Received webhook for ${payload.table} with type ${payload.type}`,
-        );
+    await this.webhooksService.handleDashboardUserInvite(payload.record);
+    this.logger.log("Successfully processed dashboard user invite webhook");
+    return { success: true };
+  }
 
-        if (payload.type !== "INSERT" || payload.table !== "users") {
-            this.logger.warn(
-                `Invalid webhook payload: ${JSON.stringify(payload)}`,
-            );
-            return { success: false, message: "Invalid webhook payload" };
-        }
+  @Post("users/insert")
+  async handleNewUser(@Body() payload: WebhookPayload<Tables<"users">>) {
+    this.logger.log(
+      `Received webhook for ${payload.table} with type ${payload.type}`,
+    );
 
-        await this.webhooksService.handleNewUser(payload.record);
-        this.logger.log("Successfully processed new user webhook");
-        return { success: true };
+    if (payload.type !== "INSERT" || payload.table !== "users") {
+      this.logger.warn(`Invalid webhook payload: ${JSON.stringify(payload)}`);
+      return { success: false, message: "Invalid webhook payload" };
     }
 
-    @Post("dashboard-user-invites/delete")
-    async handleInviteDelete(
-        @Body() payload: WebhookPayload<Tables<"dashboard_user_invites">>,
+    await this.webhooksService.handleNewUser(payload.record);
+    this.logger.log("Successfully processed new user webhook");
+    return { success: true };
+  }
+
+  @Post("dashboard-user-invites/delete")
+  async handleInviteDelete(
+    @Body() payload: WebhookPayload<Tables<"dashboard_user_invites">>,
+  ) {
+    this.logger.log(
+      `Received webhook for ${payload.table} with type ${payload.type}`,
+    );
+
+    if (
+      payload.type !== "DELETE" ||
+      payload.table !== "dashboard_user_invites"
     ) {
-        this.logger.log(
-            `Received webhook for ${payload.table} with type ${payload.type}`,
-        );
-
-        if (
-            payload.type !== "DELETE" ||
-            payload.table !== "dashboard_user_invites"
-        ) {
-            this.logger.warn(
-                `Invalid webhook payload: ${JSON.stringify(payload)}`,
-            );
-            return { success: false, message: "Invalid webhook payload" };
-        }
-
-        if (!payload.old_record) {
-            this.logger.warn("No old_record provided in delete webhook");
-            return { success: false, message: "No old_record provided" };
-        }
-
-        await this.webhooksService.handleInviteDelete(payload.old_record);
-        this.logger.log("Successfully processed invite deletion webhook");
-        return { success: true };
+      this.logger.warn(`Invalid webhook payload: ${JSON.stringify(payload)}`);
+      return { success: false, message: "Invalid webhook payload" };
     }
+
+    if (!payload.old_record) {
+      this.logger.warn("No old_record provided in delete webhook");
+      return { success: false, message: "No old_record provided" };
+    }
+
+    await this.webhooksService.handleInviteDelete(payload.old_record);
+    this.logger.log("Successfully processed invite deletion webhook");
+    return { success: true };
+  }
+
+  @Post("meetings/insert")
+  async handleMeetingInsert(
+    @Body() payload: WebhookPayload<Tables<"meetings">>,
+  ) {
+    this.logger.log(
+      `Received webhook for ${payload.table} with type ${payload.type}`,
+    );
+
+    if (payload.type !== "INSERT" || payload.table !== "meetings") {
+      this.logger.warn(`Invalid webhook payload: ${JSON.stringify(payload)}`);
+      return { success: false, message: "Invalid webhook payload" };
+    }
+
+    await this.webhooksService.handleMeetingInsert(payload.record);
+    this.logger.log("Successfully processed meeting insert webhook");
+    return { success: true };
+  }
+
+  @Post("logs/insert")
+  async handleLogInsert(@Body() payload: WebhookPayload<Tables<"logs">>) {
+    this.logger.log(
+      `Received webhook for ${payload.table} with type ${payload.type}`,
+    );
+
+    if (payload.type !== "INSERT" || payload.table !== "logs") {
+      this.logger.warn(`Invalid webhook payload: ${JSON.stringify(payload)}`);
+      return { success: false, message: "Invalid webhook payload" };
+    }
+
+    await this.webhooksService.handleLogInsert(payload.record);
+    this.logger.log("Successfully processed log insert webhook");
+    return { success: true };
+  }
 }

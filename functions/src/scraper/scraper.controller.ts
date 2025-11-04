@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ScraperService } from "./scraper.service";
+import { Request as ExpressRequest } from "express";
 
 @UseGuards(AuthGuard)
 @Controller("scraper")
@@ -24,19 +25,18 @@ export class ScraperController {
 
   @Post("dashboard/:dashboardId")
   async scrapeAllOrganizationsInDashboard(
-    @Request() req,
+    @Request() req: ExpressRequest & { user?: { sub?: string } },
     @Param("dashboardId") dashboardId: number,
   ): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const userId: string = req.user?.sub;
+    const userId: string | undefined = req.user?.sub;
     this.logger.log(userId);
     if (!userId) {
       this.logger.error("User ID is not available in the request");
       throw new Error("User ID is not available in the request");
     }
 
-    const isUserMeetingAdmin = await this.dashboardUsersService
-      .checkUserIsUserMeetingAdmin(
+    const isUserMeetingAdmin =
+      await this.dashboardUsersService.checkUserIsUserMeetingAdmin(
         userId,
         dashboardId,
       );
@@ -52,14 +52,14 @@ export class ScraperController {
     this.logger.log(
       `User ${userId} is an admin of the dashboard ${dashboardId}`,
     );
-    const organizationIds = await this.organizationService
-      .getAllOrganizationIdsFromDashboardId(
+    const organizationIds =
+      await this.organizationService.getAllOrganizationIdsFromDashboardId(
         dashboardId,
       );
     this.logger.log(
-      `User ${userId} is an admin of the dashboard ${dashboardId}, scraping organizations: ${
-        organizationIds.join(", ")
-      }`,
+      `User ${userId} is an admin of the dashboard ${dashboardId}, scraping organizations: ${organizationIds.join(
+        ", ",
+      )}`,
     );
     organizationIds.forEach((orgId) => {
       this.scraperService.addOrganizationToQueue(orgId).catch((err) => {
@@ -72,23 +72,21 @@ export class ScraperController {
 
   @Post(":organizationId")
   async scrapeOrganizationPage(
-    @Request() req,
+    @Request() req: ExpressRequest & { user?: { sub?: string } },
     @Param("organizationId") organizationId: number,
   ): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const userId: string = req.user?.sub;
+    const userId: string | undefined = req.user?.sub;
     this.logger.log(userId);
     if (!userId) {
       this.logger.error("User ID is not available in the request");
       throw new Error("User ID is not available in the request");
     }
 
-    const org = await this.organizationService.getOrganizationFromId(
-      organizationId,
-    );
+    const org =
+      await this.organizationService.getOrganizationFromId(organizationId);
 
-    const isUserMeetingAdmin = await this.dashboardUsersService
-      .checkUserIsUserMeetingAdmin(
+    const isUserMeetingAdmin =
+      await this.dashboardUsersService.checkUserIsUserMeetingAdmin(
         userId,
         org.dashboard_id,
       );

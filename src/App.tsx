@@ -9,34 +9,34 @@ const HomePage = lazy(() => import("./pages/home/HomePage"));
 const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
 
 const DashboardSelectPage = lazy(
-  () => import("./pages/dashboard/DashboardSelectPage")
+  () => import("./pages/dashboard/DashboardSelectPage"),
 );
 const DashboardCreatePage = lazy(
-  () => import("./pages/dashboard/DashboardCreatePage")
+  () => import("./pages/dashboard/DashboardCreatePage"),
 );
 const DashboardPage = lazy(() => import("./pages/dashboard/DashboardPage"));
 const DashboardEditPage = lazy(
-  () => import("./pages/dashboard/DashboardEditPage")
+  () => import("./pages/dashboard/DashboardEditPage"),
 );
 
 const OrganizationCreatePage = lazy(
-  () => import("./pages/organizations/OrganizationCreatePage")
+  () => import("./pages/organizations/OrganizationCreatePage"),
 );
 const OrganizationPage = lazy(
-  () => import("./pages/organizations/OrganizationSheetPage")
+  () => import("./pages/organizations/OrganizationSheetPage"),
 );
 const OrganizationEditPage = lazy(
-  () => import("./pages/organizations/OrganizationEditPage")
+  () => import("./pages/organizations/OrganizationEditPage"),
 );
 
 const MeetingCreatePage = lazy(
-  () => import("./pages/meetings/MeetingCreatePage")
+  () => import("./pages/meetings/MeetingCreatePage"),
 );
 const MeetingPage = lazy(() => import("./pages/meetings/MeetingSheetPage"));
 const MeetingEditPage = lazy(() => import("./pages/meetings/MeetingEditPage"));
 
 const UserManagementPage = lazy(
-  () => import("./pages/users/UserManagementPage")
+  () => import("./pages/users/UserManagementPage"),
 );
 
 const AcceptInvitePage = lazy(() => import("./pages/invite/InvitePage"));

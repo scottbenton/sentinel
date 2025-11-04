@@ -26,6 +26,7 @@ import { useConfirm } from "@/providers/ConfirmProvider";
 import { useCurrentOrganization } from "@/stores/organizations.store";
 import { MeetingLog } from "./MeetingLog";
 import { useUID } from "@/stores/auth.store";
+import { WatchButton } from "@/components/common/WatchButton/WatchButton";
 
 export default function MeetingSheetPage() {
   const meeting = useMeetingsStore((store) => store.currentMeeting);
@@ -36,7 +37,7 @@ export default function MeetingSheetPage() {
 
   const dashboardId = useDashboardId();
   const dashboardName = useDashboardStore(
-    (store) => store.dashboard?.label ?? ""
+    (store) => store.dashboard?.label ?? "",
   );
   const organizationId = useOrganizationId();
   const organizationName = useCurrentOrganization((org) => org?.name ?? "");
@@ -80,29 +81,36 @@ export default function MeetingSheetPage() {
           { title: meeting?.name ?? "Loading" },
         ]}
         action={
-          isMeetingAdmin && (
-            <Group>
-              <Button variant="subtle" asChild>
-                <Link
-                  to={pageConfig.meetingEdit(
-                    dashboardId,
-                    organizationId,
-                    meetingId
-                  )}
+          <Group>
+            <WatchButton
+              type="meeting"
+              id={meetingId}
+              dashboardId={dashboardId}
+            />
+            {isMeetingAdmin && (
+              <>
+                <Button variant="subtle" asChild>
+                  <Link
+                    to={pageConfig.meetingEdit(
+                      dashboardId,
+                      organizationId,
+                      meetingId,
+                    )}
+                  >
+                    Edit Meeting
+                  </Link>
+                </Button>
+                <IconButton
+                  aria-label="Delete Meeting"
+                  variant="ghost"
+                  colorPalette={"gray"}
+                  onClick={handleDelete}
                 >
-                  Edit Meeting
-                </Link>
-              </Button>
-              <IconButton
-                aria-label="Delete Meeting"
-                variant="ghost"
-                colorPalette={"gray"}
-                onClick={handleDelete}
-              >
-                <TrashIcon />
-              </IconButton>
-            </Group>
-          )
+                  <TrashIcon />
+                </IconButton>
+              </>
+            )}
+          </Group>
         }
       />
       <PageContent p={4} sidebarContent={<MeetingLog />}>

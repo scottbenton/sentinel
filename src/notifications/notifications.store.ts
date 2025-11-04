@@ -6,79 +6,109 @@ import { useUID } from "@/stores/auth.store";
 import { useEffect } from "react";
 
 interface NotificationsState {
-    notifications: Record<string, INotification>;
-    isLoading: boolean;
-    error: string | null;
+  notifications: Record<string, INotification>;
+  isLoading: boolean;
+  error: string | null;
 }
 
 interface NotificationsActions {
-    subscribeToNotifications: (userId: string) => () => void;
-    markNotificationAsRead: (id: string) => void;
-    deleteNotification: (id: string) => Promise<void>;
+  subscribeToNotifications: (userId: string) => () => void;
+  markNotificationAsRead: (id: string) => void;
+  deleteNotification: (id: string) => Promise<void>;
+  deleteAllNotifications: (userId: string) => Promise<void>;
+  markMeetingNotificationsAsRead: (
+    userId: string,
+    meetingId: number,
+  ) => Promise<void>;
+  markOrganizationNotificationsAsRead: (
+    userId: string,
+    organizationId: number,
+  ) => Promise<void>;
 }
 
 const defaultState: NotificationsState = {
-    notifications: {},
-    isLoading: true,
-    error: null,
+  notifications: {},
+  isLoading: true,
+  error: null,
 };
 
 export const useNotificationsStore = createWithEqualityFn<
-    NotificationsState & NotificationsActions
+  NotificationsState & NotificationsActions
 >()(
-    immer((set) => ({
-        ...defaultState,
+  immer((set) => ({
+    ...defaultState,
 
-        deleteNotification: (id: string) => {
-            return NotificationsService.deleteNotification(id);
-        },
+    deleteNotification: (id: string) => {
+      return NotificationsService.deleteNotification(id);
+    },
+    deleteAllNotifications: async (userId: string) => {
+      await NotificationsService.deleteAllNotifications(userId);
+    },
 
-        subscribeToNotifications: (userId: string) => {
-            set((state) => {
-                state.isLoading = true;
-                state.error = null;
+    subscribeToNotifications: (userId: string) => {
+      set((state) => {
+        state.isLoading = true;
+        state.error = null;
+      });
+
+      return NotificationsService.subscribeToNotifications(
+        userId,
+        (changedNotifications, deletedIds, replaceState) => {
+          set((state) => {
+            if (replaceState) {
+              state.notifications = {};
+            }
+            changedNotifications.forEach((notification) => {
+              state.notifications[notification.id] = notification;
             });
-
-            return NotificationsService.subscribeToNotifications(
-                userId,
-                (changedNotifications, deletedIds, replaceState) => {
-                    set((state) => {
-                        if (replaceState) {
-                            state.notifications = {};
-                        }
-                        changedNotifications.forEach((notification) => {
-                            state.notifications[notification.id] = notification;
-                        });
-                        deletedIds.forEach((id) => {
-                            delete state.notifications[id];
-                        });
-                        state.isLoading = false;
-                        state.error = null;
-                    });
-                },
-                (error) => {
-                    set((state) => {
-                        state.error = error.message;
-                    });
-                },
-            );
+            deletedIds.forEach((id) => {
+              delete state.notifications[id];
+            });
+            state.isLoading = false;
+            state.error = null;
+          });
         },
-        markNotificationAsRead(id) {
-            NotificationsService.markNotificationAsRead(id);
+        (error) => {
+          set((state) => {
+            state.error = error.message;
+          });
         },
-    })),
-    deepEqual,
+      );
+    },
+    markNotificationAsRead(id) {
+      NotificationsService.markNotificationAsRead(id);
+    },
+    markMeetingNotificationsAsRead: async (
+      userId: string,
+      meetingId: number,
+    ) => {
+      await NotificationsService.markMeetingNotificationsAsRead(
+        userId,
+        meetingId,
+      );
+    },
+    markOrganizationNotificationsAsRead: async (
+      userId: string,
+      organizationId: number,
+    ) => {
+      await NotificationsService.markOrganizationNotificationsAsRead(
+        userId,
+        organizationId,
+      );
+    },
+  })),
+  deepEqual,
 );
 
 export function useSyncNotifications() {
-    const subscribeToNotifications = useNotificationsStore((store) =>
-        store.subscribeToNotifications
-    );
-    const uid = useUID();
+  const subscribeToNotifications = useNotificationsStore(
+    (store) => store.subscribeToNotifications,
+  );
+  const uid = useUID();
 
-    useEffect(() => {
-        if (uid) {
-            return subscribeToNotifications(uid);
-        }
-    }, [subscribeToNotifications, uid]);
+  useEffect(() => {
+    if (uid) {
+      return subscribeToNotifications(uid);
+    }
+  }, [subscribeToNotifications, uid]);
 }
