@@ -20,7 +20,7 @@ export interface NotificationSettingsStoreActions {
     userId: string,
     dashboardId: number,
     enabledNotificationTypes: NotificationType[],
-    autoWatchNewMeetings: boolean
+    autoWatchNewMeetings: boolean,
   ) => Promise<void>;
   resetStore: () => void;
 }
@@ -44,12 +44,14 @@ export const useNotificationSettingsStore = createWithEqualityFn<
         const settings =
           await NotificationSettingsService.getDashboardNotificationSettings(
             userId,
-            dashboardId
+            dashboardId,
           );
 
         set({ settings, isLoading: false });
-      } catch (error: any) {
-        set({ error: error.message, isLoading: false });
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "An unknown error occurred";
+        set({ error: errorMessage, isLoading: false });
       }
     },
 
@@ -57,7 +59,7 @@ export const useNotificationSettingsStore = createWithEqualityFn<
       userId: string,
       dashboardId: number,
       enabledNotificationTypes: NotificationType[],
-      autoWatchNewMeetings: boolean
+      autoWatchNewMeetings: boolean,
     ) => {
       set({ isLoading: true, error: null });
 
@@ -67,12 +69,14 @@ export const useNotificationSettingsStore = createWithEqualityFn<
             userId,
             dashboardId,
             enabledNotificationTypes,
-            autoWatchNewMeetings
+            autoWatchNewMeetings,
           );
 
         set({ settings, isLoading: false });
-      } catch (error: any) {
-        set({ error: error.message, isLoading: false });
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "An unknown error occurred";
+        set({ error: errorMessage, isLoading: false });
       }
     },
 
@@ -80,7 +84,7 @@ export const useNotificationSettingsStore = createWithEqualityFn<
       set(defaultState);
     },
   })),
-  deepEqual
+  deepEqual,
 );
 
 /**
@@ -88,7 +92,7 @@ export const useNotificationSettingsStore = createWithEqualityFn<
  */
 export function useSyncNotificationSettings(
   userId: string | null,
-  dashboardId: number | null
+  dashboardId: number | null,
 ) {
   const loadSettings = useNotificationSettingsStore((s) => s.loadSettings);
 

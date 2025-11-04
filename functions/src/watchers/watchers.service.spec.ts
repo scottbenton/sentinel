@@ -4,7 +4,6 @@ import { SupabaseService } from "../supabase/supabase.service";
 
 describe("WatchersService", () => {
   let service: WatchersService;
-  let supabaseService: SupabaseService;
 
   const mockSupabaseClient = {
     from: jest.fn(),
@@ -24,7 +23,6 @@ describe("WatchersService", () => {
     }).compile();
 
     service = module.get<WatchersService>(WatchersService);
-    supabaseService = module.get<SupabaseService>(SupabaseService);
   });
 
   afterEach(() => {
@@ -84,7 +82,7 @@ describe("WatchersService", () => {
       mockSupabaseClient.from.mockReturnValue(mockQuery);
 
       await expect(service.getOrganizationWatchers(100)).rejects.toThrow(
-        "Error fetching organization watchers: Database error"
+        "Error fetching organization watchers: Database error",
       );
     });
 
@@ -144,7 +142,7 @@ describe("WatchersService", () => {
       mockSupabaseClient.from.mockReturnValue(mockQuery);
 
       await expect(service.getMeetingWatchers(200)).rejects.toThrow(
-        "Error fetching meeting watchers: Database error"
+        "Error fetching meeting watchers: Database error",
       );
     });
   });
@@ -177,9 +175,9 @@ describe("WatchersService", () => {
       mockSupabaseClient.from.mockReturnValue(mockQuery);
 
       await expect(
-        service.addOrganizationWatcher("user-1", 1, 100)
+        service.addOrganizationWatcher("user-1", 1, 100),
       ).rejects.toThrow(
-        "Error adding organization watcher: Unique constraint violation"
+        "Error adding organization watcher: Unique constraint violation",
       );
     });
   });
@@ -211,9 +209,9 @@ describe("WatchersService", () => {
 
       mockSupabaseClient.from.mockReturnValue(mockQuery);
 
-      await expect(
-        service.addMeetingWatcher("user-1", 1, 200)
-      ).rejects.toThrow("Error adding meeting watcher: Foreign key violation");
+      await expect(service.addMeetingWatcher("user-1", 1, 200)).rejects.toThrow(
+        "Error adding meeting watcher: Foreign key violation",
+      );
     });
   });
 });

@@ -23,8 +23,8 @@ export abstract class BaseScraper {
     this.orgId = orgId;
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await, @typescript-eslint/no-unused-vars
-  static async checkWillScrape(_page: Page): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static checkWillScrape(_page: Page): Promise<boolean> {
     throw new Error("checkWillScrape not implemented");
   }
   abstract scrape(page: Page): Promise<void>;
@@ -75,10 +75,9 @@ export abstract class BaseScraper {
     download: Download,
   ): Promise<ScrapedDocument> {
     try {
-      const storedFilename = download.suggestedFilename().replace(
-        /[^a-zA-Z0-9/!-.()*'&$@=;:+,? ]/g,
-        "",
-      );
+      const storedFilename = download
+        .suggestedFilename()
+        .replace(/[^a-zA-Z0-9/!-.()*'&$@=;:+,? ]/g, "");
 
       const filePath = this.getMeetingPath(meetingKey, storedFilename);
       await download.saveAs(filePath);
@@ -166,13 +165,15 @@ export abstract class BaseScraper {
 
     if (uploadedDocumentNames.length > 0) {
       try {
-        await meetingService.createLogs([{
-          meeting_id: meetingId,
-          type: "meeting_document_added",
-          additional_context: {
-            document_names: uploadedDocumentNames,
+        await meetingService.createLogs([
+          {
+            meeting_id: meetingId,
+            type: "meeting_document_added",
+            additional_context: {
+              document_names: uploadedDocumentNames,
+            },
           },
-        }]);
+        ]);
       } catch (e) {
         this.logger.error("Error creating log", e);
       }
@@ -184,7 +185,7 @@ export abstract class BaseScraper {
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       const promises = [...this.meetingMap.values()].map((scrapedMeeting) =>
-        this.commitMeeting(scrapedMeeting, meetingsService)
+        this.commitMeeting(scrapedMeeting, meetingsService),
       );
 
       Promise.all(promises)

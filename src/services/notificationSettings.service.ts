@@ -6,6 +6,11 @@ import {
 
 export { NotificationType };
 
+interface NotificationSettingsJson {
+  enabledNotificationTypes?: NotificationType[];
+  autoWatchNewMeetings?: boolean;
+}
+
 export interface INotificationSettings {
   id: number;
   userId: string;
@@ -22,9 +27,9 @@ export class NotificationSettingsService {
    * Convert DTO to domain model
    */
   private static convertDTOToINotificationSettings(
-    dto: NotificationSettingsDTO
+    dto: NotificationSettingsDTO,
   ): INotificationSettings {
-    const settings = dto.settings as any;
+    const settings = dto.settings as NotificationSettingsJson;
     return {
       id: dto.id,
       userId: dto.user_id,
@@ -43,12 +48,13 @@ export class NotificationSettingsService {
    */
   public static async getDashboardNotificationSettings(
     userId: string,
-    dashboardId: number
+    dashboardId: number,
   ): Promise<INotificationSettings> {
-    const dto = await NotificationSettingsRepository.getDashboardNotificationSettings(
-      userId,
-      dashboardId
-    );
+    const dto =
+      await NotificationSettingsRepository.getDashboardNotificationSettings(
+        userId,
+        dashboardId,
+      );
 
     if (!dto) {
       // Return default settings
@@ -74,16 +80,17 @@ export class NotificationSettingsService {
     userId: string,
     dashboardId: number,
     enabledNotificationTypes: NotificationType[],
-    autoWatchNewMeetings: boolean
+    autoWatchNewMeetings: boolean,
   ): Promise<INotificationSettings> {
-    const dto = await NotificationSettingsRepository.upsertDashboardNotificationSettings(
-      userId,
-      dashboardId,
-      {
-        enabledNotificationTypes,
-        autoWatchNewMeetings,
-      }
-    );
+    const dto =
+      await NotificationSettingsRepository.upsertDashboardNotificationSettings(
+        userId,
+        dashboardId,
+        {
+          enabledNotificationTypes,
+          autoWatchNewMeetings,
+        },
+      );
 
     return this.convertDTOToINotificationSettings(dto);
   }

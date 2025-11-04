@@ -1,13 +1,5 @@
 import { useMemo } from "react";
-import {
-  IconButton,
-  Menu,
-  Text,
-  Box,
-  Badge,
-  Button,
-  Separator,
-} from "@chakra-ui/react";
+import { IconButton, Menu, Text, Box, Badge, Button } from "@chakra-ui/react";
 import { Bell } from "lucide-react";
 import {
   useNotificationsStore,

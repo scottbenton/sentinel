@@ -6,8 +6,6 @@ import { NotificationSettingsService } from "../notification-settings/notificati
 
 describe("WebhooksService", () => {
   let service: WebhooksService;
-  let watchersService: WatchersService;
-  let notificationSettingsService: NotificationSettingsService;
 
   const mockSupabaseClient = {
     from: jest.fn(),
@@ -46,10 +44,6 @@ describe("WebhooksService", () => {
     }).compile();
 
     service = module.get<WebhooksService>(WebhooksService);
-    watchersService = module.get<WatchersService>(WatchersService);
-    notificationSettingsService = module.get<NotificationSettingsService>(
-      NotificationSettingsService,
-    );
   });
 
   afterEach(() => {
@@ -151,13 +145,16 @@ describe("WebhooksService", () => {
       ).toHaveBeenCalledWith("user-2", 1, "meeting_created");
 
       // Should only insert notification for user-1
-      const notificationQuery = mockSupabaseClient.from("notifications");
+      const notificationQuery = mockSupabaseClient.from("notifications") as {
+        insert: jest.Mock;
+      };
       expect(notificationQuery.insert).toHaveBeenCalledTimes(1);
       expect(notificationQuery.insert).toHaveBeenCalledWith({
         type: "meeting_created",
         user_id: "user-1",
         log_id: null,
         additional_context: {
+          dashboard_id: 1,
           meeting_id: 200,
           meeting_name: "Test Meeting",
           meeting_date: "2025-11-01",
@@ -370,13 +367,16 @@ describe("WebhooksService", () => {
       ).toHaveBeenCalledWith("user-1", 1, "comment_added");
 
       // Should only insert notification for user-1 (not author)
-      const notificationQuery = mockSupabaseClient.from("notifications");
+      const notificationQuery = mockSupabaseClient.from("notifications") as {
+        insert: jest.Mock;
+      };
       expect(notificationQuery.insert).toHaveBeenCalledTimes(1);
       expect(notificationQuery.insert).toHaveBeenCalledWith({
         type: "comment_added",
         user_id: "user-1",
         log_id: 300,
         additional_context: {
+          dashboard_id: 1,
           meeting_id: 200,
           meeting_name: "Test Meeting",
           organization_id: 100,
@@ -416,12 +416,15 @@ describe("WebhooksService", () => {
         100,
       );
 
-      const notificationQuery = mockSupabaseClient.from("notifications");
+      const notificationQuery = mockSupabaseClient.from("notifications") as {
+        insert: jest.Mock;
+      };
       expect(notificationQuery.insert).toHaveBeenCalledWith({
         type: "comment_added",
         user_id: "user-3",
         log_id: 300,
         additional_context: {
+          dashboard_id: 1,
           organization_id: 100,
           organization_name: "Test Organization",
         },
@@ -438,7 +441,9 @@ describe("WebhooksService", () => {
 
       await service.handleLogInsert(mockCommentLog);
 
-      const notificationQuery = mockSupabaseClient.from("notifications");
+      const notificationQuery = mockSupabaseClient.from("notifications") as {
+        insert: jest.Mock;
+      };
       expect(notificationQuery.insert).not.toHaveBeenCalled();
     });
 

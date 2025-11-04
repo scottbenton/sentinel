@@ -119,8 +119,10 @@ export const useWatchersStore = createWithEqualityFn<
           organizationId,
           isCurrentlyWatching,
         );
-      } catch (error: any) {
-        set({ error: error.message });
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "An unknown error occurred";
+        set({ error: errorMessage });
         throw error;
       }
     },
@@ -139,8 +141,10 @@ export const useWatchersStore = createWithEqualityFn<
           meetingId,
           isCurrentlyWatching,
         );
-      } catch (error: any) {
-        set({ error: error.message });
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "An unknown error occurred";
+        set({ error: errorMessage });
         throw error;
       }
     },

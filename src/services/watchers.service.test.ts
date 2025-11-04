@@ -5,7 +5,7 @@ import { WatchersRepository } from "@/repository/watchers.repository";
 // Mock the repository
 vi.mock("@/repository/watchers.repository", () => ({
   WatchersRepository: {
-    getWatchersForUserInDashboard: vi.fn(),
+    getWatchersForUser: vi.fn(),
     isWatchingOrganization: vi.fn(),
     isWatchingMeeting: vi.fn(),
     addOrganizationWatcher: vi.fn(),
@@ -21,7 +21,7 @@ describe("WatchersService", () => {
     vi.clearAllMocks();
   });
 
-  describe("getWatchersForUserInDashboard", () => {
+  describe("getWatchersForUser", () => {
     it("should convert DTOs to IWatcher interfaces", async () => {
       const mockDTOs = [
         {
@@ -42,18 +42,15 @@ describe("WatchersService", () => {
         },
       ];
 
-      vi.mocked(
-        WatchersRepository.getWatchersForUserInDashboard,
-      ).mockResolvedValue(mockDTOs);
-
-      const result = await WatchersService.getWatchersForUserInDashboard(
-        "user-1",
-        1,
+      vi.mocked(WatchersRepository.getWatchersForUser).mockResolvedValue(
+        mockDTOs,
       );
 
-      expect(
-        WatchersRepository.getWatchersForUserInDashboard,
-      ).toHaveBeenCalledWith("user-1", 1);
+      const result = await WatchersService.getWatchersForUser("user-1");
+
+      expect(WatchersRepository.getWatchersForUser).toHaveBeenCalledWith(
+        "user-1",
+      );
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
         id: 1,
@@ -74,14 +71,9 @@ describe("WatchersService", () => {
     });
 
     it("should return empty array when no watchers exist", async () => {
-      vi.mocked(
-        WatchersRepository.getWatchersForUserInDashboard,
-      ).mockResolvedValue([]);
+      vi.mocked(WatchersRepository.getWatchersForUser).mockResolvedValue([]);
 
-      const result = await WatchersService.getWatchersForUserInDashboard(
-        "user-1",
-        1,
-      );
+      const result = await WatchersService.getWatchersForUser("user-1");
 
       expect(result).toEqual([]);
     });
@@ -98,14 +90,11 @@ describe("WatchersService", () => {
         },
       ];
 
-      vi.mocked(
-        WatchersRepository.getWatchersForUserInDashboard,
-      ).mockResolvedValue(mockDTOs);
-
-      const result = await WatchersService.getWatchersForUserInDashboard(
-        "user-1",
-        1,
+      vi.mocked(WatchersRepository.getWatchersForUser).mockResolvedValue(
+        mockDTOs,
       );
+
+      const result = await WatchersService.getWatchersForUser("user-1");
 
       expect(result[0].createdAt).toBeInstanceOf(Date);
       expect(result[0].createdAt.toISOString()).toBe(
@@ -267,7 +256,7 @@ describe("WatchersService", () => {
       const onUpdate = vi.fn();
 
       vi.mocked(WatchersRepository.subscribeToWatchers).mockImplementation(
-        (_userId, _dashboardId, callback) => {
+        (_userId, callback) => {
           // Simulate initial callback
           callback(mockDTOs, "initial");
           return mockUnsubscribe;
@@ -276,13 +265,11 @@ describe("WatchersService", () => {
 
       const unsubscribe = WatchersService.subscribeToWatchers(
         "user-1",
-        1,
         onUpdate,
       );
 
       expect(WatchersRepository.subscribeToWatchers).toHaveBeenCalledWith(
         "user-1",
-        1,
         expect.any(Function),
       );
       expect(onUpdate).toHaveBeenCalledWith(
@@ -315,14 +302,14 @@ describe("WatchersService", () => {
       const onUpdate = vi.fn();
 
       vi.mocked(WatchersRepository.subscribeToWatchers).mockImplementation(
-        (_userId, _dashboardId, callback) => {
+        (_userId, callback) => {
           // Simulate insert callback
           callback([mockDTO], "insert");
           return mockUnsubscribe;
         },
       );
 
-      WatchersService.subscribeToWatchers("user-1", 1, onUpdate);
+      WatchersService.subscribeToWatchers("user-1", onUpdate);
 
       expect(onUpdate).toHaveBeenCalledWith(
         [
@@ -353,14 +340,14 @@ describe("WatchersService", () => {
       const onUpdate = vi.fn();
 
       vi.mocked(WatchersRepository.subscribeToWatchers).mockImplementation(
-        (_userId, _dashboardId, callback) => {
+        (_userId, callback) => {
           // Simulate delete callback
           callback([mockDTO], "delete");
           return mockUnsubscribe;
         },
       );
 
-      WatchersService.subscribeToWatchers("user-1", 1, onUpdate);
+      WatchersService.subscribeToWatchers("user-1", onUpdate);
 
       expect(onUpdate).toHaveBeenCalledWith(
         [

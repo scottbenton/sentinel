@@ -3,7 +3,10 @@ import {
   NotificationsService,
   NotificationType,
 } from "./notifications.service";
-import { NotificationsRepository } from "./notifications.repository";
+import {
+  NotificationsRepository,
+  NotificationDTO,
+} from "./notifications.repository";
 
 // Mock the repository
 vi.mock("./notifications.repository", () => ({
@@ -79,6 +82,7 @@ describe("NotificationsService", () => {
         user_id: "user-1",
         log_id: null,
         additional_context: {
+          dashboard_id: 1,
           meeting_id: 200,
           meeting_name: "City Council Meeting",
           meeting_date: "2025-02-01",
@@ -111,6 +115,7 @@ describe("NotificationsService", () => {
           {
             id: "notif-2",
             type: NotificationType.MeetingCreated,
+            dashboardId: 1,
             meetingId: 200,
             meetingName: "City Council Meeting",
             meetingDate: "2025-02-01",
@@ -132,6 +137,7 @@ describe("NotificationsService", () => {
         user_id: "user-1",
         log_id: 300,
         additional_context: {
+          dashboard_id: 1,
           meeting_id: 200,
           meeting_name: "City Council Meeting",
           organization_id: 100,
@@ -164,6 +170,7 @@ describe("NotificationsService", () => {
             id: "notif-3",
             type: NotificationType.CommentAdded,
             logId: 300,
+            dashboardId: 1,
             meetingId: 200,
             meetingName: "City Council Meeting",
             organizationId: 100,
@@ -184,6 +191,7 @@ describe("NotificationsService", () => {
         user_id: "user-1",
         log_id: 301,
         additional_context: {
+          dashboard_id: 1,
           organization_id: 100,
           organization_name: "City Council",
         },
@@ -214,6 +222,7 @@ describe("NotificationsService", () => {
             id: "notif-4",
             type: NotificationType.CommentAdded,
             logId: 301,
+            dashboardId: 1,
             meetingId: undefined,
             meetingName: undefined,
             organizationId: 100,
@@ -234,6 +243,7 @@ describe("NotificationsService", () => {
         user_id: "user-1",
         log_id: 400,
         additional_context: {
+          dashboard_id: 1,
           meeting_id: 200,
           meeting_name: "City Council Meeting",
           organization_id: 100,
@@ -266,6 +276,7 @@ describe("NotificationsService", () => {
             id: "notif-5",
             type: NotificationType.MeetingDocumentAdded,
             logId: 400,
+            dashboardId: 1,
             meetingId: 200,
             meetingName: "City Council Meeting",
             organizationId: 100,
@@ -280,7 +291,7 @@ describe("NotificationsService", () => {
     });
 
     it("should filter out unknown notification types", () => {
-      const mockDTOs = [
+      const mockDTOs: NotificationDTO[] = [
         {
           id: "notif-1",
           type: "user_invited" as const,
@@ -296,13 +307,13 @@ describe("NotificationsService", () => {
         },
         {
           id: "notif-2",
-          type: "unknown_type" as any,
+          type: "unknown_type" as unknown as NotificationDTO["type"],
           user_id: "user-1",
           log_id: null,
           additional_context: {},
           created_at: "2025-01-01T00:00:00Z",
           has_been_read: false,
-        },
+        } as unknown as NotificationDTO,
       ];
 
       const mockUnsubscribe = vi.fn();
@@ -355,6 +366,7 @@ describe("NotificationsService", () => {
           user_id: "user-1",
           log_id: null,
           additional_context: {
+            dashboard_id: 1,
             meeting_id: 200,
             meeting_name: "Meeting",
             meeting_date: "2025-02-01",

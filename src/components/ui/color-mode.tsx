@@ -7,6 +7,7 @@ import { ThemeProvider, useTheme } from "next-themes";
 import type { ThemeProviderProps } from "next-themes";
 import * as React from "react";
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ColorModeProviderProps extends ThemeProviderProps {}
 
 export function ColorModeProvider(props: ColorModeProviderProps) {
@@ -45,6 +46,7 @@ export function ColorModeIcon() {
   return colorMode === "dark" ? <MoonIcon /> : <SunIcon />;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface ColorModeButtonProps extends Omit<IconButtonProps, "aria-label"> {}
 
 export const ColorModeButton = React.forwardRef<
@@ -87,7 +89,7 @@ export const LightMode = React.forwardRef<HTMLSpanElement, SpanProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 export const DarkMode = React.forwardRef<HTMLSpanElement, SpanProps>(
@@ -103,5 +105,5 @@ export const DarkMode = React.forwardRef<HTMLSpanElement, SpanProps>(
         {...props}
       />
     );
-  }
+  },
 );

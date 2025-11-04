@@ -11,6 +11,18 @@ export enum NotificationType {
   MeetingDocumentAdded = "meeting_document_added",
 }
 
+interface NotificationContext {
+  invite_id?: number;
+  inviter_name?: string;
+  dashboard_name?: string;
+  dashboard_id?: number;
+  meeting_id?: number;
+  meeting_name?: string;
+  meeting_date?: string;
+  organization_id?: number;
+  organization_name?: string;
+}
+
 interface BaseNotification {
   id: string;
   type: NotificationType;
@@ -103,9 +115,16 @@ export class NotificationsService {
       hasBeenRead: notification.has_been_read,
     };
 
-    const context = notification.additional_context as any;
+    const context = notification.additional_context as NotificationContext;
 
     if (notification.type === "user_invited") {
+      if (
+        !context.invite_id ||
+        !context.inviter_name ||
+        !context.dashboard_name
+      ) {
+        return null;
+      }
       return {
         ...baseNotification,
         type: NotificationType.UserInvitation,
@@ -114,6 +133,16 @@ export class NotificationsService {
         dashboardName: context.dashboard_name,
       };
     } else if (notification.type === "meeting_created") {
+      if (
+        !context.dashboard_id ||
+        !context.meeting_id ||
+        !context.meeting_name ||
+        !context.meeting_date ||
+        !context.organization_id ||
+        !context.organization_name
+      ) {
+        return null;
+      }
       return {
         ...baseNotification,
         type: NotificationType.MeetingCreated,
@@ -125,6 +154,13 @@ export class NotificationsService {
         organizationName: context.organization_name,
       };
     } else if (notification.type === "comment_added") {
+      if (
+        !context.dashboard_id ||
+        !context.organization_id ||
+        !context.organization_name
+      ) {
+        return null;
+      }
       return {
         ...baseNotification,
         type: NotificationType.CommentAdded,
@@ -136,6 +172,15 @@ export class NotificationsService {
         organizationName: context.organization_name,
       };
     } else if (notification.type === "meeting_document_added") {
+      if (
+        !context.dashboard_id ||
+        !context.meeting_id ||
+        !context.meeting_name ||
+        !context.organization_id ||
+        !context.organization_name
+      ) {
+        return null;
+      }
       return {
         ...baseNotification,
         type: NotificationType.MeetingDocumentAdded,

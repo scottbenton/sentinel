@@ -188,7 +188,7 @@ export class SomeRepository {
 
     public static subscribeToItem(
         filter: string,
-        callback: (payload: any) => void
+        callback: (payload: SomeDTO) => void
     ): () => void {
         return createSubscription(
             "channel-name",
@@ -292,8 +292,9 @@ export const useItemStore = createWithEqualityFn<StoreState & StoreActions>()(
                     if (item) state.items[item.id] = item;
                     state.loading = false;
                 });
-            } catch (error: any) {
-                set({ error: error.message, loading: false });
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+                set({ error: errorMessage, loading: false });
             }
         },
 
@@ -714,7 +715,7 @@ export class ScraperProcessor extends WorkerHost {
         super();
     }
 
-    async process(job: Job<{ organizationId: string }, any, string>) {
+    async process(job: Job<{ organizationId: string }, Record<string, never>, string>) {
         const { organizationId } = job.data;
 
         this.logger.log(`Processing job for organization ${organizationId}`);
@@ -881,21 +882,149 @@ const { data } = await supabase
 
 ### Type Safety
 
+**🚨 ABSOLUTE RULE - NEVER USE THE `any` TYPE 🚨**
+
+**THE `any` TYPE IS BANNED IN THIS CODEBASE. NO EXCEPTIONS.**
+
+**Why `any` is forbidden**:
+- Defeats the entire purpose of TypeScript
+- Silences all type errors (hides bugs)
+- Breaks IntelliSense and autocomplete
+- Makes refactoring dangerous
+- Allows runtime errors that TypeScript should catch
+
+**What to use instead of `any`**:
+
+1. **Use `unknown` for truly unknown types**:
+```typescript
+// ❌ WRONG - Never do this
+function processData(data: any) {
+    return data.someProperty; // No type safety!
+}
+
+// ✅ CORRECT - Use unknown and type guards
+function processData(data: unknown) {
+    if (typeof data === 'object' && data !== null && 'someProperty' in data) {
+        return (data as { someProperty: string }).someProperty;
+    }
+    throw new Error('Invalid data');
+}
+```
+
+2. **Use proper type assertions with `as`**:
+```typescript
+// ❌ WRONG
+const value = someValue as any;
+
+// ✅ CORRECT
+const value = someValue as ExpectedType;
+```
+
+3. **Use generic types**:
+```typescript
+// ❌ WRONG
+function getValue(obj: any, key: string): any {
+    return obj[key];
+}
+
+// ✅ CORRECT
+function getValue<T, K extends keyof T>(obj: T, key: K): T[K] {
+    return obj[key];
+}
+```
+
+4. **Use union types for multiple possibilities**:
+```typescript
+// ❌ WRONG
+let value: any;
+
+// ✅ CORRECT
+let value: string | number | null;
+```
+
+5. **Use Record<K, V> for object maps**:
+```typescript
+// ❌ WRONG
+const map: any = {};
+
+// ✅ CORRECT
+const map: Record<string, number> = {};
+```
+
+6. **Use proper interface/type definitions**:
+```typescript
+// ❌ WRONG
+function handleEvent(event: any) { ... }
+
+// ✅ CORRECT
+interface EventData {
+    type: string;
+    payload: unknown;
+}
+function handleEvent(event: EventData) { ... }
+```
+
+7. **For test mocks, use proper mock types**:
+```typescript
+// ❌ WRONG - DO NOT DO THIS
+const mockFn = vi.fn() as any;
+
+// ✅ CORRECT - Use proper typing
+const mockFn = vi.fn<[string], Promise<void>>();
+
+// OR use jest.Mock with proper generics
+const mockFn: jest.Mock<ReturnType, [ParamType]> = jest.fn();
+```
+
+**The ONLY acceptable uses of `any` (extremely rare)**:
+- In `.d.ts` declaration files for third-party libraries without types
+- When explicitly dealing with truly dynamic JavaScript code that cannot be typed
+- **You must add a comment explaining why `any` is necessary**
+
+**If you find yourself wanting to use `any`**:
+1. STOP and reconsider
+2. Ask: "What is the actual type here?"
+3. Define a proper interface/type
+4. Use `unknown` if the type is truly unknown at compile time
+5. **NEVER use `any` as a shortcut or to bypass type errors**
+
 **Frontend**:
 - Auto-generated types from Supabase: `src/types/supabase-generated.types.ts`
 - Custom domain models in services
 - Strict TypeScript mode enabled
+- **NO `any` types allowed**
 
 **Backend**:
 - Auto-generated types from Supabase: `functions/src/types/supabase-generated.types.ts`
 - NestJS decorators for validation
 - Strict TypeScript mode enabled
+- **NO `any` types allowed**
 
 **Regenerating types**:
 ```bash
 # In project root
 npx supabase gen types typescript --project-id <project-id> > src/types/supabase-generated.types.ts
 ```
+
+**⚠️ CRITICAL - NEVER EDIT GENERATED FILES**:
+
+**NEVER manually edit these files - they are auto-generated**:
+- `src/types/supabase-generated.types.ts` (frontend)
+- `functions/src/types/supabase-generated.types.ts` (backend)
+
+**Why these files must not be edited**:
+- They are generated from the database schema
+- Any manual changes will be overwritten on next generation
+- Linting errors in these files should be ignored via eslint-disable comments in the generation script, not manually
+- If types are wrong, fix the database schema and regenerate
+
+**If linting fails on generated files**:
+1. Do NOT edit the generated file
+2. Add the file to `.eslintignore` OR
+3. Add `/* eslint-disable */` at the top of the file via the generation command:
+   ```bash
+   echo "/* eslint-disable */" > src/types/supabase-generated.types.ts && npx supabase gen types typescript --project-id <project-id> >> src/types/supabase-generated.types.ts
+   ```
 
 ### Error Handling
 
@@ -1072,46 +1201,56 @@ npx supabase start
 
 ### Build & Test Verification
 
-**⚠️ IMPORTANT**: After making changes to either the frontend or backend, you MUST verify that builds and tests pass before considering work complete.
+**⚠️ CRITICAL - MANDATORY WORKFLOW**: After making ANY changes to frontend or backend code, you MUST verify that builds, linting, and tests pass before considering work complete.
 
-**Frontend verification**:
+**Frontend verification (REQUIRED)**:
 ```bash
-# Run tests
+# 1. Run linter (MUST pass with zero errors)
+npm run lint
+
+# 2. Run tests
 npm test -- --run
 
-# Run build
+# 3. Run build
 npm run build
 ```
 
-**Backend verification**:
+**Backend verification (REQUIRED)**:
 ```bash
 cd functions
 
-# Run tests
+# 1. Run linter (MUST pass with zero errors)
+npm run lint
+
+# 2. Run tests
 npm test
 
-# Run build
+# 3. Run build
 npm run build
 ```
 
-**When to verify**:
+**When to verify** (NON-NEGOTIABLE):
+- After EVERY code change (no exceptions)
 - After adding new features
 - After modifying existing code
 - After updating dependencies
 - Before committing changes
 - Before marking tasks as complete
+- **ALWAYS run lint after making changes**
 
 **What to check**:
+- ✅ Linter passes with ZERO errors and ZERO warnings
 - ✅ All tests pass (no failures)
 - ✅ Build completes without errors
 - ✅ No TypeScript errors
 - ✅ No unused variables/imports warnings (these fail builds)
 
-**Common build errors to fix**:
+**Common build/lint errors to fix**:
 - Unused imports → Remove them
 - Unused variables → Prefix with `_` or remove
 - Type errors → Fix type mismatches
 - Missing dependencies → Install them
+- Linting violations → Fix them immediately
 
 ### Adding a New Feature
 
@@ -1146,7 +1285,11 @@ npx supabase gen types typescript --local > functions/src/types/supabase-generat
 
 ### ✅ DO
 
+- **ALWAYS run linting after making changes**: `npm run lint` (frontend) and `cd functions && npm run lint` (backend)
+- **ALWAYS verify tests pass**: Before marking work complete
+- **ALWAYS verify builds succeed**: Before marking work complete
 - **Follow the layer pattern**: Repository → Service → Store → Component
+- **Use proper TypeScript types**: NEVER use `any` - use `unknown`, interfaces, or proper types
 - **Use Immer for state updates**: Makes immutable updates easier
 - **Use RLS policies**: Never bypass security
 - **Use webhooks for database events**: Keep backend in sync
@@ -1155,9 +1298,14 @@ npx supabase gen types typescript --local > functions/src/types/supabase-generat
 - **Use TypeScript strictly**: Leverage auto-generated types
 - **Subscribe to real-time changes**: Users expect live updates
 - **Clean up subscriptions**: Prevent memory leaks
+- **Fix linting errors immediately**: Don't commit code with linting violations
 
 ### ❌ DON'T
 
+- **NEVER use the `any` type**: This is absolutely forbidden - use `unknown` or proper types instead
+- **Don't skip linting**: ALWAYS run lint after changes
+- **Don't skip tests**: ALWAYS verify tests pass
+- **Don't skip build verification**: ALWAYS verify builds succeed
 - **Don't skip layers**: Always go through the proper abstraction
 - **Don't mutate state directly**: Use Immer/Zustand patterns
 - **Don't expose service role key**: Keep it server-side only
@@ -1166,6 +1314,7 @@ npx supabase gen types typescript --local > functions/src/types/supabase-generat
 - **Don't ignore errors**: Always handle and log them
 - **Don't bypass RLS**: Even for "admin" operations
 - **Don't put business logic in components**: Keep them in services
+- **Don't use `any` to bypass type errors**: Fix the types properly instead
 
 ### Common Pitfalls
 

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { Database, Tables } from "../types/supabase-generated.types";
+import { Database, Tables, Json } from "../types/supabase-generated.types";
 import { SupabaseService } from "../supabase/supabase.service";
 import { WatchersService } from "../watchers/watchers.service";
 import { NotificationSettingsService } from "../notification-settings/notification-settings.service";
@@ -242,9 +242,11 @@ export class WebhooksService {
             dashboardId,
             meetingId,
           );
-        } catch (error: any) {
+        } catch (error) {
           // Ignore duplicate errors (user may already be watching)
-          this.logger.warn(`Could not auto-watch meeting: ${error.message}`);
+          const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
+          this.logger.warn(`Could not auto-watch meeting: ${errorMessage}`);
         }
       }
     }
@@ -272,7 +274,7 @@ export class WebhooksService {
     // Determine the context (meeting or organization)
     let watchers: Tables<"watchers">[] = [];
     let dashboardId: number;
-    let contextInfo: any = {};
+    let contextInfo: Json = {};
 
     if (meetingId) {
       // Get meeting info

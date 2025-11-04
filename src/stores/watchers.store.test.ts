@@ -41,15 +41,15 @@ describe("WatchersStore", () => {
       const mockUnsubscribe = vi.fn();
 
       vi.mocked(WatchersService.subscribeToWatchers).mockImplementation(
-        (_userId, _dashboardId, callback) => {
+        (_userId, callback) => {
           // Simulate initial callback
           callback(mockWatchers, "initial");
           return mockUnsubscribe;
-        }
+        },
       );
 
       const { subscribeToWatchers } = useWatchersStore.getState();
-      const unsubscribe = subscribeToWatchers("user-1", 1);
+      const unsubscribe = subscribeToWatchers("user-1");
 
       const state = useWatchersStore.getState();
 
@@ -67,7 +67,7 @@ describe("WatchersStore", () => {
       const mockUnsubscribe = vi.fn();
 
       vi.mocked(WatchersService.subscribeToWatchers).mockImplementation(
-        (_userId, _dashboardId, callback) => {
+        (_userId, callback) => {
           // First send initial (empty)
           callback([], "initial");
           // Then send insert
@@ -82,14 +82,14 @@ describe("WatchersStore", () => {
                 createdAt: new Date("2025-01-03"),
               },
             ],
-            "insert"
+            "insert",
           );
           return mockUnsubscribe;
-        }
+        },
       );
 
       const { subscribeToWatchers } = useWatchersStore.getState();
-      subscribeToWatchers("user-1", 1);
+      subscribeToWatchers("user-1");
 
       const state = useWatchersStore.getState();
 
@@ -101,7 +101,7 @@ describe("WatchersStore", () => {
       const mockUnsubscribe = vi.fn();
 
       vi.mocked(WatchersService.subscribeToWatchers).mockImplementation(
-        (_userId, _dashboardId, callback) => {
+        (_userId, callback) => {
           // First send initial with watcher
           callback(
             [
@@ -114,7 +114,7 @@ describe("WatchersStore", () => {
                 createdAt: new Date("2025-01-04"),
               },
             ],
-            "initial"
+            "initial",
           );
           // Then send delete
           callback(
@@ -128,14 +128,14 @@ describe("WatchersStore", () => {
                 createdAt: new Date("2025-01-04"),
               },
             ],
-            "delete"
+            "delete",
           );
           return mockUnsubscribe;
-        }
+        },
       );
 
       const { subscribeToWatchers } = useWatchersStore.getState();
-      subscribeToWatchers("user-1", 1);
+      subscribeToWatchers("user-1");
 
       const state = useWatchersStore.getState();
 
@@ -147,7 +147,7 @@ describe("WatchersStore", () => {
 
       // First subscription
       vi.mocked(WatchersService.subscribeToWatchers).mockImplementationOnce(
-        (_userId, _dashboardId, callback) => {
+        (_userId, callback) => {
           callback(
             [
               {
@@ -159,20 +159,22 @@ describe("WatchersStore", () => {
                 createdAt: new Date(),
               },
             ],
-            "initial"
+            "initial",
           );
           return mockUnsubscribe;
-        }
+        },
       );
 
       const { subscribeToWatchers } = useWatchersStore.getState();
-      subscribeToWatchers("user-1", 1);
+      subscribeToWatchers("user-1");
 
-      expect(useWatchersStore.getState().organizationWatchers[100]).toBeDefined();
+      expect(
+        useWatchersStore.getState().organizationWatchers[100],
+      ).toBeDefined();
 
       // Second subscription with different data
       vi.mocked(WatchersService.subscribeToWatchers).mockImplementationOnce(
-        (_userId, _dashboardId, callback) => {
+        (_userId, callback) => {
           callback(
             [
               {
@@ -184,13 +186,13 @@ describe("WatchersStore", () => {
                 createdAt: new Date(),
               },
             ],
-            "initial"
+            "initial",
           );
           return mockUnsubscribe;
-        }
+        },
       );
 
-      subscribeToWatchers("user-1", 1);
+      subscribeToWatchers("user-1");
 
       const state = useWatchersStore.getState();
       // Should have reset and only contain new data
@@ -202,7 +204,7 @@ describe("WatchersStore", () => {
   describe("toggleOrganizationWatch", () => {
     it("should toggle organization watch when not currently watching", async () => {
       vi.mocked(WatchersService.toggleOrganizationWatch).mockResolvedValue(
-        undefined
+        undefined,
       );
 
       const { toggleOrganizationWatch } = useWatchersStore.getState();
@@ -212,7 +214,7 @@ describe("WatchersStore", () => {
         "user-1",
         1,
         100,
-        false // Not currently watching
+        false, // Not currently watching
       );
     });
 
@@ -220,7 +222,7 @@ describe("WatchersStore", () => {
       // Set up store with existing watcher
       const mockUnsubscribe = vi.fn();
       vi.mocked(WatchersService.subscribeToWatchers).mockImplementation(
-        (_userId, _dashboardId, callback) => {
+        (_userId, callback) => {
           callback(
             [
               {
@@ -232,18 +234,18 @@ describe("WatchersStore", () => {
                 createdAt: new Date(),
               },
             ],
-            "initial"
+            "initial",
           );
           return mockUnsubscribe;
-        }
+        },
       );
 
       const { subscribeToWatchers, toggleOrganizationWatch } =
         useWatchersStore.getState();
-      subscribeToWatchers("user-1", 1);
+      subscribeToWatchers("user-1");
 
       vi.mocked(WatchersService.toggleOrganizationWatch).mockResolvedValue(
-        undefined
+        undefined,
       );
 
       await toggleOrganizationWatch("user-1", 1, 100);
@@ -252,21 +254,21 @@ describe("WatchersStore", () => {
         "user-1",
         1,
         100,
-        true // Currently watching
+        true, // Currently watching
       );
     });
 
     it("should handle errors when toggling organization watch", async () => {
       const mockError = new Error("Failed to toggle watch");
       vi.mocked(WatchersService.toggleOrganizationWatch).mockRejectedValue(
-        mockError
+        mockError,
       );
 
       const { toggleOrganizationWatch } = useWatchersStore.getState();
 
-      await expect(
-        toggleOrganizationWatch("user-1", 1, 100)
-      ).rejects.toThrow("Failed to toggle watch");
+      await expect(toggleOrganizationWatch("user-1", 1, 100)).rejects.toThrow(
+        "Failed to toggle watch",
+      );
 
       expect(useWatchersStore.getState().error).toBe("Failed to toggle watch");
     });
@@ -275,7 +277,7 @@ describe("WatchersStore", () => {
   describe("toggleMeetingWatch", () => {
     it("should toggle meeting watch when not currently watching", async () => {
       vi.mocked(WatchersService.toggleMeetingWatch).mockResolvedValue(
-        undefined
+        undefined,
       );
 
       const { toggleMeetingWatch } = useWatchersStore.getState();
@@ -285,7 +287,7 @@ describe("WatchersStore", () => {
         "user-1",
         1,
         200,
-        false
+        false,
       );
     });
 
@@ -293,7 +295,7 @@ describe("WatchersStore", () => {
       // Set up store with existing watcher
       const mockUnsubscribe = vi.fn();
       vi.mocked(WatchersService.subscribeToWatchers).mockImplementation(
-        (_userId, _dashboardId, callback) => {
+        (_userId, callback) => {
           callback(
             [
               {
@@ -305,18 +307,18 @@ describe("WatchersStore", () => {
                 createdAt: new Date(),
               },
             ],
-            "initial"
+            "initial",
           );
           return mockUnsubscribe;
-        }
+        },
       );
 
       const { subscribeToWatchers, toggleMeetingWatch } =
         useWatchersStore.getState();
-      subscribeToWatchers("user-1", 1);
+      subscribeToWatchers("user-1");
 
       vi.mocked(WatchersService.toggleMeetingWatch).mockResolvedValue(
-        undefined
+        undefined,
       );
 
       await toggleMeetingWatch("user-1", 1, 200);
@@ -325,24 +327,24 @@ describe("WatchersStore", () => {
         "user-1",
         1,
         200,
-        true
+        true,
       );
     });
 
     it("should handle errors when toggling meeting watch", async () => {
       const mockError = new Error("Failed to toggle meeting watch");
       vi.mocked(WatchersService.toggleMeetingWatch).mockRejectedValue(
-        mockError
+        mockError,
       );
 
       const { toggleMeetingWatch } = useWatchersStore.getState();
 
       await expect(toggleMeetingWatch("user-1", 1, 200)).rejects.toThrow(
-        "Failed to toggle meeting watch"
+        "Failed to toggle meeting watch",
       );
 
       expect(useWatchersStore.getState().error).toBe(
-        "Failed to toggle meeting watch"
+        "Failed to toggle meeting watch",
       );
     });
   });
@@ -351,7 +353,7 @@ describe("WatchersStore", () => {
     it("should return true when watching organization", () => {
       const mockUnsubscribe = vi.fn();
       vi.mocked(WatchersService.subscribeToWatchers).mockImplementation(
-        (_userId, _dashboardId, callback) => {
+        (_userId, callback) => {
           callback(
             [
               {
@@ -363,15 +365,15 @@ describe("WatchersStore", () => {
                 createdAt: new Date(),
               },
             ],
-            "initial"
+            "initial",
           );
           return mockUnsubscribe;
-        }
+        },
       );
 
       const { subscribeToWatchers, isWatchingOrganization } =
         useWatchersStore.getState();
-      subscribeToWatchers("user-1", 1);
+      subscribeToWatchers("user-1");
 
       expect(isWatchingOrganization(100)).toBe(true);
     });
@@ -386,7 +388,7 @@ describe("WatchersStore", () => {
     it("should return true when watching meeting", () => {
       const mockUnsubscribe = vi.fn();
       vi.mocked(WatchersService.subscribeToWatchers).mockImplementation(
-        (_userId, _dashboardId, callback) => {
+        (_userId, callback) => {
           callback(
             [
               {
@@ -398,15 +400,15 @@ describe("WatchersStore", () => {
                 createdAt: new Date(),
               },
             ],
-            "initial"
+            "initial",
           );
           return mockUnsubscribe;
-        }
+        },
       );
 
       const { subscribeToWatchers, isWatchingMeeting } =
         useWatchersStore.getState();
-      subscribeToWatchers("user-1", 1);
+      subscribeToWatchers("user-1");
 
       expect(isWatchingMeeting(200)).toBe(true);
     });
@@ -421,7 +423,7 @@ describe("WatchersStore", () => {
     it("should reset store to default state", () => {
       const mockUnsubscribe = vi.fn();
       vi.mocked(WatchersService.subscribeToWatchers).mockImplementation(
-        (_userId, _dashboardId, callback) => {
+        (_userId, callback) => {
           callback(
             [
               {
@@ -433,16 +435,18 @@ describe("WatchersStore", () => {
                 createdAt: new Date(),
               },
             ],
-            "initial"
+            "initial",
           );
           return mockUnsubscribe;
-        }
+        },
       );
 
       const { subscribeToWatchers, resetStore } = useWatchersStore.getState();
-      subscribeToWatchers("user-1", 1);
+      subscribeToWatchers("user-1");
 
-      expect(useWatchersStore.getState().organizationWatchers[100]).toBeDefined();
+      expect(
+        useWatchersStore.getState().organizationWatchers[100],
+      ).toBeDefined();
 
       resetStore();
 

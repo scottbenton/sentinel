@@ -12,7 +12,7 @@ vi.mock("@/lib/supabase.lib", () => ({
 // Mock the createSubscription function
 vi.mock("./_subscriptionManager", () => ({
   createSubscription: vi.fn(
-    (_channelName, _table, _filter, loadInitialData, _handlePayload) => {
+    (_channelName, _table, _filter, loadInitialData) => {
       // Call loadInitialData immediately for testing
       loadInitialData();
       // Return a mock cleanup function
@@ -32,7 +32,7 @@ describe("WatchersRepository", () => {
     vi.restoreAllMocks();
   });
 
-  describe("getWatchersForUserInDashboard", () => {
+  describe("getWatchersForUser", () => {
     it("should return watchers for a user in a dashboard", async () => {
       const mockWatchers = [
         {
@@ -55,30 +55,20 @@ describe("WatchersRepository", () => {
 
       const mockQuery = {
         select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-      };
-
-      // The second eq() call should resolve with the result
-      mockQuery.eq
-        .mockReturnValueOnce(mockQuery) // First eq() returns the chain
-        .mockResolvedValueOnce({
-          // Second eq() resolves
+        eq: vi.fn().mockResolvedValue({
           data: mockWatchers,
           error: null,
           status: 200,
-        });
+        }),
+      };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
-      const result = await WatchersRepository.getWatchersForUserInDashboard(
-        "user-1",
-        1,
-      );
+      const result = await WatchersRepository.getWatchersForUser("user-1");
 
       expect(mockSupabaseFrom).toHaveBeenCalledWith("watchers");
       expect(mockQuery.select).toHaveBeenCalledWith("*");
       expect(mockQuery.eq).toHaveBeenCalledWith("user_id", "user-1");
-      expect(mockQuery.eq).toHaveBeenCalledWith("dashboard_id", 1);
       expect(result).toEqual(mockWatchers);
     });
 
@@ -97,12 +87,9 @@ describe("WatchersRepository", () => {
           status: 200,
         });
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
-      const result = await WatchersRepository.getWatchersForUserInDashboard(
-        "user-1",
-        1,
-      );
+      const result = await WatchersRepository.getWatchersForUser("user-1");
 
       expect(result).toEqual([]);
     });
@@ -119,10 +106,10 @@ describe("WatchersRepository", () => {
         status: 500,
       });
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       await expect(
-        WatchersRepository.getWatchersForUserInDashboard("user-1", 1),
+        WatchersRepository.getWatchersForUser("user-1"),
       ).rejects.toThrow();
     });
   });
@@ -139,7 +126,7 @@ describe("WatchersRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       const result = await WatchersRepository.isWatchingOrganization(
         "user-1",
@@ -165,7 +152,7 @@ describe("WatchersRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       const result = await WatchersRepository.isWatchingOrganization(
         "user-1",
@@ -190,7 +177,7 @@ describe("WatchersRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       const result = await WatchersRepository.isWatchingOrganization(
         "user-1",
@@ -215,7 +202,7 @@ describe("WatchersRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       const result = await WatchersRepository.isWatchingMeeting("user-1", 200);
 
@@ -238,7 +225,7 @@ describe("WatchersRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       const result = await WatchersRepository.isWatchingMeeting("user-1", 200);
 
@@ -267,7 +254,7 @@ describe("WatchersRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       const result = await WatchersRepository.addOrganizationWatcher(
         "user-1",
@@ -297,7 +284,7 @@ describe("WatchersRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       await expect(
         WatchersRepository.addOrganizationWatcher("user-1", 1, 100),
@@ -326,7 +313,7 @@ describe("WatchersRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       const result = await WatchersRepository.addMeetingWatcher(
         "user-1",
@@ -356,7 +343,7 @@ describe("WatchersRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       await WatchersRepository.removeOrganizationWatcher("user-1", 100);
 
@@ -377,7 +364,7 @@ describe("WatchersRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       await expect(
         WatchersRepository.removeOrganizationWatcher("user-1", 100),
@@ -396,7 +383,7 @@ describe("WatchersRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       await WatchersRepository.removeMeetingWatcher("user-1", 200);
 
@@ -423,24 +410,18 @@ describe("WatchersRepository", () => {
 
       const mockQuery = {
         select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-      };
-
-      mockQuery.eq
-        .mockReturnValueOnce(mockQuery) // First eq() returns the chain
-        .mockResolvedValueOnce({
-          // Second eq() resolves
+        eq: vi.fn().mockResolvedValue({
           data: mockWatchers,
           error: null,
           status: 200,
-        });
+        }),
+      };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       const onPayload = vi.fn();
       const unsubscribe = WatchersRepository.subscribeToWatchers(
         "user-1",
-        1,
         onPayload,
       );
 

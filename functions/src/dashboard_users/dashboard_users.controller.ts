@@ -13,10 +13,9 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ArrayNotEmpty, IsArray } from "class-validator";
+import { Request as ExpressRequest } from "express";
 class InviteUserDTO {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   @IsArray()
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   @ArrayNotEmpty()
   emailAddresses: string[];
 }
@@ -30,19 +29,18 @@ export class DashboardUsersController {
 
   @Post(":dashboardId")
   async inviteUsersToOrganization(
-    @Request() req,
+    @Request() req: ExpressRequest & { user?: { sub?: string } },
     @Param("dashboardId") dashboardId: number,
     @Body() inviteUsersDTO: InviteUserDTO,
   ): Promise<Record<string, number>> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const userId: string = req.user?.sub;
+    const userId: string | undefined = req.user?.sub;
     this.logger.log(userId);
     if (!userId) {
       this.logger.error("User ID is not available in the request");
       throw new Error("User ID is not available in the request");
     }
-    const isUserUserAdmin = await this.dashboardUsersService
-      .checkUserIsUserUserAdmin(
+    const isUserUserAdmin =
+      await this.dashboardUsersService.checkUserIsUserUserAdmin(
         userId,
         dashboardId,
       );
@@ -59,8 +57,8 @@ export class DashboardUsersController {
       `User ${userId} is an admin of the organization ${dashboardId}`,
     );
 
-    const { existingInvites, nonPreExistingInvites } = await this
-      .dashboardUsersService.getExistingInvitesIfExists(
+    const { existingInvites, nonPreExistingInvites } =
+      await this.dashboardUsersService.getExistingInvitesIfExists(
         dashboardId,
         inviteUsersDTO.emailAddresses,
       );
@@ -100,11 +98,10 @@ export class DashboardUsersController {
 
   @Post("/invite/:inviteId/accept")
   async acceptInvite(
-    @Request() req,
+    @Request() req: ExpressRequest & { user?: { sub?: string } },
     @Param("inviteId") inviteId: number,
   ): Promise<{ dashboardId: number }> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const userId: string = req.user?.sub;
+    const userId: string | undefined = req.user?.sub;
     this.logger.log(userId);
     if (!userId) {
       this.logger.error("User ID is not available in the request");
@@ -121,19 +118,13 @@ export class DashboardUsersController {
       invite = await this.dashboardUsersService.getInvite(inviteId);
     } catch {
       this.logger.error(`Invite ${inviteId} not found`);
-      throw new HttpException(
-        `Invite not found`,
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException(`Invite not found`, HttpStatus.NOT_FOUND);
     }
     try {
       user = await this.dashboardUsersService.getUser(userId);
     } catch {
       this.logger.error(`User ${userId} not found`);
-      throw new HttpException(
-        `User not found`,
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException(`User not found`, HttpStatus.NOT_FOUND);
     }
 
     if (invite.email_address !== user.email_address) {
@@ -146,9 +137,7 @@ export class DashboardUsersController {
       );
     }
 
-    this.logger.log(
-      `User ${userId} is the target of the invite ${inviteId}`,
-    );
+    this.logger.log(`User ${userId} is the target of the invite ${inviteId}`);
     try {
       await this.dashboardUsersService.addUserToDashboard(
         userId,
@@ -166,9 +155,7 @@ export class DashboardUsersController {
     try {
       await this.dashboardUsersService.deleteInvite(inviteId);
     } catch {
-      this.logger.error(
-        `Error deleting invite ${inviteId} for user ${userId}`,
-      );
+      this.logger.error(`Error deleting invite ${inviteId} for user ${userId}`);
     }
     return { dashboardId: invite.dashboard_id };
   }

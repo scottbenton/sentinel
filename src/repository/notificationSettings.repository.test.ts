@@ -52,12 +52,12 @@ describe("NotificationSettingsRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       const result =
         await NotificationSettingsRepository.getDashboardNotificationSettings(
           "user-1",
-          1
+          1,
         );
 
       expect(mockSupabaseFrom).toHaveBeenCalledWith("notification_settings");
@@ -81,12 +81,12 @@ describe("NotificationSettingsRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       const result =
         await NotificationSettingsRepository.getDashboardNotificationSettings(
           "user-1",
-          1
+          1,
         );
 
       expect(result).toBeNull();
@@ -104,13 +104,13 @@ describe("NotificationSettingsRepository", () => {
         }),
       };
 
-      mockSupabaseFrom.mockReturnValue(mockQuery as any);
+      mockSupabaseFrom.mockReturnValue(mockQuery as unknown);
 
       await expect(
         NotificationSettingsRepository.getDashboardNotificationSettings(
           "user-1",
-          1
-        )
+          1,
+        ),
       ).rejects.toThrow();
     });
   });
@@ -166,8 +166,8 @@ describe("NotificationSettingsRepository", () => {
       };
 
       mockSupabaseFrom
-        .mockReturnValueOnce(mockSelectQuery as any)
-        .mockReturnValueOnce(mockUpdateQuery as any);
+        .mockReturnValueOnce(mockSelectQuery as unknown)
+        .mockReturnValueOnce(mockUpdateQuery as unknown);
 
       const result =
         await NotificationSettingsRepository.upsertDashboardNotificationSettings(
@@ -179,7 +179,7 @@ describe("NotificationSettingsRepository", () => {
               NotificationType.CommentAdded,
             ],
             autoWatchNewMeetings: true,
-          }
+          },
         );
 
       expect(mockUpdateQuery.update).toHaveBeenCalledWith({
@@ -233,8 +233,8 @@ describe("NotificationSettingsRepository", () => {
       };
 
       mockSupabaseFrom
-        .mockReturnValueOnce(mockSelectQuery as any)
-        .mockReturnValueOnce(mockInsertQuery as any);
+        .mockReturnValueOnce(mockSelectQuery as unknown)
+        .mockReturnValueOnce(mockInsertQuery as unknown);
 
       const result =
         await NotificationSettingsRepository.upsertDashboardNotificationSettings(
@@ -243,7 +243,7 @@ describe("NotificationSettingsRepository", () => {
           {
             enabledNotificationTypes: [NotificationType.MeetingCreated],
             autoWatchNewMeetings: false,
-          }
+          },
         );
 
       expect(mockInsertQuery.insert).toHaveBeenCalledWith({
@@ -297,8 +297,8 @@ describe("NotificationSettingsRepository", () => {
       };
 
       mockSupabaseFrom
-        .mockReturnValueOnce(mockSelectQuery as any)
-        .mockReturnValueOnce(mockInsertQuery as any);
+        .mockReturnValueOnce(mockSelectQuery as unknown)
+        .mockReturnValueOnce(mockInsertQuery as unknown);
 
       const result =
         await NotificationSettingsRepository.upsertDashboardNotificationSettings(
@@ -309,7 +309,7 @@ describe("NotificationSettingsRepository", () => {
               NotificationType.CommentAdded,
               NotificationType.MeetingDocumentAdded,
             ],
-          }
+          },
         );
 
       expect(mockInsertQuery.insert).toHaveBeenCalledWith({
@@ -363,8 +363,8 @@ describe("NotificationSettingsRepository", () => {
       };
 
       mockSupabaseFrom
-        .mockReturnValueOnce(mockSelectQuery as any)
-        .mockReturnValueOnce(mockInsertQuery as any);
+        .mockReturnValueOnce(mockSelectQuery as unknown)
+        .mockReturnValueOnce(mockInsertQuery as unknown);
 
       const result =
         await NotificationSettingsRepository.upsertDashboardNotificationSettings(
@@ -373,7 +373,7 @@ describe("NotificationSettingsRepository", () => {
           {
             enabledNotificationTypes: [],
             autoWatchNewMeetings: true,
-          }
+          },
         );
 
       expect(result.settings).toMatchObject({

@@ -4,7 +4,6 @@ import { SupabaseService } from "../supabase/supabase.service";
 
 describe("NotificationSettingsService", () => {
   let service: NotificationSettingsService;
-  let supabaseService: SupabaseService;
 
   const mockSupabaseClient = {
     from: jest.fn(),
@@ -24,9 +23,8 @@ describe("NotificationSettingsService", () => {
     }).compile();
 
     service = module.get<NotificationSettingsService>(
-      NotificationSettingsService
+      NotificationSettingsService,
     );
-    supabaseService = module.get<SupabaseService>(SupabaseService);
   });
 
   afterEach(() => {
@@ -67,11 +65,11 @@ describe("NotificationSettingsService", () => {
         "user-1",
         1,
         null,
-        null
+        null,
       );
 
       expect(mockSupabaseClient.from).toHaveBeenCalledWith(
-        "notification_settings"
+        "notification_settings",
       );
       expect(mockQuery.select).toHaveBeenCalledWith("*");
       expect(mockQuery.eq).toHaveBeenCalledWith("user_id", "user-1");
@@ -98,7 +96,7 @@ describe("NotificationSettingsService", () => {
         "user-1",
         1,
         null,
-        null
+        null,
       );
 
       expect(result).toEqual({
@@ -151,10 +149,8 @@ describe("NotificationSettingsService", () => {
       mockSupabaseClient.from.mockReturnValue(mockQuery);
 
       await expect(
-        service.getNotificationSettings("user-1", 1, null, null)
-      ).rejects.toThrow(
-        "Error fetching notification settings: Database error"
-      );
+        service.getNotificationSettings("user-1", 1, null, null),
+      ).rejects.toThrow("Error fetching notification settings: Database error");
     });
   });
 
@@ -187,7 +183,7 @@ describe("NotificationSettingsService", () => {
       const result = await service.hasNotificationEnabled(
         "user-1",
         1,
-        "meeting_created"
+        "meeting_created",
       );
 
       expect(result).toBe(true);
@@ -221,7 +217,7 @@ describe("NotificationSettingsService", () => {
       const result = await service.hasNotificationEnabled(
         "user-1",
         1,
-        "meeting_created"
+        "meeting_created",
       );
 
       expect(result).toBe(false);
@@ -240,7 +236,7 @@ describe("NotificationSettingsService", () => {
       const result = await service.hasNotificationEnabled(
         "user-1",
         1,
-        "meeting_created"
+        "meeting_created",
       );
 
       expect(result).toBe(false);

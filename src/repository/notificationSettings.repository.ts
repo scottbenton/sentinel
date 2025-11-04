@@ -3,6 +3,7 @@ import {
   Tables,
   TablesInsert,
   TablesUpdate,
+  Json,
 } from "@/types/supabase-generated.types";
 import { ErrorNoun, ErrorVerb, getRepositoryError } from "./_repositoryErrors";
 import { NotificationType } from "@/notifications/notifications.service";
@@ -159,7 +160,7 @@ export class NotificationSettingsRepository {
     if (existing) {
       // Update existing
       return await this.updateNotificationSettings(existing.id, {
-        settings: settings as any,
+        settings: settings as Json,
       });
     } else {
       // Insert new
@@ -168,7 +169,7 @@ export class NotificationSettingsRepository {
         dashboard_id: dashboardId,
         organization_id: null,
         meeting_id: null,
-        settings: settings as any,
+        settings: settings as Json,
       });
     }
   }
