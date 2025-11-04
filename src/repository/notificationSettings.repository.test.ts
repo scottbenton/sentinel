@@ -5,13 +5,6 @@ import {
 } from "./notificationSettings.repository";
 import { supabase } from "@/lib/supabase.lib";
 
-// Mock the supabase client
-vi.mock("@/lib/supabase.lib", () => ({
-  supabase: {
-    from: vi.fn(),
-  },
-}));
-
 describe("NotificationSettingsRepository", () => {
   const mockSupabaseFrom = vi.mocked(supabase.from);
 

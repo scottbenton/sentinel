@@ -2,13 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { WatchersRepository } from "./watchers.repository";
 import { supabase } from "@/lib/supabase.lib";
 
-// Mock the supabase client
-vi.mock("@/lib/supabase.lib", () => ({
-  supabase: {
-    from: vi.fn(),
-  },
-}));
-
 // Mock the createSubscription function
 vi.mock("./_subscriptionManager", () => ({
   createSubscription: vi.fn(
